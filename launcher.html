@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Arcade</title><link rel="icon" href="__ICON__">
+<meta name="description" content="Short games built from MIT course activities in deep learning, statistics and language.">
+<style>
+/* Same chrome as the games (MIT Learn format): title bar, #F3F4F8 ground, white cards, #750014 action colour. */
+*{box-sizing:border-box}
+html{background:#F3F4F8}
+body{margin:0;background:#F3F4F8;color:#212326;font:16px/1.5 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid #E6E9EE;min-height:69px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:#0C0C0D}
+main{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
+.lead{text-align:center;color:#626A73;font-size:17px;margin:4px auto 28px;max-width:60ch;text-wrap:balance}
+.games{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:28px}
+.game{display:flex;flex-direction:column;height:100%;background:#fff;border-radius:6px;overflow:hidden;color:inherit;text-decoration:none;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05);transition:box-shadow .18s ease,transform .18s ease}
+.game:hover{box-shadow:0 2px 4px rgba(16,24,40,.06),0 10px 24px rgba(16,24,40,.10);transform:translateY(-2px)}
+.game:focus-visible{outline:3px solid #750014;outline-offset:3px}
+.shot{position:relative;display:block;aspect-ratio:16/10;background:#F9FAFB;border-bottom:1px solid #E6E9EE;border-top:4px solid var(--course)}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.noshot{position:absolute;inset:0;background:linear-gradient(135deg,#F9FAFB,#EEF1F5)}
+.num{position:absolute;left:12px;top:10px;font:600 13px/1 ui-monospace,"SF Mono",Menlo,monospace;color:#0C0C0D;background:#fff;border:1px solid #DDE1E6;border-radius:4px;padding:5px 7px;font-variant-numeric:tabular-nums}
+.body{display:flex;flex-direction:column;gap:8px;flex:1;padding:18px 22px 20px}
+.course{display:flex;align-items:center;gap:8px;font-size:14px;color:#626A73}
+.course i{width:10px;height:10px;border-radius:50%;background:var(--course);flex:none}
+.game h2{margin:0;font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-.01em;color:#0C0C0D;text-wrap:balance}
+.hook{font-size:15.5px;line-height:1.55;color:#212326}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:10px}
+.play{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#750014}
+.play svg{width:18px;height:18px;transition:transform .18s ease}
+.game:hover .play svg{transform:translateX(3px)}
+.code{font-size:13px;color:#626A73;font-variant-numeric:tabular-nums}
+.note{text-align:center;color:#626A73;font-size:14px;margin:40px auto 0;max-width:62ch}
+.note a{color:#40464C}
+@media(max-width:560px){main{padding:20px 16px 40px}.gamebar{padding:12px 16px}.lead{font-size:15px}.body{padding:16px 18px 18px}}
+@media(prefers-reduced-motion:reduce){.game,.play svg{transition:none}.game:hover{transform:none}.game:hover .play svg{transform:none}}
+</style>
+</head>
+<body>
+<header class="gamebar"><h1>AI Arcade</h1></header>
+<main>
+  <p class="lead">Short games built from MIT course activities. Each one opens with a goal, plays out as you move things, and explains the idea once you finish.</p>
+  <ul class="games">
+__CARDS__
+  </ul>
+  <p class="note">Prototypes for MIT Learn. The __COUNT__ games run in your browser, work offline and send no data. <a href="__REPO__">Repository on GitHub</a></p>
+</main>
+</body>
+</html>

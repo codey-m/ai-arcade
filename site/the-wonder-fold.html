@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Wonder Fold · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* The Wonder Fold in the MIT Learn game format. The chrome rules are a local copy of the arcade standard
+   (pilots/src/pilot.css, body.gameformat, taken from "Guide the robot home"); swap for a shared file if one is agreed.
+   Scene colours: the neutral (slate) family from the Deep Learning card palette, gold as the single accent for the
+   wonder fold, ink for lines and marks, green/amber/red only for outcomes. */
+:root{color-scheme:light;--ink:#0C0C0D;--ink-2:#40464C;--body:#212326;--muted:#626A73;--line:#DDE1E6;--rule:#E6E9EE;--ground:#F3F4F8;--red:#750014;--red-dark:#5A0010;--button-line:#B8C2CC;
+  --win:#216044;--over:#B45309;--lose:#A31F34;
+  --s-base:#7A9FBF;--s-body:#ADC3D7;--s-line:#4B7293;--s-darks:#52667C;--s-wash:#DCE6EF;--gold:#E9A83C;--gold-dark:#A86F12;--art-ink:#111827;--art-ground:#F9FAFB;--frame:#CBD2DB}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font:16px/1.55 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:var(--red);text-underline-offset:3px}button,input{font:inherit}button,summary{cursor:pointer}
+button{border:1px solid var(--button-line);border-radius:4px;padding:10px 15px;background:#fff;color:var(--ink-2);font-weight:500;min-height:44px;touch-action:manipulation}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}button.primary:hover{background:var(--red-dark);border-color:var(--red-dark)}
+button:focus-visible,a:focus-visible,summary:focus-visible,.option input:focus-visible+span,.world input:focus-visible+span,input[type=range]:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+[hidden]{display:none!important}
+
+/* Page chrome */
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.gamebar .back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;color:var(--ink);border-radius:4px}.gamebar .back svg{width:26px;height:26px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+main{max-width:1240px;margin:auto;padding:28px 24px 56px}
+.gamewrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.playcard,.howto,.explainer{background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05)}
+.playcard{overflow:hidden}
+.gamestatus{display:flex;justify-content:center;gap:12px 40px;flex-wrap:wrap;padding:26px 24px 4px;font-size:18px;color:var(--muted)}
+.gamestatus b{color:var(--body);font-weight:600}.gamestatus b.win{color:var(--win)}.gamestatus b.over{color:var(--over)}.gamestatus b.lose{color:var(--lose)}
+.gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}.gameprompt strong{color:var(--body);font-weight:600}
+.gameplay{padding:0 24px}
+.reason{text-align:center;min-height:3.2em;margin:10px 0 0;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
+.gamecontrols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end;padding:14px 24px 24px}
+.gamecontrols .controls{display:grid;grid-template-columns:1fr;gap:0}
+.gamecontrols .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 6px}.gamecontrols .actions button{min-width:190px}
+.gamefoot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 24px 22px;border-top:1px solid var(--rule);background:linear-gradient(#FBFBFC,#F6F7F9)}
+.gamefoot p{margin:0 0 12px;font-size:16px;color:var(--muted)}.gamefoot strong{color:var(--body);font-weight:600}
+.gamefoot button{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--button-line);border-radius:4px;padding:10px 22px;font-weight:500;color:var(--ink-2)}.gamefoot button svg{width:22px;height:22px}
+.howto{padding:24px}.howto h2{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:500;margin:0 0 16px;color:var(--ink)}.howto h2 svg{width:28px;height:20px;flex:none}
+.howto p{font-size:15px;line-height:1.6;color:var(--body);margin:0 0 14px}.howto strong{font-weight:700}
+.explainer{margin-top:28px;padding:24px}.explainer h2{font-size:19px;margin:0 0 10px;letter-spacing:-.015em;color:var(--ink)}.explainer p{font-size:15px;line-height:1.65;margin:0 0 12px}
+.explainer .explainer-link{color:var(--muted);font-size:14px}.explainer .explainer-note{color:var(--muted);font-size:13px}
+.review-about{margin-top:24px}details summary{min-height:40px;padding:8px 0;font-size:14px;font-weight:600;color:var(--ink-2)}.review-about p{font-size:13px;color:var(--muted)}
+body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded main{padding-top:20px}
+
+/* Play area: the test field */
+.field-wrap{position:relative;border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:box-shadow .2s}
+.field-wrap.outcome-win{box-shadow:0 0 0 3px var(--win)}.field-wrap.outcome-over{box-shadow:0 0 0 3px var(--over)}.field-wrap.outcome-lose{box-shadow:0 0 0 3px var(--lose)}
+.corner{position:absolute;top:8px;font:12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.85);color:var(--ink-2)}.corner-left{left:8px}.corner-right{right:8px;font-weight:600}
+.corner-right.win{color:var(--win)}.corner-right.over{color:var(--over)}.corner-right.lose{color:var(--lose)}.corner-right:empty{display:none}
+.field{display:block;width:100%;height:auto}.sky{fill:var(--art-ground)}.grass{fill:var(--s-wash)}.wall{fill:var(--s-body)}.lamp{fill:var(--art-ground);stroke:var(--frame)}.floor{fill:#E8EEF4}.board{stroke:var(--s-wash);stroke-width:1}
+.lane{fill:var(--art-ground);opacity:.6}.launch{stroke:var(--art-ink);stroke-width:2;stroke-dasharray:3 4}.tick{stroke:var(--s-darks);stroke-width:1.5}.screen{fill:var(--s-base);opacity:.85}
+.gust{fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;animation:gust 2.7s linear infinite}@keyframes gust{from{transform:translateX(-60px)}to{transform:translateX(120px)}}
+.tape{stroke:var(--s-line);stroke-width:3}.tape-tick{stroke:var(--art-ink);stroke-width:1}.step{fill:var(--s-darks);opacity:.35}.laser{fill:var(--art-ink)}.beam{stroke:var(--art-ink);stroke-width:.7;opacity:.25}
+.mark .dot{stroke:#fff;stroke-width:1}.mark.std .dot{fill:var(--s-darks)}.mark.won .dot{fill:var(--gold);stroke:var(--art-ink);stroke-width:.8}.mark .halo{fill:none;stroke:currentColor;opacity:.35}.mark.std{color:var(--s-darks)}.mark.won{color:var(--gold-dark)}
+.pending{opacity:0}.mark,.summary{transition:opacity .25s}
+.mean{stroke-width:3}.mean.std{stroke:var(--art-ink)}.mean.ghost{stroke:var(--art-ink);stroke-dasharray:2 3;opacity:.55}.mean.won.right{stroke:var(--win)}.mean.won.wrong{stroke:var(--lose)}
+.plane{stroke:#fff;stroke-width:.8}.plane.std{fill:var(--s-darks)}.plane.won{fill:var(--gold);stroke:var(--art-ink)}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px;font-size:13px;color:var(--muted);margin:8px 0 0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:10px}.legend .dot:first-child{margin-left:0}.dot.std{background:var(--s-darks)}.dot.won{background:var(--gold);box-shadow:inset 0 0 0 1px var(--art-ink)}
+.key{display:inline-block;width:12px;height:10px;margin:0 6px 0 10px;vertical-align:-1px}.key.avg{width:3px;height:12px;background:var(--art-ink)}
+
+/* Controls */
+.lever{border:0;margin:0 0 14px;padding:0;min-width:0}.lever legend{font-size:15px;font-weight:600;color:var(--body);padding:0;float:left;width:100%;margin-bottom:8px}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;clear:both}.option{position:relative;display:block;cursor:pointer}.option input{position:absolute;opacity:0;pointer-events:none}
+.option span{display:flex;flex-direction:column;min-height:62px;padding:9px 10px;border:1px solid var(--button-line);border-radius:4px;background:#fff;transition:border-color .15s}
+.option b{font-size:14px;font-weight:600;color:var(--body)}.option small{font-size:12px;color:var(--muted)}.option input:checked+span{border:2px solid var(--red);padding:8px 9px}
+.icon{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--ink-2);margin-bottom:4px}.option input:checked+span .icon{color:var(--red)}
+.why{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:1.5}.why b{color:var(--body);font-weight:600}
+.flights label{display:flex;justify-content:space-between;align-items:baseline;font-size:15px}.flights label b{font-weight:600}.flights output{font:600 20px ui-monospace,SFMono-Regular,monospace;color:var(--ink)}.flights input{width:100%;margin:8px 0 2px;accent-color:var(--red)}
+.world{display:flex;align-items:center;border:1px solid var(--button-line);border-radius:4px;overflow:hidden;background:#fff}.world-label{font-size:13px;color:var(--muted);padding:0 10px}
+.world label{position:relative;cursor:pointer}.world input{position:absolute;opacity:0;pointer-events:none}.world span{display:block;padding:9px 12px;font-size:14px;min-height:40px;color:var(--ink-2)}.world input:checked+span{background:var(--ink-2);color:#fff}
+
+/* Evidence panel: the Lecture 6 chart and the causes of variation */
+.evidence-panel{margin:0 24px 18px;padding:18px 18px 16px;border:1px solid var(--line);border-radius:4px}
+.panel-head h2{font-size:17px;font-weight:600;margin:0;color:var(--ink);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.panel-head p{font-size:14px;color:var(--muted);margin:4px 0 10px}
+.evidence-panel h3{font-size:15px;font-weight:600;margin:20px 0 8px;display:flex;justify-content:space-between;color:var(--ink)}
+.spread{font:500 13px ui-monospace,SFMono-Regular,monospace;color:var(--muted)}
+.bells{display:block;width:100%;height:auto;background:var(--art-ground);border-radius:3px}.bells .axis{stroke:var(--frame)}.bells .zero{stroke:var(--s-darks)}
+.bell{fill:none;stroke-width:1.8;opacity:.75}.bell.now{stroke-width:2.8;opacity:1}.bell.works{stroke:var(--gold-dark)}.bell.nothing{stroke:var(--s-darks)}
+.area.works{fill:var(--gold);opacity:.35}.area.nothing{fill:var(--lose);opacity:.4}.bells .cut{stroke:var(--art-ink);stroke-width:2;stroke-dasharray:4 3}
+.mark-avg line{stroke:var(--art-ink);stroke-width:2.5}.mark-avg path{fill:var(--art-ink)}.mark-avg.right line{stroke:var(--win)}.mark-avg.right path{fill:var(--win)}.mark-avg.wrong line{stroke:var(--lose)}.mark-avg.wrong path{fill:var(--lose)}
+.bells-key{font-size:12px;color:var(--muted);margin:6px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 0}
+.key.works{background:var(--gold-dark);height:3px}.key.nothing{background:var(--s-darks);height:3px}.key.cut{border-left:2px dashed var(--art-ink);width:2px;height:10px}.key.mark{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--art-ink);background:none}
+.bells-key .key:first-child{margin-left:0}
+.caption{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.55}
+.run-verdict{font-size:14px;min-height:44px;margin:10px 0 0;padding:9px 12px;background:var(--art-ground);border-left:3px solid var(--art-ink);color:var(--body)}
+.noise-bar{display:flex;height:22px;border-radius:3px;overflow:hidden;background:repeating-linear-gradient(135deg,#EEF1F5 0 6px,#E3E8EE 6px 12px)}.seg{height:100%;transition:width .3s ease-out}
+.seg.throw,.key.throw{background:var(--s-body)}.seg.wind,.key.wind{background:var(--s-line)}.seg.measure,.key.measure{background:var(--s-base)}
+.noise-key{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted)}.noise-key b{color:var(--body);font-weight:600}.noise-key .key{margin-left:0}
+.cause-table{margin:0 24px 16px}.cause-table table{font-size:13px;border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}#accessible-table{overflow:auto}
+
+@media(max-width:900px){.gamewrap{grid-template-columns:1fr}.gamecontrols{grid-template-columns:1fr}.gamecontrols .actions{margin:0}.gamecontrols .actions button{width:100%}}
+@media(max-width:560px){main{padding:20px 12px 40px}.gamecontrols .controls{grid-template-columns:1fr}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}
+  .evidence-panel{margin:0 14px 16px;padding:14px 12px}.cause-table{margin:0 14px 16px}.options{grid-template-columns:1fr}.option span{min-height:0;flex-direction:row;align-items:center;gap:10px}.option .icon{margin:0}.option small{margin-left:auto}.gamebar{padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head>
+<body class="gameformat">
+<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">The Wonder Fold</h1></header>
+<main>
+  <div class="gamewrap">
+    <section class="playcard" aria-label="Game">
+      <div class="gamestatus"><span>Test: <b id="st-test">1</b></span><span>Status: <b id="st-status">Not reliable yet</b></span><span>Chance: <b id="st-chance">51% of 80%</b></span><span>Time: <b id="st-time">40 / par 41 min</b></span></div>
+      <p class="gameprompt">Plan the quickest test that backs a real <strong id="gain-brief">1.5 m</strong> gain at least 80% of the time.</p>
+      <div class="gameplay">
+        <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="place">A gusty playing field</span><span class="corner corner-right" id="outcome-label"></span><svg id="field" class="field" viewBox="0 0 640 210" role="img" aria-labelledby="field-desc"><desc id="field-desc">The test field.</desc><g id="field-env"></g><g id="field-marks"></g><g id="field-planes"></g></svg></div>
+        <p class="legend field-key"><i class="dot std"></i>Standard fold, upper lane <i class="dot won"></i>Wonder fold, lower lane <i class="key avg"></i>Each fold’s average</p>
+        <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
+      </div>
+      <div class="gamecontrols">
+        <div class="controls">
+          <fieldset class="lever"><legend>Wind</legend><div class="options" id="wind"></div><p class="why" id="wind-why" aria-live="polite"></p></fieldset>
+          <fieldset class="lever"><legend>Measuring landings</legend><div class="options" id="measure"></div><p class="why" id="measure-why" aria-live="polite"></p></fieldset>
+          <div class="lever flights"><label for="flights"><b>Flight pairs</b><output id="flights-value" for="flights">20</output></label><input type="range" id="flights" min="1" max="80" step="1" value="20" aria-describedby="flights-help time-line"><p class="why" id="flights-help">Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.</p><p class="why" id="time-line">Your test takes <b id="cost">40</b> minutes (<span id="cost-detail">setup 0 + flights 40</span>). The quickest reliable test takes <b id="par">41</b>; <span id="allowance">up to 45 counts</span>.</p></div>
+        </div>
+        <div class="actions"><div class="world" role="radiogroup" aria-label="Run a test where the fold"><span class="world-label" aria-hidden="true">The fold</span><label><input type="radio" name="world" value="works" checked><span>really works</span></label><label><input type="radio" name="world" value="nothing"><span>does nothing</span></label></div><button type="button" id="rerun" class="primary">Run the test</button></div>
+      </div>
+      <section class="evidence-panel" aria-labelledby="evidence-title">
+        <div class="panel-head"><h2 id="evidence-title">What your test’s average could look like <span class="spread" id="pairs-in"></span></h2><p id="odds">If the fold really adds 1.5 m, a test planned like this backs it 51% of the time. The goal is 80%.</p></div>
+        <svg id="bells" class="bells" viewBox="0 0 480 150" role="img" aria-labelledby="bells-desc"><desc id="bells-desc"></desc></svg>
+        <p class="bells-key"><i class="key nothing"></i>If the fold does nothing <i class="key works"></i><span id="works-key">If it really adds 1.5 m</span> <i class="key cut"></i>Back the claim past here <i class="key mark"></i>Your test’s average</p>
+        <p class="caption" id="bells-caption"></p>
+        <p class="run-verdict" id="run-verdict" aria-live="polite"></p>
+        <h3>What makes landings vary <span class="spread" id="spread"></span></h3>
+        <div class="noise-bar" id="noise-bar" aria-hidden="true"></div>
+        <ul class="noise-key" id="noise-key"></ul>
+        <p class="caption">How much one comparison can vary, split by cause. Causes don’t simply add: one twice as big counts four times as much, so the biggest matters most. The striped part is variation you’ve removed.</p>
+      </section>
+      <details class="cause-table"><summary>Causes of variation for this test</summary><div id="accessible-table"></div></details>
+      <div class="gamefoot">
+        <div class="foot-left"><p><strong>New test</strong> <span>- a new claim, place and biggest noise</span></p><div class="foot-buttons"><button id="new-test" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12 21 5l-5 15-4-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 14 9-9" fill="none" stroke="currentColor" stroke-width="2"/></svg>New test</button></div></div>
+        <div class="foot-right"><button id="reset" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Start over</button></div>
+      </div>
+    </section>
+    <aside class="howto" aria-labelledby="howto-title">
+      <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+      <p><strong>The claim</strong> is that a friend’s new fold flies <span id="gain-howto">1.5 m</span> farther than a standard paper plane. The goal is the quickest test that backs a real gain at least 80% of the time, and backs a fold that does nothing only 5% of the time.</p>
+      <p><strong>Throw both folds.</strong> You throw every plane yourself, a standard plane and then a wonder fold, so both get the same arm and the same moment. Every throw still lands somewhere different: throws wobble, wind gusts, and measuring is rough.</p>
+      <p><strong>Compare the averages.</strong> The test compares how far each fold flew on average. The more flights, the less the averages wobble.</p>
+      <p><strong>Back the claim only on strong evidence.</strong> The wonder fold’s average must land past a line, placed so that a fold that does nothing gets past it only 5 times in 100.</p>
+      <p><strong>Wind and measuring</strong> choices remove noise but take time. <strong>Flight pairs</strong> take 2 minutes each.</p>
+      <p><strong>Run the test</strong> to watch one test play out. Switch to <strong>does nothing</strong> to see how often luck fools the test.</p>
+    </aside>
+  </div>
+  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+    <h2 id="takeaway-title">Removing noise buys evidence faster than adding flights</h2>
+    <p id="takeaway-text" hidden></p>
+    <p>The chance a test catches a real effect is called its power. For this one-sided test it depends on the gain divided by how much the average difference varies, which is the spread of one comparison divided by the square root of the number of flight pairs. The false-alarm rate stays at 5 in 100 the whole time: a better plan raises the power without making the test easier to fool.</p>
+    <p>The two bells and the line are the picture from Probability &amp; Statistical Data Analysis (6.3710.5x) Lec. 6, where power and the trade between false alarms and misses are introduced. Throwing a standard plane and a wonder fold back to back makes each flight pair a paired comparison (Lec. 3): whatever the pair shares, such as your arm on that throw or the breeze at that moment, affects both planes alike.</p>
+    <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: sample size, false alarms and the power of a test.</p>
+    <p class="explainer-note">The verdict does not come from the animated test. Each plan has an exact chance of catching the gain, from a one-sided z-test on the average difference between the two folds, with the spread of each cause known. The margin is set so that a fold that does nothing is backed 5 times in 100. The field draws one simulated test with the same noise; run it again to see others. The verdict waits for the last flight pair: stopping as soon as a test looked good would raise the false-alarm rate. Causes of variation are independent, so their variances (spreads squared) add. Times are minutes of the afternoon: a setup time plus the time for each flight pair. The quickest possible test is found over every choice of wind, measuring and number of flights, and any reliable test within 10% of it counts. The chance shown is rounded down, so a test shown at 80 of 100 is reliable.</p>
+  </section>
+  
+</main>
+<noscript><p>This interactive activity requires JavaScript.</p></noscript>
+<script>/* The Wonder Fold: a paper-plane comparison, exact power and a cost par. Pure and deterministic. */
+(function(root){
+  'use strict';
+  const ALPHA=.05,Z_ALPHA=1.6448536269514722,TARGET=.8,NMAX=80,PAIR_MINUTES=2,TOLERANCE=1.1,BASE_DISTANCE=7;
+  // Costs are minutes of the afternoon: a setup time, plus any extra time on every flight pair.
+  // keep: the share of that noise source's spread (standard deviation) left after the choice.
+  const WIND=[{key:'open',name:'Open field',setup:0,perPair:0,keep:1,why:'No setup. Gusts push some planes farther and others shorter.'},
+    {key:'screens',name:'Wind screens',setup:12,perPair:0,keep:.5,why:'12 minutes to put up. Blocks about half of each gust.'},
+    {key:'gym',name:'Indoor gym',setup:25,perPair:0,keep:.15,why:'25 minutes to walk over and set up. Almost no wind.'}];
+  const MEASURE=[{key:'pacing',name:'Pacing it out',setup:0,perPair:0,keep:1,why:'No extra time, but a pace is only roughly a step long.'},
+    {key:'tape',name:'Tape measure',setup:0,perPair:1,keep:.45,why:'Adds 1 minute to every flight pair to stretch it out.'},
+    {key:'laser',name:'Laser',setup:15,perPair:0,keep:.15,why:'15 minutes to borrow and set up, then instant and exact.'}];
+  const SOURCES=[{key:'throw',name:'Each throw'},{key:'wind',name:'Wind'},{key:'measure',name:'Measuring'}];
+  // Spreads in meters for one flight. You throw every plane yourself, so the thrower never changes; each throw still varies.
+  // The place describes the conditions, so the brief hints at which noise is biggest.
+  function placeFor(sd){
+    const w=sd.wind,g=sd.measure;
+    if(w<1&&g<1)return 'a calm evening on a freshly mown lawn';
+    if(w>=1.4&&g>=1.2)return 'a breezy park with patchy grass';
+    if(w>=g)return w>=2.2?'a gusty playing field':'a breezy playing field';
+    return g>=1.8?'a field of long grass where landings are hard to mark':'a field of uneven grass';
+  }
+  // Each round is built to have one of these benches as its quickest reliable test, [wind, measuring].
+  // [0,0] is a calm day: nothing needs fixing, and the quickest test is just enough flights.
+  const TARGETS=[[2,0],[1,0],[0,2],[0,1],[1,2],[1,1],[2,1],[0,0]];
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const choose=(r,a)=>a[Math.floor(r()*a.length)];
+  function cdf(z){const x=Math.abs(z)/Math.SQRT2,t=1/(1+.3275911*x);const erf=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return .5*(1+Math.sign(z)*erf);}
+  // Variance of one comparison (wonder flight minus standard flight), by source.
+  function components(s,d){
+    const v={throw:2*s.sd.throw**2,wind:2*(s.sd.wind*WIND[d.wind].keep)**2,measure:2*(s.sd.measure*MEASURE[d.measure].keep)**2};
+    return SOURCES.map(src=>({...src,variance:v[src.key]}));
+  }
+  const benchCost=d=>WIND[d.wind].setup+MEASURE[d.measure].setup,pairMinutes=d=>PAIR_MINUTES+WIND[d.wind].perPair+MEASURE[d.measure].perPair;
+  function evaluate(s,d){
+    const parts=components(s,d),variance=parts.reduce((a,p)=>a+p.variance,0),se=Math.sqrt(variance/d.n);
+    // One-sided z-test on the average difference; the cutoff keeps false alarms at 5%.
+    const cutoff=Z_ALPHA*se,power=1-cdf((cutoff-s.gain)/se),cost=benchCost(d)+pairMinutes(d)*d.n,reliable=power>=TARGET;
+    return {parts,variance,se,cutoff,power,caught:Math.floor(power*100),cost,setup:benchCost(d),flightMinutes:pairMinutes(d)*d.n,perPair:pairMinutes(d),reliable,success:reliable&&cost<=s.allowance};
+  }
+  // After k flight pairs, a test's average gain varies by se(k); the line keeps false alarms at 5 in 100.
+  const after=(s,d,k)=>{const se=Math.sqrt(evaluate(s,d).variance/k);return {se,cutoff:Z_ALPHA*se};};
+  const minFlights=(s,d)=>{for(let n=1;n<=NMAX;n++)if(evaluate(s,{...d,n}).reliable)return n;return null;};
+  const designs=()=>{const out=[];for(let wind=0;wind<3;wind++)for(let measure=0;measure<3;measure++)out.push({wind,measure});return out;};
+  function build(seed,spec){
+    const s={seed,gain:spec.gain,sd:spec.sd,place:placeFor(spec.sd),start:{wind:0,measure:0,n:20}};
+    s.options=designs().map(d=>{const n=minFlights(s,d);return {...d,n,cost:n===null?null:benchCost(d)+pairMinutes(d)*n};});
+    const feasible=s.options.filter(o=>o.n!==null).sort((a,b)=>a.cost-b.cost);
+    s.par=feasible[0].cost;s.allowance=Math.floor(s.par*TOLERANCE);s.best=feasible[0];
+    s.winners=feasible.filter(o=>o.cost<=s.allowance);
+    return s;
+  }
+  function valid(s,target){
+    const at=(wind,measure)=>s.options.find(o=>o.wind===wind&&o.measure===measure);
+    const plain=at(0,0),all=at(2,2),calm=target&&target[0]===0&&target[1]===0;
+    if(target&&(s.best.wind!==target[0]||s.best.measure!==target[1]))return false;
+    if(!(s.best.n>=4&&s.best.n<=60)||all.cost<=s.allowance||evaluate(s,s.start).success)return false;
+    // On a calm day every purchase must be a waste; otherwise a bare bench must be far from par.
+    return calm?s.options.every(o=>(o.wind===0&&o.measure===0)||o.n===null||o.cost>s.allowance):(plain.n===null||plain.cost>=1.3*s.par);
+  }
+  const normal=r=>Math.sqrt(-2*Math.log(Math.max(1e-12,r())))*Math.cos(2*Math.PI*r());
+  // One possible run of the test, for the animation only. Grading never uses it.
+  function simulate(s,d,run,works=true){
+    const r=rng((s.seed^Math.imul(run+1,0x9E3779B9))>>>0),k={wind:s.sd.wind*WIND[d.wind].keep,measure:s.sd.measure*MEASURE[d.measure].keep};
+    const flight=()=>{const flown=BASE_DISTANCE+s.sd.throw*normal(r)+k.wind*normal(r);return {flown,measured:flown+k.measure*normal(r)};};
+    const pairs=Array.from({length:d.n},()=>{const std=flight(),won=flight();if(works){won.flown+=s.gain;won.measured+=s.gain;}return {std,won};});
+    const mean=key=>pairs.reduce((t,p)=>t+p[key].measured,0)/pairs.length,diff=mean('won')-mean('std'),e=evaluate(s,d);
+    return {pairs,meanStd:mean('std'),meanWon:mean('won'),diff,cutoff:e.cutoff,backs:diff>=e.cutoff,works};
+  }
+  const INTRO={gain:1.5,sd:{throw:1,wind:2.6,measure:.4}};
+  function scenario(seed=1){
+    seed>>>=0;
+    if(seed===1){const s=build(1,INTRO);if(!valid(s))throw Error('The Wonder Fold: the introductory test is invalid');return s;}
+    // Pick the answer first, evenly, then draw conditions until that bench really is the quickest reliable test.
+    const target=TARGETS[rng(seed^0x5bd1e995)()*TARGETS.length|0];
+    for(let attempt=0;attempt<600;attempt++){
+      const r=rng((seed+attempt*0x9E3779B9)>>>0),u=(lo,hi)=>Math.round((lo+(hi-lo)*r())*100)/100;
+      const sd={throw:u(.7,1.3),wind:u(.2,3.2),measure:u(.2,2.8)},s=build(seed,{gain:choose(r,[1.2,1.5,1.8]),sd});
+      if(valid(s,target)){s.target=target;return s;}
+    }
+    throw Error('The Wonder Fold: no valid test for seed '+seed);
+  }
+  root.WonderFold={ALPHA,TARGET,NMAX,PAIR_MINUTES,TOLERANCE,BASE_DISTANCE,WIND,MEASURE,SOURCES,TARGETS,placeFor,cdf,scenario,evaluate,simulate,after,minFlights,designs,benchCost,pairMinutes};
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const W=globalThis.WonderFold,$=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
+  const raf=typeof globalThis.requestAnimationFrame==='function'?globalThis.requestAnimationFrame.bind(globalThis):null;
+  const now=()=>globalThis.performance?.now?.()??Date.now();
+  const m=v=>(Math.round(v*10)/10).toFixed(1)+' m',pct=v=>Math.round(v*100)+'%';
+  // Option icons: drawn shapes only, no lettering.
+  const ICON={
+    open:'<path d="M3 10h13a3 3 0 1 0-3-3M3 16h19a3 3 0 1 1-3 3M3 22h9"/>',
+    screens:'<path d="M3 10h8M3 16h10M3 22h8"/><rect x="15" y="4" width="5" height="22" rx="1"/><rect x="22" y="4" width="5" height="22" rx="1"/>',
+    gym:'<path d="M3 14 15 5l12 9"/><path d="M5 13v13h20V13"/><path d="M12 26v-7h6v7"/>',
+    pacing:'<ellipse cx="10" cy="19" rx="3.5" ry="5.5"/><ellipse cx="20" cy="11" rx="3.5" ry="5.5"/><path d="M8 27h4M18 19h4"/>',
+    tape:'<circle cx="11" cy="16" r="7"/><circle cx="11" cy="16" r="2"/><path d="M18 20h10v-4H18M22 16v2M25 16v2"/>',
+    laser:'<rect x="2" y="11" width="11" height="8" rx="2"/><path d="M13 15h11" stroke-dasharray="2 2"/><circle cx="26" cy="15" r="2"/>'
+  };
+  const X=dist=>60+Math.max(.2,Math.min(15.8,dist))/16*560,LANE={std:80,won:150};
+  // lastRun: the most recent finished test for the current plan, so its result stays on the chart.
+  let s,seed=1,d,world='works',run=0,anim=null,rerunTimer=null,lastRun=null,tests=1;
+  function setURL(){try{const u=new URL(location.href);u.searchParams.set('seed',seed);history.replaceState(null,'',u.href);}catch(e){}}
+  const timeNote=o=>o.perPair?`+${o.perPair} min per pair`:o.setup?`${o.setup} min setup`:'no extra time';
+  const options=(name,list)=>list.map((o,i)=>`<label class="option"><input type="radio" name="${name}" value="${i}"><span><svg class="icon" viewBox="0 0 30 30" aria-hidden="true">${ICON[o.key]}</svg><b>${esc(o.name)}</b><small>${timeNote(o)}</small></span></label>`).join('');
+  const aheadText=v=>Math.abs(v)<.05?'about as far as the standard':v>0?`${m(v)} farther`:`${m(-v)} shorter`;
+
+  function start(next){
+    seed=next>>>0;s=W.scenario(seed);d={...s.start};run=0;world='works';lastRun=null;anim=null;$('st-test').textContent=tests;
+    s.plain=W.evaluate(s,{wind:0,measure:0,n:1}).variance;
+    $('gain-brief').textContent=$('gain-howto').textContent=m(s.gain);$('works-key').textContent=`If it really adds ${m(s.gain)}`;$('place').textContent=s.place.charAt(0).toUpperCase()+s.place.slice(1);
+    $('wind').innerHTML=options('wind',W.WIND);$('measure').innerHTML=options('measure',W.MEASURE);
+    $('par').textContent=s.par;$('allowance').textContent=`up to ${s.allowance} min counts`;$('flights').max=W.NMAX;
+    document.querySelectorAll('input[name=world]').forEach(r=>{r.checked=r.value===world;});
+    setControls();setURL();clearOutcome();environment();$('field-marks').innerHTML='';render();
+  }
+  function setControls(){
+    $('flights').value=d.n;
+    for(const k of ['wind','measure'])document.querySelectorAll(`input[name=${k}]`).forEach(r=>{r.checked=Number(r.value)===d[k];});
+  }
+  function read(immediate){
+    d.n=Math.max(1,Math.min(W.NMAX,Math.round(Number($('flights').value))));
+    for(const k of ['wind','measure']){const r=document.querySelector(`input[name=${k}]:checked`);if(r)d[k]=Number(r.value);}
+    lastRun=null;anim=null;clearOutcome();render();
+    clearTimeout(rerunTimer);
+    if(immediate)runTest(true);else rerunTimer=setTimeout(()=>runTest(true),350);
+  }
+
+  // The field: one simulated test, drawn flight by flight. The verdict on the plan never depends on it.
+  function environment(){
+    const wind=W.WIND[d.wind].key,meas=W.MEASURE[d.measure].key,lanes=Object.values(LANE).map(y=>`<rect class="lane" x="0" y="${y-24}" width="640" height="48"/>`).join('');
+    let g=wind==='gym'?`<rect class="wall" width="640" height="44"/>${[120,320,520].map(x=>`<circle class="lamp" cx="${x}" cy="14" r="6"/>`).join('')}<rect class="floor" y="44" width="640" height="166"/>${Array.from({length:9},(_,i)=>`<line class="board" x1="0" y1="${60+i*18}" x2="640" y2="${60+i*18}"/>`).join('')}`
+      :`<rect class="sky" width="640" height="44"/><rect class="grass" y="44" width="640" height="166"/>`;
+    g+=lanes+`<line class="launch" x1="${X(0)}" y1="50" x2="${X(0)}" y2="180"/>`;
+    for(let t=2;t<=14;t+=2)g+=`<line class="tick" x1="${X(t)}" y1="196" x2="${X(t)}" y2="202"/>`;
+    if(wind==='screens')g+=Array.from({length:10},(_,i)=>`<rect class="screen" x="${70+i*56}" y="44" width="44" height="9"/><rect class="screen" x="${70+i*56}" y="178" width="44" height="9"/>`).join('');
+    if(wind!=='gym'){const k=wind==='open'?1:.45;g+=Array.from({length:wind==='open'?6:3},(_,i)=>`<path class="gust" style="animation-delay:${-i*.9}s;opacity:${.55*k}" d="M${40+i*97} ${58+(i%3)*50}c30-8 60 8 90 0"/>`).join('');}
+    if(meas==='tape')g+=Object.values(LANE).map(y=>`<line class="tape" x1="${X(0)}" y1="${y+21}" x2="${X(15.8)}" y2="${y+21}"/>`+Array.from({length:16},(_,i)=>`<line class="tape-tick" x1="${X(i)}" y1="${y+19}" x2="${X(i)}" y2="${y+23}"/>`).join('')).join('');
+    if(meas==='pacing')g+=Object.values(LANE).map(y=>Array.from({length:14},(_,i)=>`<ellipse class="step" cx="${X(i+.5)}" cy="${y+19+(i%2?2:-2)}" rx="3" ry="1.6"/>`).join('')).join('');
+    if(meas==='laser')g+=Object.values(LANE).map(y=>`<rect class="laser" x="624" y="${y-6}" width="12" height="12" rx="2"/>`).join('');
+    $('field-env').innerHTML=g;
+  }
+  function runTest(fresh){
+    if(fresh)run++;
+    anim=null;lastRun=null;clearOutcome();environment();
+    const sim=W.simulate(s,d,run,world==='works'),halo=3+9*(s.sd.measure*W.MEASURE[d.measure].keep)/2.4,laser=W.MEASURE[d.measure].key==='laser';
+    const flights=[],jit=i=>((i*37)%29-14)*.9;
+    sim.pairs.forEach((p,i)=>{flights.push({lane:'std',i,x:X(p.std.measured),y:LANE.std+jit(i)});flights.push({lane:'won',i,x:X(p.won.measured),y:LANE.won+jit(i+7)});});
+    $('field-marks').innerHTML=flights.map(f=>`<g class="mark ${f.lane} pending">${laser?`<line class="beam" x1="624" y1="${LANE[f.lane]}" x2="${f.x.toFixed(1)}" y2="${f.y.toFixed(1)}"/>`:''}<circle class="halo" cx="${f.x.toFixed(1)}" cy="${f.y.toFixed(1)}" r="${halo.toFixed(1)}"/><circle class="dot" cx="${f.x.toFixed(1)}" cy="${f.y.toFixed(1)}" r="4"/></g>`).join('')+
+      `<g class="summary pending"><line class="mean std" x1="${X(sim.meanStd).toFixed(1)}" y1="${LANE.std-24}" x2="${X(sim.meanStd).toFixed(1)}" y2="${LANE.std+24}"/><line class="mean ghost" x1="${X(sim.meanStd).toFixed(1)}" y1="${LANE.won-24}" x2="${X(sim.meanStd).toFixed(1)}" y2="${LANE.won+24}"/>`+
+      `<line class="mean won ${sim.backs===sim.works?'right':'wrong'}" x1="${X(sim.meanWon).toFixed(1)}" y1="${LANE.won-24}" x2="${X(sim.meanWon).toFixed(1)}" y2="${LANE.won+24}"/></g>`;
+    const marks=[...$('field-marks').querySelectorAll('.mark')],summary=$('field-marks').querySelector('.summary');
+    $('run-verdict').textContent='';$('field-desc').textContent=`A test with ${d.n} flight pairs is running.`;
+    const finish=()=>{marks.forEach(e=>e.classList.remove('pending'));summary.classList.remove('pending');$('field-planes').innerHTML='';anim=null;lastRun=sim;chart(d.n,sim.diff,sim.backs===sim.works);verdictOfRun(sim);outcome();};
+    if(!raf||reduced())return finish();
+    let sum=0,count=0;chart(1,null);
+    const stagger=Math.min(110,1500/sim.pairs.length),dur=720;
+    flights.forEach((f,k)=>{f.t0=f.i*stagger+(f.lane==='won'?stagger*.45:0);f.el=marks[k];});
+    $('field-planes').innerHTML=flights.map(f=>`<path class="plane ${f.lane}" d="M-8 -3.5 8 0-8 3.5-5 0Z" style="display:none"/>`).join('');
+    const planes=[...$('field-planes').querySelectorAll('.plane')],t0=now(),token={};anim=token;
+    const step=()=>{
+      if(anim!==token)return;
+      const t=now()-t0;let done=true;
+      flights.forEach((f,k)=>{
+        const u=(t-f.t0)/dur,pl=planes[k];
+        if(u<0){done=false;return;}
+        if(u>=1){
+          if(pl.style.display!=='none'){pl.style.display='none';f.el.classList.remove('pending');
+            // A pair counts once its wonder fold lands: the bells sharpen and the average moves.
+            if(f.lane==='won'){const p=sim.pairs[f.i];sum+=p.won.measured-p.std.measured;count++;chart(count,sum/count);}}
+          return;
+        }
+        done=false;
+        const x0=X(0),y0=LANE[f.lane]-8,cx=(x0+f.x)/2,cy=LANE[f.lane]-44-(f.x-x0)*.05,a=1-u;
+        const x=a*a*x0+2*a*u*cx+u*u*f.x,y=a*a*y0+2*a*u*cy+u*u*f.y,dx=2*a*(cx-x0)+2*u*(f.x-cx),dy=2*a*(cy-y0)+2*u*(f.y-cy);
+        pl.style.display='';pl.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${(Math.atan2(dy,dx)*180/Math.PI).toFixed(0)})`);
+      });
+      if(done){finish();return;}
+      raf(step);
+    };
+    raf(step);
+  }
+  function verdictOfRun(sim){
+    const e=W.evaluate(s,d),line=`the line at ${m(sim.cutoff)}`;
+    const text=sim.works
+      ?(sim.backs?`Your test’s average: the wonder fold flew ${aheadText(sim.diff)}. That’s past ${line}, so the test backs the claim.`
+        :`Your test’s average: the wonder fold flew ${aheadText(sim.diff)}, short of ${line}. The test doesn’t back the claim, even though the gain is real. With this plan that happens ${100-e.caught} times in 100.`)
+      :(sim.backs?`This fold does nothing, but it flew ${aheadText(sim.diff)} on average by luck. That’s past ${line}, so the test backs the claim anyway: a false alarm. That happens 5 times in 100.`
+        :`This fold does nothing. It flew ${aheadText(sim.diff)} on average, short of ${line}, so the test rightly holds back.`);
+    $('run-verdict').textContent=text;$('field-desc').textContent=`One test with ${d.n} flight pairs. ${text}`;
+  }
+
+  // Lecture 6's picture after k of the planned flight pairs: where a test's average gain lands
+  // if the fold does nothing and if it really adds the gain, and the line a test must pass.
+  function chart(k,mark,right){
+    const lo=-1.5*s.gain,hi=2.5*s.gain,CX=v=>(v-lo)/(hi-lo)*480,BASE=132;
+    const {se,cutoff}=W.after(s,d,k),planSe=W.after(s,d,d.n).se,scale=110*planSe;
+    const curve=(mu,from=lo,to=hi)=>{const out=[];for(let i=0;i<=140;i++){const v=from+(to-from)*i/140;out.push([CX(v),BASE-scale/se*Math.exp(-(((v-mu)/se)**2)/2)]);}return out;};
+    const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('');
+    const c=Math.min(Math.max(cutoff,lo),hi),area=mu=>`M${CX(c).toFixed(1)} ${BASE}`+curve(mu,c,hi).map(q=>'L'+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('')+`L${CX(hi).toFixed(1)} ${BASE}Z`;
+    const power=1-W.cdf((cutoff-s.gain)/se),has=mark!==null&&mark!==undefined;
+    const mk=has?(()=>{const x=CX(Math.max(lo,Math.min(hi,mark))).toFixed(1);return `<g class="mark-avg ${right===undefined?'':right?'right':'wrong'}"><line x1="${x}" y1="12" x2="${x}" y2="${BASE}"/><path d="M${x} ${BASE+2}l-5 8h10z"/></g>`;})():'';
+    $('bells').innerHTML=`<desc id="bells-desc">After ${k} of ${d.n} flight pairs: if the fold does nothing, a test’s average gain lands around 0 m, give or take ${m(se)}; if it adds ${m(s.gain)}, around ${m(s.gain)}. The test backs the claim past ${m(cutoff)}.${has?` Your test’s average so far: ${m(mark)}.`:''}</desc>`+
+      `<line class="axis" x1="0" y1="${BASE}" x2="480" y2="${BASE}"/><line class="zero" x1="${CX(0)}" y1="${BASE}" x2="${CX(0)}" y2="${BASE+6}"/><line class="zero" x1="${CX(s.gain)}" y1="${BASE}" x2="${CX(s.gain)}" y2="${BASE+6}"/>`+
+      `<path class="area works" d="${area(s.gain)}"/><path class="area nothing" d="${area(0)}"/><path class="bell nothing${world==='nothing'?' now':''}" d="${path(curve(0))}"/><path class="bell works${world==='works'?' now':''}" d="${path(curve(s.gain))}"/>`+
+      `<line class="cut" x1="${CX(c).toFixed(1)}" y1="6" x2="${CX(c).toFixed(1)}" y2="${BASE}"/>${mk}`;
+    $('pairs-in').textContent=k<d.n?`after ${k} of ${d.n} flight pairs`:`${d.n} flight pair${d.n===1?'':'s'}`;
+    $('bells-caption').textContent=k<d.n
+      ?`After ${k} of ${d.n} flight pairs. Each new pair narrows both bells: the average settles down even though single throws don’t, and the line moves in with it.`
+      :`Each bell shows where your test’s average gain could land. Past the dashed line, the test backs the claim. The line is placed so a fold that does nothing gets past it only 5 times in 100 (red). A fold that really adds ${m(s.gain)} gets past it ${Math.floor(power*100)} times in 100 (gold).`;
+  }
+
+  // After a completed test: the play area's outcome outline and corner label, and the reason line.
+  function clearOutcome(){$('field-wrap').classList.remove('outcome-win','outcome-over','outcome-lose');$('outcome-label').textContent='';$('outcome-label').className='corner corner-right';$('feedback-title').textContent='';$('feedback-text').textContent='';}
+  function outcome(){
+    const e=W.evaluate(s,d),biggest=e.parts.slice().sort((a,b)=>b.variance-a.variance)[0],kind=e.success?'win':e.reliable?'over':'lose';
+    $('field-wrap').classList.add('outcome-'+kind);$('outcome-label').textContent=e.success?'Ready to test':e.reliable?'Too slow':'Not reliable';$('outcome-label').className='corner corner-right '+kind;
+    const fb=(kind,title,text)=>{$('feedback').className='reason'+(kind?' '+kind:'');$('feedback-title').textContent=title;$('feedback-text').textContent=text;};
+    if(e.success)fb('success',`Ready to test, in ${e.cost} minutes.`,`If the fold really adds ${m(s.gain)}, this plan backs it ${e.caught}% of the time, and it backs a fold that does nothing only 5% of the time. ${e.cost===s.par?'No reliable test is quicker.':`The quickest reliable test takes ${s.par} minutes.`}`);
+    else if(e.reliable)fb('warning',`Reliable, but it takes ${e.cost} minutes. The quickest takes ${s.par}.`,'Something in this plan takes longer than it saves. Compare how much variation each choice removes with the time it costs.');
+    else fb('',`This plan backs a real gain ${e.caught}% of the time. It needs 80%.`,`Right now the biggest cause of variation is ${biggest.name.toLowerCase()}: ${pct(biggest.variance/e.variance)} of it.${biggest.key==='throw'?' No equipment changes how much each throw wobbles; only more flights average it out.':''}`);
+    $('takeaway').hidden=false;
+  }
+  function render(){
+    const e=W.evaluate(s,d),biggest=e.parts.slice().sort((a,b)=>b.variance-a.variance)[0];
+    $('flights-value').textContent=d.n;$('flights').setAttribute('aria-valuetext',`${d.n} flight pairs, ${e.flightMinutes} minutes`);
+    $('flights-help').textContent=`Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.${e.perPair>2?` With the tape, ${e.perPair} minutes.`:''}`;
+    $('wind-why').textContent=W.WIND[d.wind].why;$('measure-why').textContent=W.MEASURE[d.measure].why;
+    $('cost').textContent=e.cost;$('cost-detail').textContent=`setup ${e.setup} + flights ${e.flightMinutes}`;
+    $('odds').textContent=`If the fold really adds ${m(s.gain)}, a test planned like this backs it ${e.caught}% of the time. The goal is 80%.`;
+    $('spread').textContent=m(Math.sqrt(e.variance));
+    $('noise-bar').innerHTML=e.parts.map(p=>`<span class="seg ${p.key}" style="width:${(p.variance/s.plain*100).toFixed(2)}%"></span>`).join('');
+    $('noise-key').innerHTML=e.parts.map(p=>`<li><i class="key ${p.key}"></i>${esc(p.name)} <b>${pct(p.variance/e.variance)}</b></li>`).join('');
+    if(!anim)chart(d.n,lastRun?lastRun.diff:null,lastRun?lastRun.backs===lastRun.works:undefined);
+    // The status line carries the plan's verdict; the field gets the format's outcome outline once the plan is ready.
+    const status=e.success?['Ready to test','win']:e.reliable?['Reliable, too slow','over']:['Not reliable yet',''];
+    $('st-status').textContent=status[0];$('st-status').className=status[1];
+    $('st-chance').textContent=`${e.caught}% / need 80%`;$('st-chance').className=e.reliable?'win':'';
+    $('st-time').textContent=`${e.cost} / par ${s.par} min`;$('st-time').className=e.reliable&&!e.success?'over':e.success?'win':'';
+    // The success paragraph belongs to a ready plan; the rest of the explainer opens after the first completed test.
+    $('takeaway-text').hidden=!e.success;
+    if(e.success){
+      const plain=s.options.find(o=>o.wind===0&&o.measure===0),first=W.evaluate(s,{wind:0,measure:0,n:1}).parts.sort((a,b)=>b.variance-a.variance)[0];
+      if(d.wind===0&&d.measure===0)$('takeaway-text').textContent=`A single test of a real gain can still miss, because every landing varies. Here most of that variation was your own throwing, and no equipment fixes that, so the quickest reliable test was simply enough flights: ${d.n} flight pairs in ${e.cost} minutes. Screens, a gym or a laser would have cost more time than they saved. Fixing noise pays only when the noise is big.`;
+      else $('takeaway-text').textContent=`A single test of a real gain can still miss, because every landing varies. More flights help, but slowly: four times as many flights only halves how much the average wobbles. Removing noise helps directly. Here the biggest cause was ${first.name.toLowerCase()}. With your wind and measuring choices, one comparison varies by about ${m(Math.sqrt(e.variance))}, down from ${m(Math.sqrt(s.plain))}, so ${d.n} flight pairs were enough. ${plain.n===null?`With nothing fixed, even ${W.NMAX} flight pairs would not have been reliable.`:`With nothing fixed, you would have needed ${plain.n} flight pairs and ${plain.cost} minutes.`}`;
+    }
+    $('accessible-table').innerHTML=`<table><thead><tr><th>Cause</th><th>How much one comparison varies</th><th>Share</th></tr></thead><tbody>${e.parts.map(p=>`<tr><td>${esc(p.name)}</td><td>${m(Math.sqrt(p.variance))}</td><td>${pct(p.variance/e.variance)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  $('flights').addEventListener('input',()=>read(false));
+  for(const k of ['wind','measure'])$(k).addEventListener('change',()=>read(true));
+  document.querySelectorAll('input[name=world]').forEach(r=>r.addEventListener('change',()=>{world=r.value;runTest(true);}));
+  $('rerun').addEventListener('click',()=>runTest(true));
+  function randomSeed(){try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(Math.random()*4294967296))>>>0;}}
+  $('new-test').addEventListener('click',()=>{let next=randomSeed();if(next===seed)next=(next+1)>>>0;tests++;start(next);});
+  $('reset').addEventListener('click',()=>start(seed));
+  const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw);
+  if(params.get('embed')==='1')document.body.classList.add('embedded');
+  start(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1);
+})();
+</script>
+</body></html>

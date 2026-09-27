@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="Short games built from MIT course activities in deep learning, statistics and language.">
+<style>
+/* Same chrome as the games (MIT Learn format): title bar, #F3F4F8 ground, white cards, #750014 action colour. */
+*{box-sizing:border-box}
+html{background:#F3F4F8}
+body{margin:0;background:#F3F4F8;color:#212326;font:16px/1.5 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid #E6E9EE;min-height:69px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:#0C0C0D}
+main{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
+.lead{text-align:center;color:#626A73;font-size:17px;margin:4px auto 28px;max-width:60ch;text-wrap:balance}
+.games{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:28px}
+.game{display:flex;flex-direction:column;height:100%;background:#fff;border-radius:6px;overflow:hidden;color:inherit;text-decoration:none;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05);transition:box-shadow .18s ease,transform .18s ease}
+.game:hover{box-shadow:0 2px 4px rgba(16,24,40,.06),0 10px 24px rgba(16,24,40,.10);transform:translateY(-2px)}
+.game:focus-visible{outline:3px solid #750014;outline-offset:3px}
+.shot{position:relative;display:block;aspect-ratio:16/10;background:#F9FAFB;border-bottom:1px solid #E6E9EE;border-top:4px solid var(--course)}
+.shot img{display:block;width:100%;height:100%;object-fit:cover}
+.noshot{position:absolute;inset:0;background:linear-gradient(135deg,#F9FAFB,#EEF1F5)}
+.num{position:absolute;left:12px;top:10px;font:600 13px/1 ui-monospace,"SF Mono",Menlo,monospace;color:#0C0C0D;background:#fff;border:1px solid #DDE1E6;border-radius:4px;padding:5px 7px;font-variant-numeric:tabular-nums}
+.body{display:flex;flex-direction:column;gap:8px;flex:1;padding:18px 22px 20px}
+.course{display:flex;align-items:center;gap:8px;font-size:14px;color:#626A73}
+.course i{width:10px;height:10px;border-radius:50%;background:var(--course);flex:none}
+.game h2{margin:0;font-size:22px;line-height:1.25;font-weight:700;letter-spacing:-.01em;color:#0C0C0D;text-wrap:balance}
+.hook{font-size:15.5px;line-height:1.55;color:#212326}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:10px}
+.play{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#750014}
+.play svg{width:18px;height:18px;transition:transform .18s ease}
+.game:hover .play svg{transform:translateX(3px)}
+.code{font-size:13px;color:#626A73;font-variant-numeric:tabular-nums}
+.note{text-align:center;color:#626A73;font-size:14px;margin:40px auto 0;max-width:62ch}
+.note a{color:#40464C}
+@media(max-width:560px){main{padding:20px 16px 40px}.gamebar{padding:12px 16px}.lead{font-size:15px}.body{padding:16px 18px 18px}}
+@media(prefers-reduced-motion:reduce){.game,.play svg{transition:none}.game:hover{transform:none}.game:hover .play svg{transform:none}}
+</style>
+</head>
+<body>
+<header class="gamebar"><h1>AI Arcade</h1></header>
+<main>
+  <p class="lead">Short games built from MIT course activities. Each one opens with a goal, plays out as you move things, and explains the idea once you finish.</p>
+  <ul class="games">
+      <li><a class="game" href="sort-the-recycling.html" style="--course:#82192A" aria-labelledby="t-sort-the-recycling" aria-describedby="h-sort-the-recycling">
+        <span class="shot"><img src="thumbs/sort-the-recycling.jpg" alt="Cans and bottles of different sizes on either side of a flat divider, with four items ringed as being in the wrong bin." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">01</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Deep Learning · Model capacity</span>
+          <h2 id="t-sort-the-recycling">Sort the recycling</h2>
+          <span class="hook" id="h-sort-the-recycling">Build a small network from pieces and train it to sort cans from bottles. How few pieces will do?</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.7960.1x</span></span>
+        </span>
+      </a></li>
+      <li><a class="game" href="guide-the-robot-home.html" style="--course:#173EAD" aria-labelledby="t-guide-the-robot-home" aria-describedby="h-guide-the-robot-home">
+        <span class="shot"><img src="thumbs/guide-the-robot-home.jpg" alt="A small robot on a three-dimensional valley, above the charger at the valley floor." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">02</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Deep Learning · Training</span>
+          <h2 id="t-guide-the-robot-home">Guide the robot home</h2>
+          <span class="hook" id="h-guide-the-robot-home">Set the robot&#x27;s move strength and carry-over so it reaches its charger within par, without getting stuck or bouncing past.</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.7960.2x</span></span>
+        </span>
+      </a></li>
+      <li><a class="game" href="photo-finish.html" style="--course:#173EAD" aria-labelledby="t-photo-finish" aria-describedby="h-photo-finish">
+        <span class="shot"><img src="thumbs/photo-finish.jpg" alt="A contact sheet of concert photos ranked by score, with two gates, and an album below with five of six moments filled." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">03</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Deep Learning · Class imbalance</span>
+          <h2 id="t-photo-finish">Photo Finish</h2>
+          <span class="hook" id="h-photo-finish">Save six rare concert moments. Can 97.5% AI accuracy still leave your album incomplete?</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.7960.2x</span></span>
+        </span>
+      </a></li>
+      <li><a class="game" href="echo-the-dance.html" style="--course:#BB460A" aria-labelledby="t-echo-the-dance" aria-describedby="h-echo-the-dance">
+        <span class="shot"><img src="thumbs/echo-the-dance.jpg" alt="Two dancers side by side, the original on the left and its echo on the right." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">04</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Deep Learning · Compression</span>
+          <h2 id="t-echo-the-dance">Echo the Dance</h2>
+          <span class="hook" id="h-echo-the-dance">A dancer performs in one city while an echo dances the routine in another. The link carries two numbers a frame. Which two tracks keep the dance?</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.7960.4x</span></span>
+        </span>
+      </a></li>
+      <li><a class="game" href="the-wonder-fold.html" style="--course:#4B7293" aria-labelledby="t-the-wonder-fold" aria-describedby="h-the-wonder-fold">
+        <span class="shot"><img src="thumbs/the-wonder-fold.jpg" alt="An empty playing field with two throwing lanes, a dotted launch line and pace marks." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">05</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Probability &amp; Statistics · Power of a test</span>
+          <h2 id="t-the-wonder-fold">The Wonder Fold</h2>
+          <span class="hook" id="h-the-wonder-fold">A friend says a new paper-plane fold flies 1.5 m farther. Plan the quickest test that backs a real gain at least 80% of the time.</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.3710.5x</span></span>
+        </span>
+      </a></li>
+      <li><a class="game" href="build-a-review-filter.html" style="--course:#111827" aria-labelledby="t-build-a-review-filter" aria-describedby="h-build-a-review-filter">
+        <span class="shot"><img src="thumbs/build-a-review-filter.jpg" alt="Four reviews stacked on the zero line between the two sides of the filter, none sorted yet." loading="lazy" width="960" height="600"><span class="num" aria-hidden="true">06</span></span>
+        <span class="body">
+          <span class="course"><i aria-hidden="true"></i>Computer Vision &amp; NLP · Words and meaning</span>
+          <h2 id="t-build-a-review-filter">Build a review filter</h2>
+          <span class="hook" id="h-build-a-review-filter">Give words points to sort reviews. Why does one little word, &quot;not&quot;, cause so much trouble?</span>
+          <span class="foot"><span class="play">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="code">6.4600.1x</span></span>
+        </span>
+      </a></li>
+  </ul>
+  <p class="note">Prototypes for MIT Learn. The 6 games run in your browser, work offline and send no data. <a href="https://github.com/codey-m/ai-arcade">Repository on GitHub</a></p>
+</main>
+</body>
+</html>
