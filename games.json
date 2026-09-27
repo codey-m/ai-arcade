@@ -4,7 +4,7 @@
   "games": [
     {
       "slug": "sort-the-recycling",
-      "title": "Sort the recycling",
+      "title": "Sort the Recycling",
       "source": "widget-fit-by-hand.html",
       "hook": "Build a small network from pieces and train it to sort cans from bottles. How few pieces will do?",
       "course": "Deep Learning",
@@ -19,7 +19,7 @@
     },
     {
       "slug": "guide-the-robot-home",
-      "title": "Guide the robot home",
+      "title": "Guide the Robot Home",
       "source": "widget-gradient-descent.html",
       "hook": "Set the robot's move strength and carry-over so it reaches its charger within par, without getting stuck or bouncing past.",
       "course": "Deep Learning",
@@ -58,7 +58,7 @@
       "title": "The Wonder Fold",
       "source": "wonder-fold.html",
       "hook": "A friend says a new paper-plane fold flies 1.5 m farther. Plan the quickest test that backs a real gain at least 80% of the time.",
-      "course": "Probability & SDA",
+      "course": "Probability+SDA",
       "topic": "Power of a test",
       "number": "6.3710.5x",
       "colour": "#4B7293",
@@ -77,10 +77,10 @@
     },
     {
       "slug": "build-a-review-filter",
-      "title": "Build a review filter",
+      "title": "Build a Review Filter",
       "source": "widget-separate-by-hand.html",
       "hook": "Give words points to sort reviews. Why does one little word, \"not\", cause so much trouble?",
-      "course": "Computer Vision & NLP",
+      "course": "CV+NLP",
       "topic": "Words and meaning",
       "number": "6.4600.1x",
       "colour": "#111827",

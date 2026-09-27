@@ -10,6 +10,7 @@ if any other link would leave site/.
     python3 tools/thumbs.py    # optional: refresh site/thumbs/ (macOS, Google Chrome)
 """
 from pathlib import Path
+import hashlib
 import html
 import json
 import re
@@ -49,7 +50,9 @@ def clean(text, game):
 
 def card(i, game):
     thumb = SITE / 'thumbs' / f'{game["slug"]}.jpg'
-    shot = (f'<img src="thumbs/{game["slug"]}.jpg" alt="{html.escape(game["alt"])}" loading="lazy" width="960" height="600">'
+    # The ?v= fingerprint changes whenever the image does, so browsers never show a stale card.
+    version = hashlib.sha256(thumb.read_bytes()).hexdigest()[:10] if thumb.exists() else ''
+    shot = (f'<img src="thumbs/{game["slug"]}.jpg?v={version}" alt="{html.escape(game["alt"])}" loading="lazy" width="960" height="600">'
             if thumb.exists() else '<span class="noshot" aria-hidden="true"></span>')
     return f'''      <li><a class="game" href="{game["slug"]}.html" style="--course:{game["colour"]}" aria-labelledby="t-{game["slug"]}" aria-describedby="h-{game["slug"]}">
         <span class="shot">{shot}<span class="num" aria-hidden="true">{i:02d}</span></span>

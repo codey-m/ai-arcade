@@ -6,12 +6,12 @@ Six short games built from MIT course activities, prototyped for MIT Learn. Each
 
 | Game | Course | Idea |
 | --- | --- | --- |
-| [Sort the recycling](https://codey-m.github.io/ai-arcade/sort-the-recycling.html) | Deep Learning 6.7960.1x | Model capacity: building and training a small network |
-| [Guide the robot home](https://codey-m.github.io/ai-arcade/guide-the-robot-home.html) | Deep Learning 6.7960.2x | Learning rate, momentum and local minima |
+| [Sort the Recycling](https://codey-m.github.io/ai-arcade/sort-the-recycling.html) | Deep Learning 6.7960.1x | Model capacity: building and training a small network |
+| [Guide the Robot Home](https://codey-m.github.io/ai-arcade/guide-the-robot-home.html) | Deep Learning 6.7960.2x | Learning rate, momentum and local minima |
 | [Photo Finish](https://codey-m.github.io/ai-arcade/photo-finish.html) | Deep Learning 6.7960.2x | Accuracy, precision and recall with a rare class |
 | [Echo the Dance](https://codey-m.github.io/ai-arcade/echo-the-dance.html) | Deep Learning 6.7960.4x | Principal component analysis |
-| [The Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability & SDA 6.3710.5x | Sample size and the power of a test |
-| [Build a review filter](https://codey-m.github.io/ai-arcade/build-a-review-filter.html) | Computer Vision & NLP 6.4600.1x | Bag-of-words features and negation |
+| [The Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability+SDA 6.3710.5x | Sample size and the power of a test |
+| [Build a Review Filter](https://codey-m.github.io/ai-arcade/build-a-review-filter.html) | CV+NLP 6.4600.1x | Bag-of-words features and negation |
 
 ## Demo tips
 
