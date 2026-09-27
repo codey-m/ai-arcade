@@ -12,7 +12,10 @@
       "number": "6.7960.1x",
       "colour": "#82192A",
       "play": "#plot",
-      "alt": "Cans and bottles of different sizes on either side of a flat divider, with four items ringed as being in the wrong bin."
+      "thumb_steps": [
+        "#show-rule"
+      ],
+      "alt": "Cans and bottles of different sizes, sorted into two bins by a V-shaped divider."
     },
     {
       "slug": "guide-the-robot-home",
@@ -55,12 +58,22 @@
       "title": "The Wonder Fold",
       "source": "wonder-fold.html",
       "hook": "A friend says a new paper-plane fold flies 1.5 m farther. Plan the quickest test that backs a real gain at least 80% of the time.",
-      "course": "Probability & Statistics",
+      "course": "Probability & SDA",
       "topic": "Power of a test",
       "number": "6.3710.5x",
       "colour": "#4B7293",
       "play": "#field-wrap",
-      "alt": "An empty playing field with two throwing lanes, a dotted launch line and pace marks."
+      "thumb_steps": [
+        "input[name=wind][value=\"2\"]",
+        "input[name=measure][value=\"0\"]",
+        {
+          "set": "#flights",
+          "value": 8
+        },
+        "#rerun"
+      ],
+      "thumb_zoom": true,
+      "alt": "Paper-plane landings in two indoor lanes, with each lane's average marked."
     },
     {
       "slug": "build-a-review-filter",
@@ -72,7 +85,14 @@
       "number": "6.4600.1x",
       "colour": "#111827",
       "play": "#plot",
-      "alt": "Four reviews stacked on the zero line between the two sides of the filter, none sorted yet."
+      "thumb_steps": [
+        "#show-answer",
+        "#claim",
+        "#addphrase",
+        "#show-answer"
+      ],
+      "thumb_zoom": true,
+      "alt": "Four reviews on either side of a dashed dividing line, each on its correct side."
     }
   ]
 }

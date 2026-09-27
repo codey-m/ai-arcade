@@ -119,6 +119,9 @@ body.gameformat .plot.outcome-win{box-shadow:0 0 0 3px #216044}body.gameformat .
 body.gameformat[data-game="shapes"] .gamecontrols{grid-template-columns:1fr}
 body.gameformat[data-game="shapes"] .gamecontrols .controls{display:block}
 body.gameformat[data-game="shapes"] .gamecontrols>.actions{display:none}
+/* Sort the recycling: the network controls run long, so the plot and its reason line stay pinned in view while you adjust them.
+   The card clips instead of hiding overflow, because overflow:hidden would stop the sticky plot. */
+@media(min-height:680px){body.gameformat[data-game="shapes"] .playcard{overflow:clip}body.gameformat[data-game="shapes"]:not(.embedded) .gameplay{position:sticky;top:0;z-index:3;background:#fff;padding-top:12px;padding-bottom:2px;border-bottom:1px solid #E6E9EE}}
 .netbuild{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 28px;align-items:start}
 .netbuild .nb-right .actions{margin:0 0 8px}
 @media(max-width:700px){.netbuild{grid-template-columns:1fr}}

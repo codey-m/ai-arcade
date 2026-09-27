@@ -31,16 +31,22 @@ main{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
 .gamestatus{display:flex;justify-content:center;gap:12px 40px;flex-wrap:wrap;padding:26px 24px 4px;font-size:18px;color:var(--muted)}
 .gamestatus b{color:var(--text);font-weight:600}.gamestatus b.win{color:var(--win)}.gamestatus b.over{color:var(--partial)}.gamestatus b.lose{color:var(--fail)}
 .gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}
+.gameprompt strong{font-weight:600;color:var(--text)}
 .gameplay{padding:0 24px}
 
 /* Play area: contact sheet and album in one bordered box. The outcome outline is a box-shadow so nothing shifts. */
 .playarea{position:relative;border:1px solid var(--border);background:#fff;transition:box-shadow .25s}
 .playarea.outcome-win{box-shadow:0 0 0 3px var(--win)}.playarea.outcome-over{box-shadow:0 0 0 3px var(--partial)}.playarea.outcome-lose{box-shadow:0 0 0 3px var(--fail)}
-.corner{position:absolute;top:8px;z-index:6;font:600 12px/1.5 var(--mono);color:var(--btn-text);pointer-events:none;white-space:nowrap}
-.corner-left{left:14px}.corner-right{right:14px;text-align:right}
+.deck-heading{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;padding:10px 14px 0}
+.corner{font:600 12px/1.5 var(--mono);color:var(--btn-text);min-width:0}
+.corner-right{text-align:right}
 .corner-right.win{color:var(--win)}.corner-right.over{color:var(--partial)}.corner-right.lose{color:var(--fail)}
-.canvas-scroll{margin-top:32px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:var(--frame) transparent;scroll-padding:20px;position:relative}
-.contact-canvas{position:relative;min-width:760px;height:204px;user-select:none;-webkit-user-select:none}
+/* Ordering stays outside the scrolling strip so both ends remain readable. */
+.deck-order{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;padding:8px 14px 12px;font-size:13px;line-height:1.5;color:var(--muted)}
+.deck-order>span:first-child{flex:1 1 260px;min-width:0}.deck-order strong{font-weight:600;color:var(--text)}
+.sort-direction{display:inline-flex;align-items:center;gap:8px;flex:none;white-space:nowrap;color:var(--btn-text)}
+.canvas-scroll{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:var(--frame) transparent;scroll-padding:20px;position:relative}
+.contact-canvas{position:relative;min-width:760px;height:196px;user-select:none;-webkit-user-select:none}
 .zone{position:absolute;top:0;height:126px;pointer-events:none;transition:background-color .2s}
 .discard-zone{background:rgba(203,210,219,.3)}.review-zone{background:var(--wash)}.keep-zone{background:var(--body)}
 .frame{position:absolute;top:12px;overflow:hidden;padding:3px 3px 0;background:#fff;border:1px solid var(--frame);box-shadow:0 1px 3px rgba(17,24,39,.14);transition:transform .24s,box-shadow .24s;z-index:2}
@@ -68,9 +74,7 @@ main{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
 .gate:focus-visible{outline:none}.gate:focus-visible .gate-grip{outline:3px solid var(--ink);outline-offset:3px}
 .gate.dragging .gate-grip{transform:scale(1.12)}
 .gate.overlap{top:144px}.gate.overlap .gate-line{top:-144px;height:146px}.gate.overlap .gate-grip>span{top:44px}
-.contact-canvas:has(.gate.overlap){height:232px}.contact-canvas:has(.gate.overlap) .scale{top:214px}
-.scale{position:absolute;top:186px;font-size:10px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);pointer-events:none}
-.scale.low{left:14px}.scale.high{right:14px}
+.contact-canvas:has(.gate.overlap){height:216px}
 
 /* Album: assembles as the edit runs. */
 .album-strip{border-top:1px solid var(--border);background:var(--ground);padding:10px 14px 14px}
@@ -161,7 +165,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   .gamestatus{gap:6px 18px;font-size:16px;padding:20px 14px 4px}.gameprompt{font-size:15px;margin:6px 14px 14px}
   .gameplay{padding:0 14px}.gamecontrols{padding:10px 14px 0}.gamefoot{padding:16px 14px 18px}
   .metrics-panel{margin:14px 14px 0;padding:14px 12px}.photo-table{margin:10px 14px 16px}
-  .corner{font-size:11px}.corner-left{left:10px}.corner-right{right:10px}
+  .corner{font-size:11px}.deck-heading,.deck-order{padding-left:10px;padding-right:10px}
   .album-strip{padding:10px 10px 12px}.album{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
   .album-slot{padding:4px}.album-slot .slot-caption{font-size:11px;padding-top:4px}.slot-caption .slot-number{display:none}.album-slot .slot-issue{font-size:9px}
   .reason{min-height:7.75em;font-size:15px}
@@ -180,19 +184,18 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   <div class="gamewrap">
     <section class="playcard" aria-label="Game">
       <div class="gamestatus"><span>Edit: <b id="st-edit">1</b></span><span>Status: <b id="st-status">Ready</b></span><span>Checks: <b id="st-checks">0 of 3</b></span></div>
-      <p class="gameprompt">Drag the two gates so all six usable moments reach the album and no spoiled shot does.</p>
+      <p class="gameprompt"><strong>Choose where the AI needs a human.</strong> Place the gates to use at most <strong id="goal-budget">3 editor checks</strong> and deliver all six usable moments with no spoiled shots.</p>
       <div class="gameplay">
         <div class="playarea" id="playarea">
-          <span class="corner corner-left" id="roll-label">Full roll · 6 of 120 usable</span>
-          <span class="corner corner-right" id="album-stamp" aria-live="off"></span>
-          <div class="canvas-scroll" id="canvas-scroll" tabindex="0" aria-label="Photo contact sheet, ranked from lower to higher AI score. Scroll horizontally on smaller screens.">
+          <div class="deck-heading"><span class="corner corner-left" id="roll-label">Full roll · 6 of 120 usable</span><span class="corner corner-right" id="album-stamp" aria-live="off"></span></div>
+          <div class="deck-order" id="deck-order"><span><strong>Sorted by AI confidence</strong> that a shot is usable</span><span class="sort-direction">Lower <span aria-hidden="true">→</span> Higher</span></div>
+          <div class="canvas-scroll" id="canvas-scroll" tabindex="0" aria-label="Photo contact sheet. Scroll horizontally on smaller screens." aria-describedby="deck-order">
             <div class="contact-canvas" id="canvas">
               <div id="discard-zone" class="zone discard-zone"></div><div id="review-zone" class="zone review-zone"></div><div id="keep-zone" class="zone keep-zone"></div>
               <div class="frames" id="frames"></div>
               <div class="track" id="track" aria-hidden="true"></div>
               <button type="button" id="review-gate" class="gate review-gate" role="slider" aria-label="Editor check begins" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="12" aria-valuenow="6" aria-describedby="gate-help"><span class="gate-line"></span><span class="gate-grip"><b>↔</b><span>CHECK FROM HERE</span></span></button>
               <button type="button" id="keep-gate" class="gate keep-gate" role="slider" aria-label="Automatic keep begins" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="12" aria-valuenow="9" aria-describedby="gate-help"><span class="gate-line"></span><span class="gate-grip"><b>↔</b><span>KEEP FROM HERE</span></span></button>
-              <span class="scale low" aria-hidden="true">Lower AI score</span><span class="scale high" aria-hidden="true">Higher AI score</span>
             </div>
           </div>
           <section class="album-strip" aria-labelledby="album-title"><h2 id="album-title" class="album-title">Album</h2><div class="album" id="album"></div></section>
@@ -219,9 +222,10 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     </section>
     <aside class="howto" aria-labelledby="howto-title">
       <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
-      <p><strong>The goal</strong> is an album with all six concert moments and no spoiled shots. Only six shots on the roll are usable.</p>
+      <p><strong>The goal</strong> is to target human review where the AI needs help. You succeed when all six usable moments reach the album, no spoiled shots get through, and you use no more than <strong id="howto-budget">3 editor checks</strong>.</p>
+      <p><strong>Read the deck from left to right.</strong> Higher scores mean the AI is more confident a shot is usable. Confidence is imperfect: a high-scoring shot can still be spoiled. Scores are simulated, not probability percentages.</p>
       <p id="gate-help"><strong>Gates</strong> are decision thresholds, score cutoffs on the AI’s ranking. Shots below the check gate are discarded, and shots at or above the keep gate go straight into the album. Drag a gate, or focus it and use the arrow keys, Home or End.</p>
-      <p><strong>Editor checks</strong> cover the shots between the gates. The editor keeps only the usable ones and has two or three checks per edit. Releasing a gate runs the edit.</p>
+      <p><strong>Target your editor checks</strong> at the doubtful shots between the gates, while the AI handles the rest. The editor keeps only usable shots. Releasing a gate runs the edit and checks the album and review budget automatically.</p>
       <p><strong>Stacks</strong> marked 28 shots group repeated outtakes. Every shot in a stack counts and needs its own check.</p>
       <p><strong>Balanced sample</strong> keeps one shot per stack. Switch to it to compare the AI’s accuracy, precision and recall at the same gates.</p>
     </aside>
@@ -231,7 +235,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     <p>The AI gives every shot a score, and the contact sheet ranks the roll from lower to higher score. A decision threshold turns that score into a decision. The keep gate is the AI’s threshold: at or above it the AI predicts usable, and below it the AI predicts unusable. The metrics in the game describe the AI alone at that cutoff, before any editor checks.</p>
     <p>On the full roll, usable shots are the rare class: 6 of 120, or 5%. A rule that rejects everything still scores 95% accuracy and delivers an empty album. On the balanced sample, which keeps one shot per stack, the same rule scores 50%. The extra easy rejects lift accuracy without finding a single moment, so accuracy can look high while moments are missing.</p>
     <p>Precision is the share of the AI’s keeps that are usable: TP / (TP + FP). Recall is the share of usable shots the AI keeps: TP / (TP + FN). Accuracy is (TP + TN) divided by all shots. A true positive (TP) is a usable shot kept, a false positive (FP) is a spoiled shot kept, a false negative (FN) is a usable shot missed and a true negative (TN) is a spoiled shot rejected. Precision is undefined when nothing is kept. Lowering the keep gate can only raise or hold recall, while precision may fall as spoiled shots come in.</p>
-    <p>The check gate adds a person to the decision. Shots between the gates go to an editor, who keeps only the usable ones. Editor checks change the album but leave the AI’s scores and metrics as they were. Sending the doubtful middle of a ranking to people is a common way to use a model when mistakes are costly and review time is limited.</p>
+    <p>The check gate adds a person to the decision. Shots between the gates go to an editor, who keeps only the usable ones. The challenge assesses where you target that limited review: all six usable shots must reach the album, no spoiled shots may pass, and the checks must fit the budget. Editor checks change the album but leave the AI’s scores and metrics as they were. You improve the outcome by choosing where a person intervenes.</p>
     <p class="explainer-link">Explore in Deep Learning: precision, recall and choosing a decision rule for the cost of mistakes.</p>
     <p class="explainer-note">The AI scores and photo labels are authored for this puzzle, and the concert photos are generated. Scores are simulated and are not probabilities, and no model runs on your device. Usable means the subject is visible and sharp enough. On the full roll, four low-score stacks each stand for 28 spoiled shots that share the pictured defect and score. Editors work from left to right, a stack uses one check per shot, and extra shots wait in the queue. Any pair of gates that meets the goal counts. These are grouped examples, not 120 distinct photographs or a measured model benchmark.</p>
   </section>
@@ -328,6 +332,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   function start(nextSeed,preserveGates=false){
     cancelRun();endDrag();seed=nextSeed>>>0;batch=M.scenario(seed,mix);if(!preserveGates)({low,high}=batch.start);
     $('roll-label').textContent=mix==='rare'?'Full roll · 6 of 120 usable':'Balanced sample · 6 of 12 usable';$('st-checks').textContent=`0 of ${batch.budget}`;setStatus('Ready','');
+    for(const id of ['goal-budget','howto-budget'])$(id).textContent=`${batch.budget} editor checks`;
     for(const value of ['rare','balanced'])$('mix-'+value).setAttribute('aria-pressed',value===mix);
     // The corner label carries the roll; stacks are explained in How to play.
     $('frames').innerHTML=batch.items.map((p,i)=>`<div class="frame${p.count>1?' stack':''}" id="frame-${i}" data-route="discard"><div class="photo" role="img" aria-label="${esc((p.count>1?p.count+' shots, sample shown. ':'')+p.description)}" style="background-position:${positions(p.atlas)}"></div>${p.count>1?`<span class="stack-count">${p.count} shots</span>`:''}<div class="frame-label"><span>${String(i+1).padStart(2,'0')}</span><span>AI ${p.score}</span></div><span class="route-tag">WAITING</span></div>`).join('');
@@ -457,8 +462,8 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     setStatus(e.success?'Album approved':e.requested>batch.budget?'Queue too long':e.bad.length?'Spoiled shot kept':`${6-e.good.length} moment${e.good.length===5?'':'s'} missing`,e.success?'win':'lose');
     if(playerRan){setOutline(e.success?'win':'lose');$('explainer').hidden=false;}
     if(e.success){
-      $('feedback-title').textContent='Every moment made it. Every shot earns its place.';
-      $('feedback-text').textContent=`Six usable photos, no spoiled frames, and ${e.used} editor checks. The AI alone scored ${percent(e.autoAccuracy)} accuracy but kept only ${e.autoGood} of 6 usable shots (${percent(e.autoRecall)} recall). Your editor rescued ${e.rescued.length} overlooked moment${e.rescued.length===1?'':'s'} and stopped ${e.blocked.length} spoiled frame${e.blocked.length===1?'':'s'}. The final album has all six usable shots and no spoiled ones; the AI-only metrics above stay unchanged.`;
+      $('feedback-title').textContent='Targeted review completed the album.';
+      $('feedback-text').textContent=`Your ${e.used} editor checks rescued ${e.rescued.length} overlooked moment${e.rescued.length===1?'':'s'} and stopped ${e.blocked.length} spoiled frame${e.blocked.length===1?'':'s'}. All six usable shots made it, with no spoiled ones and within the ${batch.budget}-check budget. The AI alone kept ${e.autoGood} of 6 usable shots (${percent(e.autoRecall)} recall), despite ${percent(e.autoAccuracy)} accuracy. Human checks improved the album; the AI-only metrics are unchanged.`;
     }else if(e.requested>batch.budget){
       $('feedback-title').textContent='The editor’s queue is too long.';
       $('feedback-text').textContent=`You asked for ${e.requested} checks, but the editor can do only ${batch.budget}. Move the gates closer together.${e.items.some(p=>p.route==='review'&&p.count>1)?' A stack needs one check per shot.':''} ${e.pendingCount} photo${e.pendingCount===1?' is':'s are'} still waiting.`;

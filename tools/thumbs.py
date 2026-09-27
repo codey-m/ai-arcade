@@ -4,7 +4,9 @@
 Each game opens headless at 1280 px with reduced motion. The play area named by
 "play" in games.json is cropped to 16:10 around its centre. All text is hidden
 first, because course images carry no words or numbers; each card's alt text
-describes the scene instead. Run sync.py first, then this, then sync.py again.
+describes the scene instead. Optional "thumb_steps" in games.json plays the game
+into a more telling state first (buttons to press, sliders to set).
+Run sync.py first, then this, then sync.py again.
 """
 from pathlib import Path
 import json
@@ -18,24 +20,37 @@ SITE = HERE / 'site'
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 WIDTH, HEIGHT, SCALE, OUT_WIDTH, ASPECT = 1280, 1400, 2, 960, 1.6
 
-HIDE_TEXT = '''<style>
-*{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}
-text,tspan{fill:transparent!important;stroke:transparent!important}
-.corner,.stack-count,.route-tag,.gate-grip>span,.frame-label{visibility:hidden!important}
+def hide(play):
+    """Hide all text, and everything outside the play area, so the picture is the scene alone."""
+    return f'''<style>
+*{{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}}
+text,tspan{{fill:transparent!important;stroke:transparent!important}}
+body *{{visibility:hidden!important}}{play},{play} *{{visibility:visible!important}}
+{play} .corner,{play} .stack-count,{play} .route-tag,{play} .gate-grip>span,{play} .frame-label{{visibility:hidden!important}}
 </style>'''
-PROBE = '''<script>addEventListener('load',()=>setTimeout(()=>{const e=document.querySelector(%s);const r=e.getBoundingClientRect();
-document.body.setAttribute('data-thumb',[r.left+scrollX,r.top+scrollY,r.width,r.height].map(Math.round).join(','));},1500));</script>'''
+
+
+# Runs the optional "thumb_steps" (a selector to click, or {"set": selector, "value": v} for a slider),
+# 400 ms apart, then measures the play area once the result has settled.
+PROBE = '''<script>addEventListener('load',()=>{const steps=%s;let i=0;const next=()=>{if(i<steps.length){const t=steps[i++];
+if(typeof t==='string')document.querySelector(t)?.click();else{const e=document.querySelector(t.set);if(e){e.value=t.value;
+e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}}setTimeout(next,400);return;}
+setTimeout(()=>{const e=document.querySelector(%s);const r=e.getBoundingClientRect();
+document.body.setAttribute('data-thumb',[r.left+scrollX,r.top+scrollY,r.width,r.height].map(Math.round).join(','));},2500);};setTimeout(next,800);});</script>'''
 
 
 def chrome(*args):
     base = [CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-prefers-reduced-motion',
-            f'--window-size={WIDTH},{HEIGHT}', f'--force-device-scale-factor={SCALE}', '--virtual-time-budget=5000']
+            f'--window-size={WIDTH},{HEIGHT}', f'--force-device-scale-factor={SCALE}', '--virtual-time-budget=12000']
     return subprocess.run(base + list(args), capture_output=True, text=True, timeout=120)
 
 
-def box(x, y, w, h):
-    """Grow the play area to 16:10 around its centre, kept inside the captured window."""
-    if w / h > ASPECT:
+def box(x, y, w, h, zoom=False):
+    """Grow the play area to 16:10 around its centre, kept inside the captured window.
+    With zoom, a wide play area is trimmed to 16:10 at its centre instead of padded."""
+    if zoom and w / h > ASPECT:
+        h2, w2 = h, h * ASPECT
+    elif w / h > ASPECT:
         h2, w2 = w / ASPECT, w
     else:
         h2, w2 = h, h * ASPECT
@@ -53,7 +68,7 @@ def main(only=()):
             if only and game['slug'] not in only:
                 continue
             page = (SITE / f'{game["slug"]}.html').read_text()
-            page = page.replace('</head>', HIDE_TEXT + '</head>', 1).replace('</body>', PROBE % json.dumps(game['play']) + '</body>', 1)
+            page = page.replace('</head>', hide(game['play']) + '</head>', 1).replace('</body>', PROBE % (json.dumps(game.get('thumb_steps', [])), json.dumps(game['play'])) + '</body>', 1)
             probe = Path(tmp) / f'{game["slug"]}.html'
             probe.write_text(page)
             dom = chrome('--dump-dom', probe.as_uri()).stdout
@@ -61,7 +76,7 @@ def main(only=()):
             if not m:
                 print(f'{game["slug"]}: play area {game["play"]} not found; skipped', file=sys.stderr)
                 continue
-            x, y, w, h = box(*map(float, m.group(1).split(',')))
+            x, y, w, h = box(*map(float, m.group(1).split(',')), zoom=game.get('thumb_zoom', False))
             shot = Path(tmp) / f'{game["slug"]}.png'
             chrome(f'--screenshot={shot}', probe.as_uri())
             out = SITE / 'thumbs' / f'{game["slug"]}.jpg'
