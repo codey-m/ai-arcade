@@ -11,7 +11,7 @@ Six short games built from MIT course activities, prototyped for MIT Learn. Each
 | [Photo Finish](https://codey-m.github.io/ai-arcade/photo-finish.html) | Deep Learning 6.7960.2x | Accuracy, precision and recall with a rare class |
 | [Echo the Dance](https://codey-m.github.io/ai-arcade/echo-the-dance.html) | Deep Learning 6.7960.4x | Principal component analysis |
 | [The Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability+SDA 6.3710.5x | Sample size and the power of a test |
-| [Build a Review Filter](https://codey-m.github.io/ai-arcade/build-a-review-filter.html) | CV+NLP 6.4600.1x | Bag-of-words features and negation |
+| [Robot Theatre](https://codey-m.github.io/ai-arcade/robot-theatre.html) | CV+NLP 6.4600.1x | Bag-of-words features, word order and bigrams |
 
 ## Demo tips
 
@@ -43,4 +43,4 @@ cd ../../ai-arcade && python3 sync.py && python3 tools/thumbs.py && python3 sync
 git add -A && git commit -m "Update games" && git push
 ```
 
-To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Two optional fields shape the thumbnail: `thumb_steps` plays the game into a more telling state first (selectors to click, or `{"set": selector, "value": v}` for a slider), and `thumb_zoom` crops a wide play area at its centre instead of padding it.
+To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Two optional fields shape the thumbnail: `thumb_steps` plays the game into a more telling state first (selectors to click, or `{"set": selector, "value": v}` for a slider), and `thumb_zoom` crops a wide play area at its centre instead of padding it, and `thumb_query` opens a particular round (for example `seed=4`).

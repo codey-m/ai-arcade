@@ -5,7 +5,8 @@ Each game opens headless at 1280 px with reduced motion. The play area named by
 "play" in games.json is cropped to 16:10 around its centre. All text is hidden
 first, because course images carry no words or numbers; each card's alt text
 describes the scene instead. Optional "thumb_steps" in games.json plays the game
-into a more telling state first (buttons to press, sliders to set).
+into a more telling state first (buttons to press, sliders to set), and
+"thumb_query" opens a particular round (for example "seed=4").
 Run sync.py first, then this, then sync.py again.
 """
 from pathlib import Path
@@ -71,14 +72,15 @@ def main(only=()):
             page = page.replace('</head>', hide(game['play']) + '</head>', 1).replace('</body>', PROBE % (json.dumps(game.get('thumb_steps', [])), json.dumps(game['play'])) + '</body>', 1)
             probe = Path(tmp) / f'{game["slug"]}.html'
             probe.write_text(page)
-            dom = chrome('--dump-dom', probe.as_uri()).stdout
+            url = probe.as_uri() + ('?' + game['thumb_query'] if game.get('thumb_query') else '')
+            dom = chrome('--dump-dom', url).stdout
             m = re.search(r'data-thumb="([\d,.-]+)"', dom)
             if not m:
                 print(f'{game["slug"]}: play area {game["play"]} not found; skipped', file=sys.stderr)
                 continue
             x, y, w, h = box(*map(float, m.group(1).split(',')), zoom=game.get('thumb_zoom', False))
             shot = Path(tmp) / f'{game["slug"]}.png'
-            chrome(f'--screenshot={shot}', probe.as_uri())
+            chrome(f'--screenshot={shot}', url)
             out = SITE / 'thumbs' / f'{game["slug"]}.jpg'
             subprocess.run(['sips', '-c', str(h), str(w), '--cropOffset', str(y), str(x), str(shot), '--out', str(shot)], check=True, capture_output=True)
             subprocess.run(['sips', '--resampleWidth', str(OUT_WIDTH), '-s', 'format', 'jpeg', '-s', 'formatOptions', '82', str(shot), '--out', str(out)], check=True, capture_output=True)

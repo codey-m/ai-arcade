@@ -59,7 +59,6 @@ main{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
 .frame.stack{box-shadow:2px 3px 0 var(--frame),4px 6px 0 rgba(203,210,219,.55)}
 .stack-count{position:absolute;top:6px;left:6px;background:rgba(17,24,39,.86);color:#fff;font-size:9px;line-height:1.5;padding:1px 4px}
 .frame.processed[data-outcome=bad]{box-shadow:0 0 0 2px var(--fail)}
-.frame.processed[data-outcome=missed]{box-shadow:0 0 0 2px var(--partial)}
 .frame.in-flight{transform:translateY(-5px);box-shadow:0 0 0 3px var(--gold),0 6px 10px rgba(17,24,39,.2)}
 .track{position:absolute;top:128px;height:2px;left:28px;right:28px;background:var(--frame)}
 
@@ -279,7 +278,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     // All members share the depicted defect, label and authored score.
     items=items.map((p,i)=>({...p,count:mix==='rare'&&i<4?28:1}));
     const cuts=[0,...items.slice(1).map((p,i)=>Math.ceil((items[i].score+p.score)/2)),101];
-    const s={seed:seed>>>0,mix,items,cuts,total:items.reduce((n,p)=>n+p.count,0),budget:variant.budget,target:6,start:{low:6,high:9}};
+    const s={seed:seed>>>0,mix,items,cuts,total:items.reduce((n,p)=>n+p.count,0),budget:variant.budget,target:6,start:{low:9,high:9}};
     s.solutions=[];
     for(let low=0;low<=12;low++)for(let high=low;high<=12;high++)if(evaluate(s,low,high).success)s.solutions.push({low,high});
     if(!s.solutions.length)throw Error('Photo Finish scenario has no valid policy');
@@ -337,8 +336,8 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     // The corner label carries the roll; stacks are explained in How to play.
     $('frames').innerHTML=batch.items.map((p,i)=>`<div class="frame${p.count>1?' stack':''}" id="frame-${i}" data-route="discard"><div class="photo" role="img" aria-label="${esc((p.count>1?p.count+' shots, sample shown. ':'')+p.description)}" style="background-position:${positions(p.atlas)}"></div>${p.count>1?`<span class="stack-count">${p.count} shots</span>`:''}<div class="frame-label"><span>${String(i+1).padStart(2,'0')}</span><span>AI ${p.score}</span></div><span class="route-tag">WAITING</span></div>`).join('');
     $('album').classList.remove('complete');$('album-stamp').className='corner corner-right album-stamp';$('album-stamp').textContent='EDIT IN PROGRESS';playerRan=false;setOutline(null);
-    $('feedback').className='feedback';$('feedback-title').textContent='Watch where this edit sends the photos.';
-    $('feedback-text').textContent='The editor checks the shots between the gates. Everything at or above the keep gate goes straight into the album.';
+    $('feedback').className='feedback';$('feedback-title').textContent='The AI is editing alone.';
+    $('feedback-text').textContent='Everything at or above the keep gate goes straight into the album. Everything below it is discarded unseen.';
     setURL();layout();centerGates();updateGates();renderAlbum([]);renderAccessible(M.evaluate(batch,low,high));later(run,300);
   }
   function centerGates(){
@@ -388,16 +387,18 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   }
   function renderAlbum(processed,newMoment=null){
     const accepted=processed.filter(p=>p.accepted);
-    $('album').innerHTML=M.MOMENTS.map((m,i)=>{
-      const shots=accepted.filter(p=>p.moment===i),bad=shots.find(p=>!p.usable),chosen=bad||shots[0];
+    // Empty slots sort last and stay unnamed, so the album never says which moment the AI discarded.
+    const order=M.MOMENTS.map((_,i)=>i).sort((a,b)=>!accepted.some(p=>p.moment===a)-!accepted.some(p=>p.moment===b));
+    $('album').innerHTML=order.map(i=>{
+      const m=M.MOMENTS[i],shots=accepted.filter(p=>p.moment===i),bad=shots.find(p=>!p.usable),chosen=bad||shots[0];
       const cls=!chosen?'empty':bad?'bad':'good';
       const spoiled=shots.reduce((n,p)=>n+(p.usable?0:p.acceptedCount),0);
       const issue=bad?`${spoiled} unusable${shots.some(p=>p.usable)?' + usable':''}`:'';
-      return `<article class="album-slot ${cls}${newMoment===i?' arrived':''}" aria-label="${esc(m.name+': '+(!chosen?'missing':bad?'unusable photo included':'usable photo included'))}"><div class="slot-image">${chosen?`<div class="photo" role="img" aria-label="${esc(chosen.description)}" style="background-position:${positions(chosen.atlas)}"></div>`:`<span class="slot-empty" aria-hidden="true">${String(i+1).padStart(2,'0')}</span>`}${issue?`<span class="slot-issue">${issue}</span>`:''}</div><div class="slot-caption"><span>${m.name}</span><span class="slot-number">${String(i+1).padStart(2,'0')}</span></div></article>`;
+      return `<article class="album-slot ${cls}${newMoment===i?' arrived':''}" aria-label="${esc(!chosen?'Empty slot':m.name+': '+(bad?'unusable photo included':'usable photo included'))}"><div class="slot-image">${chosen?`<div class="photo" role="img" aria-label="${esc(chosen.description)}" style="background-position:${positions(chosen.atlas)}"></div>`:`<span class="slot-empty" aria-hidden="true">?</span>`}${issue?`<span class="slot-issue">${issue}</span>`:''}</div><div class="slot-caption"><span>${chosen?m.name:'Missing'}</span>${chosen?`<span class="slot-number">${String(i+1).padStart(2,'0')}</span>`:''}</div></article>`;
     }).join('');
   }
   function renderAccessible(e){
-    $('accessible-table').innerHTML=`<table><thead><tr><th>Tile</th><th>Shots</th><th>AI score</th><th>Description</th><th>Route</th><th>Result</th></tr></thead><tbody>${e.items.map((p,i)=>`<tr><td>${i+1}: ${esc(p.name)}</td><td>${p.count}</td><td>${p.score}</td><td>${esc(p.description)}</td><td>${{discard:'Discard',review:'Editor check',keep:'Automatic keep'}[p.route]}</td><td>${p.pending?`${p.checkedCount} checked; ${p.pendingCount} waiting`:p.accepted?p.usable?'Usable photo sent':`${p.acceptedCount} spoiled sent`:p.usable?'Usable photo lost':`${p.count} spoiled rejected`}</td></tr>`).join('')}</tbody></table>`;
+    $('accessible-table').innerHTML=`<table><thead><tr><th>Tile</th><th>Shots</th><th>AI score</th><th>Description</th><th>Route</th><th>Result</th></tr></thead><tbody>${e.items.map((p,i)=>`<tr><td>${i+1}: ${esc(p.name)}</td><td>${p.count}</td><td>${p.score}</td><td>${esc(p.description)}</td><td>${{discard:'Discard',review:'Editor check',keep:'Automatic keep'}[p.route]}</td><td>${p.pending?`${p.checkedCount} checked; ${p.pendingCount} waiting`:p.accepted?p.usable?'Usable photo sent':`${p.acceptedCount} spoiled sent`:p.checked?`${p.count} spoiled rejected`:'Discarded unseen'}</td></tr>`).join('')}</tbody></table>`;
   }
   function beginEdit(){
     cancelRun();endDrag();$('album').classList.remove('complete');$('album-stamp').className='corner corner-right album-stamp';$('album-stamp').textContent='EDIT IN PROGRESS';
@@ -446,8 +447,8 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     const processed=[];let used=0;
     function show(i){
       const p=e.items[i],frame=$('frame-'+i);processed.push(p);used+=p.checkedCount;
-      frame.classList.add('processed','in-flight');frame.dataset.outcome=p.accepted&&!p.usable?'bad':p.usable&&p.rejected?'missed':'okay';
-      frame.querySelector('.route-tag').textContent=p.pending?`${p.pendingCount} WAITING`:p.checked?p.usable?'CHECKED ✓':'REJECTED':p.accepted?'KEPT':p.usable?'MOMENT LOST':'DISCARDED';
+      frame.classList.add('processed','in-flight');frame.dataset.outcome=p.accepted&&!p.usable?'bad':'okay';
+      frame.querySelector('.route-tag').textContent=p.pending?`${p.pendingCount} WAITING`:p.checked?p.usable?'CHECKED ✓':'REJECTED':p.accepted?'KEPT':'DISCARDED';
       if(p.accepted)renderAlbum(processed,p.moment);renderBudget(used,e.requested);
       if(!reduced())later(()=>frame.classList.remove('in-flight'),240);else frame.classList.remove('in-flight');
     }
@@ -459,7 +460,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
     $('album-stamp').className='corner corner-right album-stamp'+(e.success?' success':'');
     $('album-stamp').textContent=e.success?'APPROVED FOR THE ALBUM':`${e.good.length} / 6 MOMENTS${e.badCount?' · '+e.badCount+' UNUSABLE':''}`;
     $('album').classList.toggle('complete',e.success);$('feedback').className='feedback '+(e.success?'success':'warning');
-    setStatus(e.success?'Album approved':e.requested>batch.budget?'Queue too long':e.bad.length?'Spoiled shot kept':`${6-e.good.length} moment${e.good.length===5?'':'s'} missing`,e.success?'win':'lose');
+    setStatus(e.success?'Album approved':e.requested>batch.budget?'Queue too long':e.bad.length?'Spoiled shot kept':`${6-e.good.length} moment${e.good.length===5?'':'s'} missing`,playerRan?(e.success?'win':'lose'):'');
     if(playerRan){setOutline(e.success?'win':'lose');$('explainer').hidden=false;}
     if(e.success){
       $('feedback-title').textContent='Targeted review completed the album.';
@@ -471,8 +472,8 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
       $('feedback-title').textContent=`${e.badCount===1?'A spoiled frame slipped':'Spoiled frames slipped'} into the album.`;
       $('feedback-text').textContent=`${e.bad[0].description} The keep gate sent it to the album without a check. Precision is ${percent(e.autoPrecision)}: ${e.autoGood} usable out of ${e.autoGood+e.autoBad} AI keeps. Move the keep gate right to send doubtful shots to the editor.`;
     }else{
-      const lost=e.missing[0];$('feedback-title').textContent=`${percent(e.autoAccuracy)} AI accuracy. ${6-e.good.length} moment${e.good.length===5?'':'s'} missing.`;
-      $('feedback-text').textContent=`Recall tells the other side: the AI kept ${e.autoGood} of 6 usable shots. You’re missing ${lost.name.toLowerCase()}. ${M.MOMENTS[lost.moment].description} Move the check gate left to check it. Moving the keep gate left also keeps more shots, including possible spoiled ones.`;
+      $('feedback-title').textContent=`${percent(e.autoAccuracy)} AI accuracy. ${6-e.good.length} moment${e.good.length===5?'':'s'} missing.`;
+      $('feedback-text').textContent=`Recall tells the other side: the AI kept ${e.autoGood} of 6 usable shots. The rest were discarded unseen, and only an editor check can tell a usable shot from a spoiled one. Choose which shots get a second look.`;
     }
   }
   function randomSeed(){try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(Math.random()*4294967296))>>>0;}}
