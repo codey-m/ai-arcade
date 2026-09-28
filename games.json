@@ -4,7 +4,7 @@
   "games": [
     {
       "slug": "sort-the-recycling",
-      "title": "Sort the Recycling",
+      "title": "Recycling Day",
       "source": "widget-fit-by-hand.html",
       "hook": "Build a small network from pieces and train it to sort cans from bottles. How few pieces will do?",
       "course": "Deep Learning",
@@ -19,7 +19,7 @@
     },
     {
       "slug": "guide-the-robot-home",
-      "title": "Guide the Robot Home",
+      "title": "Downhill Racer",
       "source": "widget-gradient-descent.html",
       "hook": "Set the robot's move strength and carry-over so it reaches its charger within par, without getting stuck or bouncing past.",
       "course": "Deep Learning",
