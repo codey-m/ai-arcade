@@ -130,6 +130,10 @@ button.primary{background:var(--red);border-color:var(--red);color:#fff}button.p
   .corner{font-size:11px;top:6px;padding:3px 6px}.corner-left{left:6px}.corner-right{right:6px}.gamebar{padding:10px 12px}
   .act{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}.word,button.word{font-size:15px;padding:3px 7px}.gap{width:15px}.rehearse-row button{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages (course mode): course-only copy shown; arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.course main{padding:12px 12px 16px}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Robot Theatre</h1></header>
@@ -167,6 +171,7 @@ button.primary{background:var(--red);border-color:var(--red);color:#fff}button.p
     <p>The director reads a line as a bag of words: which words appear and how many times, with the order thrown away. Every act in a play uses the same words, so every act makes the same bag. Anything the director learns for one act it must also stage for the others, so no choice of word points can tell them apart.</p>
     <p>A linked pair is a bigram: two neighbouring words read as one feature. A pair only helps if it appears in some acts and not others. When the tables turn, “dog chases” becomes “robot chases”, while “happy dog” stays in both acts. When only the moods swap, it is the other way round: “dog chases” is in both acts and “happy dog” is in one. The useful pair is whichever one differs.</p>
     <p id="explainer-negation" hidden>Negation is a different problem. “Is happy”, “is not happy”, “is sad” and “is not sad” all read differently, but the word not has to push toward sad after happy and toward happy after sad. One point per word cannot do both, so rehearsal never fits all four. A pair such as “not happy” gives the director a feature of its own for the flipped meaning.</p>
+    <p class="course-only">The director is a linear classifier over these features, like the one in the lecture: for each decision it adds up a weight for every word and linked pair the line contains, and stages the option with the highest total. Lines with the same features get the same totals, whatever weights it learns.</p>
     <p>Reading every pair of neighbouring words, or longer runs of words (n-grams), is the classic fix. It keeps some local order, and the number of features grows quickly.</p>
     <p class="explainer-link">Explore in CV+NLP: bag-of-words features, n-grams and why word order matters.</p>
     <p class="explainer-note">The director is a small learner written for this game. During rehearsal it learns points for each word and linked pair it can read, one set per decision (who acts, what they do, or the mood), and stops when every line comes out right or after 400 passes. No language model runs. Lines are built from four characters, four actions and two moods. Par is the fewest links that make every scene right, found by checking every combination of pairs in the finished lines.</p>
@@ -329,8 +334,18 @@ button.primary{background:var(--red);border-color:var(--red);color:#fff}button.p
 </script><script>(function(){
   'use strict';
   const T=window.RobotTheatre,$=id=>document.getElementById(id);
-  const params=new URLSearchParams(location.search),embed=params.get('embed')==='1',level=params.get('level')||'';
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It plays the lecture's level (negation shows) with
+  // negation second, and uses the lecture's terms. The arcade never sees it.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  const params=new URLSearchParams(location.search),embed=COURSE||params.get('embed')==='1',level=params.get('level')||(COURSE?'course':'');
   if(embed)document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,mn=document.querySelector('main');if(f&&mn){const h=Math.ceil(mn.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
   const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
   const esc=v=>String(v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
@@ -414,7 +429,7 @@ button.primary{background:var(--red);border-color:var(--red);color:#fff}button.p
     links=new Set();selected=null;result=null;
     $('st-play').textContent=s.title;
     $('howto-mine').hidden=!s.write.length;
-    $('explainer-negation').hidden=s.type!=='negation';
+    $('explainer-negation').hidden=!COURSE&&s.type!=='negation';
     $('prompt').textContent=!s.write.length?'Rehearse the play, then link words until every act comes out the way its sketch shows.'
       :s.write.length===1?'Write the twist in Act 2 to match its sketch, then rehearse the play.'
       :`Write ${list(s.write.map(actName))} to match their sketches, then rehearse the play.`;
@@ -594,9 +609,10 @@ button.primary{background:var(--red);border-color:var(--red);color:#fff}button.p
   // The first shows run in a fixed order so each kind of twist turns up early: after The Chase (who acts),
   // a mood swap (only an adjective pair works), a turn with moods (only a subject-verb pair works), then
   // three acts that need one of each. Later shows are random. The seed still reproduces any show.
-  const PROGRESSION=['moods','moods-turn','both'];
+  // Course pages put negation second, the lecture's own example, then a mood swap and three acts.
+  const PROGRESSION=COURSE?['negation','moods','both']:['moods','moods-turn','both'];
   $('new-show').addEventListener('click',()=>{
-    const want=level==='course'?null:PROGRESSION[shows-1];
+    const want=level==='course'&&!COURSE?null:PROGRESSION[shows-1];
     let next=randomSeed();
     for(let tries=0;tries<200;tries++){if(next!==seed&&next!==1&&(!want||T.scenario(next,level).type===want))break;next=randomSeed();}
     shows++;start(next);

@@ -92,6 +92,15 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
 @media(max-width:560px){main{padding:20px 12px 40px}.gamecontrols .controls{grid-template-columns:1fr}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}
   .evidence-panel{margin:0 14px 16px;padding:14px 12px}.cause-table{margin:0 14px 16px}.options{grid-template-columns:1fr}.option span{min-height:0;flex-direction:row;align-items:center;gap:10px}.option .icon{margin:0}.option small{margin-left:auto}.gamebar{padding:10px 12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages (course mode): course-only copy and the Type II shading; arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.course main{padding:12px 12px 16px}
+.area.miss{fill:url(#miss-hatch)}.hatch{stroke:var(--gold-dark);stroke-width:1.6;opacity:.55}
+.key.alpha-area{background:var(--lose);opacity:.55}.key.power-area{background:var(--gold);opacity:.6}
+.key.miss-area{background:repeating-linear-gradient(45deg,var(--gold-dark) 0 1.5px,transparent 1.5px 4px);opacity:.8}
+.ztest{font-variant-numeric:tabular-nums}
+
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">The Wonder Fold</h1></header>
@@ -99,7 +108,7 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
   <div class="gamewrap">
     <section class="playcard" aria-label="Game">
       <div class="gamestatus"><span>Test: <b id="st-test">1</b></span><span>Status: <b id="st-status">Not reliable yet</b></span><span>Chance: <b id="st-chance">51% of 80%</b></span><span>Time: <b id="st-time">40 / par 41 min</b></span></div>
-      <p class="gameprompt">Plan the quickest test that backs a real <strong id="gain-brief">1.5 m</strong> gain at least 80% of the time.</p>
+      <p class="gameprompt">Plan the quickest test that backs a real <strong id="gain-brief">1.5 m</strong> gain at least 80% of the time<span class="course-only">, with significance level α = <span class="alpha-n">5</span>%</span>.</p>
       <div class="gameplay">
         <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="place">A gusty playing field</span><span class="corner corner-right" id="outcome-label"></span><svg id="field" class="field" viewBox="0 0 640 210" role="img" aria-labelledby="field-desc"><desc id="field-desc">The test field.</desc><g id="field-env"></g><g id="field-marks"></g><g id="field-planes"></g></svg></div>
         <p class="legend field-key"><i class="dot std"></i>Standard fold, upper lane <i class="dot won"></i>Wonder fold, lower lane <i class="key avg"></i>Each fold’s average</p>
@@ -109,6 +118,7 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
         <div class="controls">
           <fieldset class="lever"><legend>Wind</legend><div class="options" id="wind"></div><p class="why" id="wind-why" aria-live="polite"></p></fieldset>
           <fieldset class="lever"><legend>Measuring landings</legend><div class="options" id="measure"></div><p class="why" id="measure-why" aria-live="polite"></p></fieldset>
+          <fieldset class="lever course-only"><legend>Significance level</legend><div class="options" id="alpha"></div><p class="why">α is the chance the test backs a fold that does nothing: the Type I error rate. Predict which way the dashed line moves before you change it.</p></fieldset>
           <div class="lever flights"><label for="flights"><b>Flight pairs</b><output id="flights-value" for="flights">20</output></label><input type="range" id="flights" min="1" max="80" step="1" value="20" aria-describedby="flights-help time-line"><p class="why" id="flights-help">Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.</p><p class="why" id="time-line">Your test takes <b id="cost">40</b> minutes (<span id="cost-detail">setup 0 + flights 40</span>). The quickest reliable test takes <b id="par">41</b>; <span id="allowance">up to 45 counts</span>.</p></div>
         </div>
         <div class="actions"><div class="world" role="radiogroup" aria-label="Run a test where the fold"><span class="world-label" aria-hidden="true">The fold</span><label><input type="radio" name="world" value="works" checked><span>really works</span></label><label><input type="radio" name="world" value="nothing"><span>does nothing</span></label></div><button type="button" id="rerun" class="primary">Run the test</button></div>
@@ -116,8 +126,9 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
       <section class="evidence-panel" aria-labelledby="evidence-title">
         <div class="panel-head"><h2 id="evidence-title">What your test’s average could look like <span class="spread" id="pairs-in"></span></h2><p id="odds">If the fold really adds 1.5 m, a test planned like this backs it 51% of the time. The goal is 80%.</p></div>
         <svg id="bells" class="bells" viewBox="0 0 480 150" role="img" aria-labelledby="bells-desc"><desc id="bells-desc"></desc></svg>
-        <p class="bells-key"><i class="key nothing"></i>If the fold does nothing <i class="key works"></i><span id="works-key">If it really adds 1.5 m</span> <i class="key cut"></i>Back the claim past here <i class="key mark"></i>Your test’s average</p>
+        <p class="bells-key"><i class="key nothing"></i><span class="course-only">H₀:&nbsp;</span>If the fold does nothing <i class="key works"></i><span class="course-only">H₁:&nbsp;</span><span id="works-key">If it really adds 1.5 m</span> <i class="key cut"></i><span class="arcade-only">Back the claim past here</span><span class="course-only">Critical value</span> <i class="key mark"></i>Your test’s average<span class="course-only"> <i class="key alpha-area"></i>Type I error α <i class="key power-area"></i>Power <i class="key miss-area"></i>Type II error β</span></p>
         <p class="caption" id="bells-caption"></p>
+        <p class="caption course-only ztest" id="ztest"></p>
         <p class="run-verdict" id="run-verdict" aria-live="polite"></p>
         <h3>What makes landings vary <span class="spread" id="spread"></span></h3>
         <div class="noise-bar" id="noise-bar" aria-hidden="true"></div>
@@ -132,10 +143,11 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     </section>
     <aside class="howto" aria-labelledby="howto-title">
       <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
-      <p><strong>The claim</strong> is that a friend’s new fold flies <span id="gain-howto">1.5 m</span> farther than a standard paper plane. The goal is the quickest test that backs a real gain at least 80% of the time, and backs a fold that does nothing only 5% of the time.</p>
+      <p><strong>The claim</strong> is that a friend’s new fold flies <span id="gain-howto">1.5 m</span> farther than a standard paper plane. The goal is the quickest test that backs a real gain at least 80% of the time, and backs a fold that does nothing only <span class="alpha-n">5</span>% of the time.</p>
       <p><strong>Throw both folds.</strong> You throw every plane yourself, a standard plane and then a wonder fold, so both get the same arm and the same moment. Every throw still lands somewhere different: throws wobble, wind gusts, and measuring is rough.</p>
       <p><strong>Compare the averages.</strong> The test compares how far each fold flew on average. The more flights, the less the averages wobble.</p>
-      <p><strong>Back the claim only on strong evidence.</strong> The wonder fold’s average must land past a line, placed so that a fold that does nothing gets past it only 5 times in 100.</p>
+      <p><strong>Back the claim only on strong evidence.</strong> The wonder fold’s average must land past a line, placed so that a fold that does nothing gets past it only <span class="alpha-n">5</span> times in 100.</p>
+      <p class="course-only"><strong>Significance level α</strong> sets how often a fold that does nothing gets backed anyway.</p>
       <p><strong>Wind and measuring</strong> choices remove noise but take time. <strong>Flight pairs</strong> take 2 minutes each.</p>
       <p><strong>Run the test</strong> to watch one test play out. Switch to <strong>does nothing</strong> to see how often luck fools the test.</p>
     </aside>
@@ -143,10 +155,12 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
   <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
     <h2 id="takeaway-title">Removing noise buys evidence faster than adding flights</h2>
     <p id="takeaway-text" hidden></p>
-    <p>The chance a test catches a real effect is called its power. For this one-sided test it depends on the gain divided by how much the average difference varies, which is the spread of one comparison divided by the square root of the number of flight pairs. The false-alarm rate stays at 5 in 100 the whole time: a better plan raises the power without making the test easier to fool.</p>
-    <p>The two bells and the line are the picture from Probability &amp; Statistical Data Analysis (6.3710.5x) Lec. 6, where power and the trade between false alarms and misses are introduced. Throwing a standard plane and a wonder fold back to back makes each flight pair a paired comparison (Lec. 3): whatever the pair shares, such as your arm on that throw or the breeze at that moment, affects both planes alike.</p>
+    <p>The chance a test catches a real effect is called its power. For this one-sided test it depends on the gain divided by how much the average difference varies, which is the spread of one comparison divided by the square root of the number of flight pairs. The false-alarm rate stays at <span class="alpha-n">5</span> in 100 the whole time: a better plan raises the power without making the test easier to fool.</p>
+    <p class="course-only">The two bells are this lecture’s picture of a one-sided z-test. H₀ says the fold does nothing and H₁ says it adds the gain. Backing the claim when H₀ is true is a Type I error, and its probability is the significance level α, the red area past the line. Holding back when H₁ is true is a Type II error, with probability β, the hatched part of the gold bell. Power is 1 − β. Set α to 10% and then to 1%, and watch the line, the three areas and the time the quickest reliable test needs.</p>
+    <p class="course-only">Throwing a standard plane and a wonder fold back to back makes each flight pair a paired comparison (Lec. 3): whatever the pair shares, such as your arm on that throw or the breeze at that moment, affects both planes alike.</p>
+    <p class="arcade-only">The two bells and the line are the picture from Probability &amp; Statistical Data Analysis (6.3710.5x) Lec. 6, where power and the trade between false alarms and misses are introduced. Throwing a standard plane and a wonder fold back to back makes each flight pair a paired comparison (Lec. 3): whatever the pair shares, such as your arm on that throw or the breeze at that moment, affects both planes alike.</p>
     <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: sample size, false alarms and the power of a test.</p>
-    <p class="explainer-note">The verdict does not come from the animated test. Each plan has an exact chance of catching the gain, from a one-sided z-test on the average difference between the two folds, with the spread of each cause known. The margin is set so that a fold that does nothing is backed 5 times in 100. The field draws one simulated test with the same noise; run it again to see others. The verdict waits for the last flight pair: stopping as soon as a test looked good would raise the false-alarm rate. Causes of variation are independent, so their variances (spreads squared) add. Times are minutes of the afternoon: a setup time plus the time for each flight pair. The quickest possible test is found over every choice of wind, measuring and number of flights, and any reliable test within 10% of it counts. The chance shown is rounded down, so a test shown at 80 of 100 is reliable.</p>
+    <p class="explainer-note">The verdict does not come from the animated test. Each plan has an exact chance of catching the gain, from a one-sided z-test on the average difference between the two folds, with the spread of each cause known. The margin is set so that a fold that does nothing is backed <span class="alpha-n">5</span> times in 100. The field draws one simulated test with the same noise; run it again to see others. The verdict waits for the last flight pair: stopping as soon as a test looked good would raise the false-alarm rate. Causes of variation are independent, so their variances (spreads squared) add. Times are minutes of the afternoon: a setup time plus the time for each flight pair. The quickest possible test is found over every choice of wind, measuring and number of flights, and any reliable test within 10% of it counts. The chance shown is rounded down, so a test shown at 80 of 100 is reliable.</p>
   </section>
   
 </main>
@@ -154,7 +168,9 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
 <script>/* The Wonder Fold: a paper-plane comparison, exact power and a cost par. Pure and deterministic. */
 (function(root){
   'use strict';
-  const ALPHA=.05,Z_ALPHA=1.6448536269514722,TARGET=.8,NMAX=80,PAIR_MINUTES=2,TOLERANCE=1.1,BASE_DISTANCE=7;
+  const ALPHA=.05,Z_ALPHA=1.6448536269514722,
+    // Course pages also offer α = 1% and 10%, as the original widget's α slider did; the arcade stays at 5%.
+    Z={.01:2.3263478740408408,.05:1.6448536269514722,.1:1.2815515655446004},zFor=a=>Z[a??ALPHA],TARGET=.8,NMAX=80,PAIR_MINUTES=2,TOLERANCE=1.1,BASE_DISTANCE=7;
   // Costs are minutes of the afternoon: a setup time, plus any extra time on every flight pair.
   // keep: the share of that noise source's spread (standard deviation) left after the choice.
   const WIND=[{key:'open',name:'Open field',setup:0,perPair:0,keep:1,why:'No setup. Gusts push some planes farther and others shorter.'},
@@ -187,12 +203,12 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
   const benchCost=d=>WIND[d.wind].setup+MEASURE[d.measure].setup,pairMinutes=d=>PAIR_MINUTES+WIND[d.wind].perPair+MEASURE[d.measure].perPair;
   function evaluate(s,d){
     const parts=components(s,d),variance=parts.reduce((a,p)=>a+p.variance,0),se=Math.sqrt(variance/d.n);
-    // One-sided z-test on the average difference; the cutoff keeps false alarms at 5%.
-    const cutoff=Z_ALPHA*se,power=1-cdf((cutoff-s.gain)/se),cost=benchCost(d)+pairMinutes(d)*d.n,reliable=power>=TARGET;
+    // One-sided z-test on the average difference; the cutoff keeps false alarms at α (5% unless the design sets it).
+    const cutoff=zFor(d.alpha)*se,power=1-cdf((cutoff-s.gain)/se),cost=benchCost(d)+pairMinutes(d)*d.n,reliable=power>=TARGET;
     return {parts,variance,se,cutoff,power,caught:Math.floor(power*100),cost,setup:benchCost(d),flightMinutes:pairMinutes(d)*d.n,perPair:pairMinutes(d),reliable,success:reliable&&cost<=s.allowance};
   }
   // After k flight pairs, a test's average gain varies by se(k); the line keeps false alarms at 5 in 100.
-  const after=(s,d,k)=>{const se=Math.sqrt(evaluate(s,d).variance/k);return {se,cutoff:Z_ALPHA*se};};
+  const after=(s,d,k)=>{const se=Math.sqrt(evaluate(s,d).variance/k);return {se,cutoff:zFor(d.alpha)*se};};
   const minFlights=(s,d)=>{for(let n=1;n<=NMAX;n++)if(evaluate(s,{...d,n}).reliable)return n;return null;};
   const designs=()=>{const out=[];for(let wind=0;wind<3;wind++)for(let measure=0;measure<3;measure++)out.push({wind,measure});return out;};
   function build(seed,spec){
@@ -220,6 +236,16 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     const mean=key=>pairs.reduce((t,p)=>t+p[key].measured,0)/pairs.length,diff=mean('won')-mean('std'),e=evaluate(s,d);
     return {pairs,meanStd:mean('std'),meanWon:mean('won'),diff,cutoff:e.cutoff,backs:diff>=e.cutoff,works};
   }
+  // Rounds are generated and checked at α = 5%. A course page that chooses another α recomputes the quickest
+  // reliable test for the same claim and field; par is null if no plan reaches 80% within NMAX flight pairs.
+  function atAlpha(base,alpha){
+    if(alpha===ALPHA)return base;
+    const s={...base,alpha};
+    s.options=designs().map(d=>{const n=minFlights(s,{...d,alpha});return {...d,n,cost:n===null?null:benchCost(d)+pairMinutes(d)*n};});
+    const feasible=s.options.filter(o=>o.n!==null).sort((a,b)=>a.cost-b.cost);
+    s.best=feasible[0]||null;s.par=s.best?s.best.cost:null;s.allowance=s.best?Math.floor(s.par*TOLERANCE):-1;s.winners=feasible.filter(o=>o.cost<=s.allowance);
+    return s;
+  }
   const INTRO={gain:1.5,sd:{throw:1,wind:2.6,measure:.4}};
   function scenario(seed=1){
     seed>>>=0;
@@ -233,11 +259,14 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     }
     throw Error('The Wonder Fold: no valid test for seed '+seed);
   }
-  root.WonderFold={ALPHA,TARGET,NMAX,PAIR_MINUTES,TOLERANCE,BASE_DISTANCE,WIND,MEASURE,SOURCES,TARGETS,placeFor,cdf,scenario,evaluate,simulate,after,minFlights,designs,benchCost,pairMinutes};
+  root.WonderFold={ALPHA,zFor,atAlpha,TARGET,NMAX,PAIR_MINUTES,TOLERANCE,BASE_DISTANCE,WIND,MEASURE,SOURCES,TARGETS,placeFor,cdf,scenario,evaluate,simulate,after,minFlights,designs,benchCost,pairMinutes};
 })(globalThis);
 </script><script>(function(){
   'use strict';
   const W=globalThis.WonderFold,$=id=>document.getElementById(id);
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
+  // original widget's α choice and the lecture's terms (H₀, H₁, Type I and II errors, z-test readout). The arcade never sees it.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
   const raf=typeof globalThis.requestAnimationFrame==='function'?globalThis.requestAnimationFrame.bind(globalThis):null;
@@ -254,24 +283,28 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
   };
   const X=dist=>60+Math.max(.2,Math.min(15.8,dist))/16*560,LANE={std:80,won:150};
   // lastRun: the most recent finished test for the current plan, so its result stays on the chart.
-  let s,seed=1,d,world='works',run=0,anim=null,rerunTimer=null,lastRun=null,tests=1;
+  let s,base,seed=1,d,world='works',run=0,anim=null,rerunTimer=null,lastRun=null,tests=1,alpha=W.ALPHA;
+  const aN=()=>Math.round(alpha*100),f2=v=>v.toFixed(2),f3=v=>v.toFixed(3);
   function setURL(){try{const u=new URL(location.href);u.searchParams.set('seed',seed);history.replaceState(null,'',u.href);}catch(e){}}
   const timeNote=o=>o.perPair?`+${o.perPair} min per pair`:o.setup?`${o.setup} min setup`:'no extra time';
   const options=(name,list)=>list.map((o,i)=>`<label class="option"><input type="radio" name="${name}" value="${i}"><span><svg class="icon" viewBox="0 0 30 30" aria-hidden="true">${ICON[o.key]}</svg><b>${esc(o.name)}</b><small>${timeNote(o)}</small></span></label>`).join('');
   const aheadText=v=>Math.abs(v)<.05?'about as far as the standard':v>0?`${m(v)} farther`:`${m(-v)} shorter`;
 
   function start(next){
-    seed=next>>>0;s=W.scenario(seed);d={...s.start};run=0;world='works';lastRun=null;anim=null;$('st-test').textContent=tests;
+    seed=next>>>0;base=W.scenario(seed);s=W.atAlpha(base,alpha);d={...s.start,alpha};run=0;world='works';lastRun=null;anim=null;$('st-test').textContent=tests;
     s.plain=W.evaluate(s,{wind:0,measure:0,n:1}).variance;
     $('gain-brief').textContent=$('gain-howto').textContent=m(s.gain);$('works-key').textContent=`If it really adds ${m(s.gain)}`;$('place').textContent=s.place.charAt(0).toUpperCase()+s.place.slice(1);
     $('wind').innerHTML=options('wind',W.WIND);$('measure').innerHTML=options('measure',W.MEASURE);
-    $('par').textContent=s.par;$('allowance').textContent=`up to ${s.allowance} min counts`;$('flights').max=W.NMAX;
+    setPar();$('flights').max=W.NMAX;
     document.querySelectorAll('input[name=world]').forEach(r=>{r.checked=r.value===world;});
     setControls();setURL();clearOutcome();environment();$('field-marks').innerHTML='';render();
   }
+  function setPar(){$('par').textContent=s.par;$('allowance').textContent=`up to ${s.allowance} min counts`;}
+  function setAlpha(a){alpha=a;s=W.atAlpha(base,alpha);d.alpha=alpha;setPar();read(true);}
   function setControls(){
     $('flights').value=d.n;
     for(const k of ['wind','measure'])document.querySelectorAll(`input[name=${k}]`).forEach(r=>{r.checked=Number(r.value)===d[k];});
+    document.querySelectorAll('input[name=alpha]').forEach(r=>{r.checked=Number(r.value)===alpha;});
   }
   function read(immediate){
     d.n=Math.max(1,Math.min(W.NMAX,Math.round(Number($('flights').value))));
@@ -339,8 +372,8 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     const e=W.evaluate(s,d),line=`the line at ${m(sim.cutoff)}`;
     const text=sim.works
       ?(sim.backs?`Your test’s average: the wonder fold flew ${aheadText(sim.diff)}. That’s past ${line}, so the test backs the claim.`
-        :`Your test’s average: the wonder fold flew ${aheadText(sim.diff)}, short of ${line}. The test doesn’t back the claim, even though the gain is real. With this plan that happens ${100-e.caught} times in 100.`)
-      :(sim.backs?`This fold does nothing, but it flew ${aheadText(sim.diff)} on average by luck. That’s past ${line}, so the test backs the claim anyway: a false alarm. That happens 5 times in 100.`
+        :`Your test’s average: the wonder fold flew ${aheadText(sim.diff)}, short of ${line}. The test doesn’t back the claim, even though the gain is real${COURSE?': a Type II error':''}. With this plan that happens ${100-e.caught} times in 100.`)
+      :(sim.backs?`This fold does nothing, but it flew ${aheadText(sim.diff)} on average by luck. That’s past ${line}, so the test backs the claim anyway: a false alarm${COURSE?', or Type I error':''}. That happens ${aN()} times in 100.`
         :`This fold does nothing. It flew ${aheadText(sim.diff)} on average, short of ${line}, so the test rightly holds back.`);
     $('run-verdict').textContent=text;$('field-desc').textContent=`One test with ${d.n} flight pairs. ${text}`;
   }
@@ -354,15 +387,20 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     const path=p=>p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('');
     const c=Math.min(Math.max(cutoff,lo),hi),area=mu=>`M${CX(c).toFixed(1)} ${BASE}`+curve(mu,c,hi).map(q=>'L'+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('')+`L${CX(hi).toFixed(1)} ${BASE}Z`;
     const power=1-W.cdf((cutoff-s.gain)/se),has=mark!==null&&mark!==undefined;
+    // Course pages also shade the Type II error: the part of the H₁ bell short of the line.
+    const miss=COURSE?`<defs><pattern id="miss-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="hatch"/></pattern></defs><path class="area miss" d="M${CX(lo).toFixed(1)} ${BASE}`+curve(s.gain,lo,c).map(q=>'L'+q[0].toFixed(1)+' '+q[1].toFixed(1)).join('')+`L${CX(c).toFixed(1)} ${BASE}Z"/>`:'';
     const mk=has?(()=>{const x=CX(Math.max(lo,Math.min(hi,mark))).toFixed(1);return `<g class="mark-avg ${right===undefined?'':right?'right':'wrong'}"><line x1="${x}" y1="12" x2="${x}" y2="${BASE}"/><path d="M${x} ${BASE+2}l-5 8h10z"/></g>`;})():'';
     $('bells').innerHTML=`<desc id="bells-desc">After ${k} of ${d.n} flight pairs: if the fold does nothing, a test’s average gain lands around 0 m, give or take ${m(se)}; if it adds ${m(s.gain)}, around ${m(s.gain)}. The test backs the claim past ${m(cutoff)}.${has?` Your test’s average so far: ${m(mark)}.`:''}</desc>`+
       `<line class="axis" x1="0" y1="${BASE}" x2="480" y2="${BASE}"/><line class="zero" x1="${CX(0)}" y1="${BASE}" x2="${CX(0)}" y2="${BASE+6}"/><line class="zero" x1="${CX(s.gain)}" y1="${BASE}" x2="${CX(s.gain)}" y2="${BASE+6}"/>`+
-      `<path class="area works" d="${area(s.gain)}"/><path class="area nothing" d="${area(0)}"/><path class="bell nothing${world==='nothing'?' now':''}" d="${path(curve(0))}"/><path class="bell works${world==='works'?' now':''}" d="${path(curve(s.gain))}"/>`+
+      `${miss}<path class="area works" d="${area(s.gain)}"/><path class="area nothing" d="${area(0)}"/><path class="bell nothing${world==='nothing'?' now':''}" d="${path(curve(0))}"/><path class="bell works${world==='works'?' now':''}" d="${path(curve(s.gain))}"/>`+
       `<line class="cut" x1="${CX(c).toFixed(1)}" y1="6" x2="${CX(c).toFixed(1)}" y2="${BASE}"/>${mk}`;
+    if(COURSE&&k===d.n){const sd=Math.sqrt(W.evaluate(s,d).variance),z=W.zFor(alpha),dd=s.gain/sd,delta=dd*Math.sqrt(d.n);
+      $('ztest').textContent=`One comparison varies by σ = ${f2(sd)} m, so the average of ${d.n} comparisons varies by σ/√n = ${f2(se)} m. Critical value z* = ${f3(z)}, or ${f2(cutoff)} m. Effect size d = ${s.gain}/${f2(sd)} = ${f2(dd)}, so δ = d√n = ${f2(delta)}. Power = 1 − Φ(z* − δ) = ${f3(power)}; Type II error β = ${f3(1-power)}.`;}
     $('pairs-in').textContent=k<d.n?`after ${k} of ${d.n} flight pairs`:`${d.n} flight pair${d.n===1?'':'s'}`;
     $('bells-caption').textContent=k<d.n
       ?`After ${k} of ${d.n} flight pairs. Each new pair narrows both bells: the average settles down even though single throws don’t, and the line moves in with it.`
-      :`Each bell shows where your test’s average gain could land. Past the dashed line, the test backs the claim. The line is placed so a fold that does nothing gets past it only 5 times in 100 (red). A fold that really adds ${m(s.gain)} gets past it ${Math.floor(power*100)} times in 100 (gold).`;
+      :COURSE?`Each bell shows where your test’s average gain could land: under H₀ (the fold does nothing) and under H₁ (it adds ${m(s.gain)}). Past the dashed critical value, the test rejects H₀ and backs the claim. Red is the Type I error, α = ${aN()}%. Gold past the line is the power, ${Math.floor(power*100)}%. The hatched part of the gold bell is the Type II error, β = ${100-Math.floor(power*100)}%.`
+      :`Each bell shows where your test’s average gain could land. Past the dashed line, the test backs the claim. The line is placed so a fold that does nothing gets past it only ${aN()} times in 100 (red). A fold that really adds ${m(s.gain)} gets past it ${Math.floor(power*100)} times in 100 (gold).`;
   }
 
   // After a completed test: the play area's outcome outline and corner label, and the reason line.
@@ -371,13 +409,14 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
     const e=W.evaluate(s,d),biggest=e.parts.slice().sort((a,b)=>b.variance-a.variance)[0],kind=e.success?'win':e.reliable?'over':'lose';
     $('field-wrap').classList.add('outcome-'+kind);$('outcome-label').textContent=e.success?'Ready to test':e.reliable?'Too slow':'Not reliable';$('outcome-label').className='corner corner-right '+kind;
     const fb=(kind,title,text)=>{$('feedback').className='reason'+(kind?' '+kind:'');$('feedback-title').textContent=title;$('feedback-text').textContent=text;};
-    if(e.success)fb('success',`Ready to test, in ${e.cost} minutes.`,`If the fold really adds ${m(s.gain)}, this plan backs it ${e.caught}% of the time, and it backs a fold that does nothing only 5% of the time. ${e.cost===s.par?'No reliable test is quicker.':`The quickest reliable test takes ${s.par} minutes.`}`);
+    if(e.success)fb('success',`Ready to test, in ${e.cost} minutes.`,`If the fold really adds ${m(s.gain)}, this plan backs it ${e.caught}% of the time, and it backs a fold that does nothing only ${aN()}% of the time. ${e.cost===s.par?'No reliable test is quicker.':`The quickest reliable test takes ${s.par} minutes.`}`);
     else if(e.reliable)fb('warning',`Reliable, but it takes ${e.cost} minutes. The quickest takes ${s.par}.`,'Something in this plan takes longer than it saves. Compare how much variation each choice removes with the time it costs.');
     else fb('',`This plan backs a real gain ${e.caught}% of the time. It needs 80%.`,`Right now the biggest cause of variation is ${biggest.name.toLowerCase()}: ${pct(biggest.variance/e.variance)} of it.${biggest.key==='throw'?' No equipment changes how much each throw wobbles; only more flights average it out.':''}`);
     $('takeaway').hidden=false;
   }
   function render(){
     const e=W.evaluate(s,d),biggest=e.parts.slice().sort((a,b)=>b.variance-a.variance)[0];
+    document.querySelectorAll('.alpha-n').forEach(el=>{el.textContent=aN();});
     $('flights-value').textContent=d.n;$('flights').setAttribute('aria-valuetext',`${d.n} flight pairs, ${e.flightMinutes} minutes`);
     $('flights-help').textContent=`Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.${e.perPair>2?` With the tape, ${e.perPair} minutes.`:''}`;
     $('wind-why').textContent=W.WIND[d.wind].why;$('measure-why').textContent=W.MEASURE[d.measure].why;
@@ -403,13 +442,22 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
   }
   $('flights').addEventListener('input',()=>read(false));
   for(const k of ['wind','measure'])$(k).addEventListener('change',()=>read(true));
+  if(COURSE){$('alpha').innerHTML=[[.01,'stricter'],[.05,'the usual choice'],[.1,'looser']].map(([a,note])=>`<label class="option"><input type="radio" name="alpha" value="${a}"><span><b>α = ${Math.round(a*100)}%</b><small>${note}</small></span></label>`).join('');
+    $('alpha').addEventListener('change',ev=>setAlpha(Number(ev.target.value)));}
   document.querySelectorAll('input[name=world]').forEach(r=>r.addEventListener('change',()=>{world=r.value;runTest(true);}));
   $('rerun').addEventListener('click',()=>runTest(true));
   function randomSeed(){try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(Math.random()*4294967296))>>>0;}}
   $('new-test').addEventListener('click',()=>{let next=randomSeed();if(next===seed)next=(next+1)>>>0;tests++;start(next);});
   $('reset').addEventListener('click',()=>start(seed));
   const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw);
-  if(params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE||params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,mn=document.querySelector('main');if(f&&mn){const h=Math.ceil(mn.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
   start(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1);
 })();
 </script>

@@ -176,6 +176,14 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   .howto,.explainer{padding:20px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Course pages (course mode): course-only copy shown; arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.course main{padding:12px 12px 16px}
+.confusion{border-collapse:collapse;margin:16px 0 0;font-size:14px;font-variant-numeric:tabular-nums}
+.confusion caption{text-align:left;font-size:13px;color:var(--muted);padding-bottom:6px}
+.confusion th,.confusion td{border:1px solid var(--frame);padding:6px 12px;text-align:left}
+.confusion thead th,.confusion tbody th{font-weight:600}
 </style></head>
 <body>
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Photo Finish</h1></header>
@@ -212,6 +220,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
           <article class="metric"><h3>AI precision</h3><strong id="precision-value">0%</strong><p>Usable shots kept ÷ all shots kept</p><span id="precision-count"></span></article>
           <article class="metric"><h3>AI recall</h3><strong id="recall-value">0%</strong><p>Usable shots kept ÷ all 6 usable shots</p><span id="recall-count"></span></article>
         </div>
+        <table class="confusion course-only" id="confusion"></table>
       </section>
       <details class="photo-table"><summary>Photo descriptions and current decisions</summary><div id="accessible-table"></div></details>
       <div class="gamefoot">
@@ -308,6 +317,8 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
 })(globalThis);
 </script><script>(function(){
   'use strict';
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). The arcade never sees it.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
   const M=globalThis.PhotoFinish,$=id=>document.getElementById(id);
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const positions=id=>`${id%4*100/3}% ${Math.floor(id/4)*50}%`;
@@ -370,6 +381,7 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   }
   function renderMetrics(e){
     const {tp,fp,fn,tn}=e.confusion;
+    if(COURSE)$('confusion').innerHTML=`<caption>The AI alone at the keep gate: counts behind the three metrics</caption><thead><tr><td></td><th scope="col">Kept by the AI</th><th scope="col">Rejected by the AI</th></tr></thead><tbody><tr><th scope="row">Usable shot</th><td>TP ${tp}</td><td>FN ${fn}</td></tr><tr><th scope="row">Spoiled shot</th><td>FP ${fp}</td><td>TN ${tn}</td></tr></tbody>`;
     $('metric-rule').textContent=`Keep threshold: ${scoreAt(high)}. Scores at or above it are kept; lower scores are rejected. Human checks excluded.`;
     $('accuracy-value').textContent=percent(e.autoAccuracy);
     $('precision-value').textContent=percent(e.autoPrecision);
@@ -482,7 +494,14 @@ th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);vert
   for(const value of ['rare','balanced'])$('mix-'+value).addEventListener('click',()=>{if(mix!==value){mix=value;start(seed,true);}});
   if(typeof ResizeObserver!=='undefined')new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width!==lastWidth){lastWidth=width;layout();if(!drag)centerGates();}}).observe($('canvas-scroll'));
   const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw);
-  if(params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE||params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,mn=document.querySelector('main');if(f&&mn){const h=Math.ceil(mn.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
   mix=params.get('mix')==='balanced'?'balanced':'rare';
   start(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1);
 })();

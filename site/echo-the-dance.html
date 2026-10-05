@@ -85,6 +85,11 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
 @media(max-width:560px){main{padding:20px 12px 40px}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}.track-table{margin:0 14px 16px}
   .tray{grid-template-columns:repeat(2,minmax(0,1fr))}.tile-figure{height:80px}.slot{min-height:118px}.timeline-key{display:none}.corner{font-size:11px;top:6px;padding:3px 6px}.corner-left{left:6px}.corner-right{right:6px}.gamebar{padding:10px 12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages (course mode): course-only copy and the variance ledger; arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.course main{padding:12px 12px 16px}
+.ledger{margin:8px 0 0;font-size:14px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}.ledger b{color:var(--body);font-weight:600}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Echo the Dance</h1></header>
@@ -99,6 +104,7 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
           <span class="corner corner-left">Original</span><span class="corner corner-center" id="outcome-label" aria-hidden="true"></span><span class="corner corner-right">Echo</span>
         </div>
         <div class="meter" aria-hidden="true"><span class="meter-label">Motion kept</span><div class="meter-bar"><span class="meter-fill" id="meter-fill"></span><span class="meter-target" id="meter-target"></span></div><span class="meter-value" id="meter-value">0%</span><span class="meter-needed">need <b id="meter-needed">75%</b></span></div>
+        <p class="ledger course-only" id="ledger"></p>
         <div class="timeline-head"><span>Motion matched, moment by moment</span><span class="timeline-key" aria-hidden="true"><i class="key track-1"></i>Track 1<i class="key track-2"></i>Track 2 adds</span><span class="timeline-time" id="timeline-time">0:00</span><button type="button" id="play" class="small">Pause</button></div>
         <div id="timeline" class="timeline" role="slider" tabindex="0" aria-label="Routine time" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" aria-valuetext="0.0 of 8 seconds" aria-describedby="timeline-help"><svg id="timeline-svg" viewBox="0 0 480 56" preserveAspectRatio="none" aria-hidden="true"></svg></div>
         <p class="caption" id="timeline-help">Gray is all of the original’s motion at each moment. Each track fills in what it matches; track 2 adds only what track 1 hasn’t covered. Drag along the strip, or use ← and →, to hold a moment.</p>
@@ -106,7 +112,7 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
       </div>
       <div class="gamecontrols">
         <div class="link-block"><div class="block-head"><h2>The link</h2><p>Two tracks. Each sends one number per frame.</p></div><div class="slots" id="slots"></div></div>
-        <div class="tray-block"><div class="block-head"><h2 id="tray-title">Tracks from the recording</h2><p>Each track is one movement pattern. The percentage is how much of the motion it keeps on its own.</p></div><div class="tray" id="tray" role="group" aria-labelledby="tray-title"></div></div>
+        <div class="tray-block"><div class="block-head"><h2 id="tray-title">Tracks from the recording</h2><p>Each track is one movement pattern. The percentage is <span class="arcade-only">how much of the motion it keeps</span><span class="course-only">the share of variance it captures</span> on its own.</p></div><div class="tray" id="tray" role="group" aria-labelledby="tray-title"></div></div>
       </div>
       <details class="track-table"><summary>Tracks and what the echo is missing</summary><div id="accessible-table"></div></details>
       <div class="gamefoot">
@@ -120,6 +126,7 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
       <p><strong>Tracks</strong> are movement patterns from the recording, and each sends one number per frame. The percentage on a track is how much of the motion it keeps on its own.</p>
       <p><strong>Send a track</strong> by dragging it into the link, or press it. Press it again to take it off. When both tracks are full, a new track replaces track 2.</p>
       <p><strong>The echo</strong> follows at once, over the original’s shadow. With no tracks it holds the routine’s average pose. Keep at least <span id="target-howto">75%</span> of the motion to put it in step.</p>
+      <p class="course-only"><strong>The ledger</strong> under the meter splits the routine’s total variance into the variance the tracks capture and the reconstruction error the echo is left with.</p>
       <p><strong>The strip</strong> under the dancers shows the motion matched at each moment. Drag along it, or use ← and →, to hold a moment. Pause stops the dancers.</p>
     </aside>
   </div>
@@ -129,7 +136,9 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
     <p id="takeaway-lost" hidden></p>
     <div id="adds-block" hidden><h3>Why the two biggest tracks don’t add up</h3><div id="adds-explained"></div></div>
     <p>PCA’s tracks never repeat each other. Each is at right angles to the rest (orthogonal), so the motion they keep adds up exactly.</p>
-    <p>This connects to principal component analysis in Deep Learning. The course widget turns a direction through a cloud of two-number points; here each frame has ten joint angles and the link keeps two.</p>
+    <p class="arcade-only">This connects to principal component analysis in Deep Learning. The course widget turns a direction through a cloud of two-number points; here each frame has ten joint angles and the link keeps two.</p>
+    <p class="course-only">In the lecture’s terms, the link is an encoder and the echo is a decoder. Each frame’s ten joint angles are projected onto the two tracks on the link, which gives two numbers per frame, and the echo maps those two numbers back to a pose. Motion kept is the variance those two directions capture. What the echo gets wrong, squared and averaged over the frames, is the reconstruction error.</p>
+    <p class="course-only">The motion the echo misses is the part of each pose at right angles to the tracks on the link. Put a single track on the link and read the ledger, then try three different pairs and add up the two numbers each time. What does the ledger tell you about the pair that captures the most?</p>
     <p class="explainer-link">Explore in Deep Learning: how principal component analysis keeps useful variation while reducing dimensions.</p>
     <p class="explainer-note">The routine is synthesized for this puzzle from eight movement patterns; no motion capture or trained model is involved. Each frame has ten joint angles. Motion is how far the joints move from the routine’s average pose, with each joint weighted by how much of the body it moves: a degree of torso lean counts four times as much as a degree at the elbow. Each track is a fixed pattern of joint movement. For every frame, the link sends the two numbers that bring the echo as close as possible to the original (least squares). Motion kept is the share of the original’s variation that the echo reproduces. The principal components are computed from the routine’s 240 frames on your device. Every pair that meets the brief counts.</p>
   </section>
@@ -317,6 +326,9 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
 })(globalThis);
 </script><script>(function(){
   'use strict';
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
+  // lecture's terms and a ledger, total variance = variance captured + reconstruction error. The arcade never sees it.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
   const M=globalThis.EchoDance,$=id=>document.getElementById(id);
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
@@ -418,6 +430,9 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
     const k=current.kept;
     $('meter-fill').style.width=(k*100).toFixed(1)+'%';$('meter-value').textContent=pct(k);
     $('meter-fill').parentElement.parentElement.classList.toggle('met',current.success);
+    // The ledger computes both sides separately: captured from the share kept, error from the echo's own per-frame misses.
+    if(COURSE){const f=v=>v.toFixed(1),cap=k*s.total,err=current.error.reduce((a,b)=>a+b,0)/current.error.length;
+      $('ledger').innerHTML=`Total variance <b>${f(s.total)}</b> = variance captured <b>${f(cap)}</b> + reconstruction error <b>${f(err)}</b>`;}
   }
   // The status line, the stage's corner label and its outcome outline move together.
   function status(text,kind='',label=''){
@@ -560,7 +575,14 @@ button.small{min-height:34px;padding:5px 14px;font-size:13px}
   $('new-routine').addEventListener('click',()=>{let next=randomSeed();if(next===seed)next=(next+1)>>>0;routines++;start(next);});
   $('reset').addEventListener('click',()=>start(seed));
   const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw);
-  if(params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE||params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,mn=document.querySelector('main');if(f&&mn){const h=Math.ceil(mn.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
   start(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1);
   if(raf)raf(tick);
 })();

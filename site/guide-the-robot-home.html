@@ -137,6 +137,10 @@ body.gameformat button.primary,body.gameformat button.accent{background:#750014;
 body.gameformat button.primary:hover:enabled,body.gameformat button.accent:hover:enabled{filter:none;background:#5A0010;border-color:#5A0010}
 body.gameformat button.quiet{border-color:transparent}
 body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
+/* Course pages (course mode): course-only copy shown; arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.gameformat.course main{padding:12px 12px 16px}
 </style>
 </head>
 <body data-game="optimizer">
@@ -280,7 +284,7 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     }
     return [gx,gy];
   }
-  // Up to 60 moves of gradient descent with momentum, with early stopping: the run ends once the robot has
+  // Up to 60 moves of gradient descent with momentum, with a stopping rule: the run ends once the robot has
   // been within 0.10 of the charger for 5 moves in a row (docked), or has come to rest anywhere else (stalled).
   function trajectory(s, p) {
     let [x,y]=s.start,vx=0,vy=0,path=[[x,y]],diverged=false,inside=0,still=0,entry=null,stalled=false;
@@ -301,9 +305,9 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
   // where the starting settings are too slow. Both get scenery; the charger must stay the lowest point in view.
   // The opener's par is lenient (twice the fastest, at least six more); later valleys ask for 1.4 times the fastest.
   const withPar=(s,easy)=>(s&&(s.par=easy?Math.max(s.bestSteps+6,s.bestSteps*2):Math.max(s.bestSteps+3,Math.round(s.bestSteps*1.4))),s);
-  function gradientScenario(seed,level){
+  function gradientScenario(seed,level,opts){
     // The kind comes from the round's own seed, so retries redraw the terrain but keep the kind.
-    if(level==='course')return withPar(courseBowl(),true);
+    if(level==='course')return withPar(courseBowl(opts&&opts.stretch||12),true);
     // Overshoot valleys are paused: with the charger at the true low point, its well recaptures a robot at any
     // carry-over up to about 80%, so they no longer teach anything. The generator for them is kept below.
     const kind=level==='guided'?'dip':choose(rng(seed^0x2545F491),['dip','open']);
@@ -311,10 +315,11 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     for(const k of [kind,...['dip','open','overshoot'].filter(v=>v!==kind)])for(let attempt=0;attempt<60;attempt++){const s=robotRound((seed+attempt*0x9E3779B9)>>>0,level,k);if(s)return withPar(s,level==='guided');}
     throw Error('No feasible optimizer settings');
   }
-  // The course page's first round: the original widget's bowl f = ½(x² + k·y²) with k = 12 and its start (−3.3, 2),
-  // no dips or scenery. On the absolute scale the divergence limit 2/k (0.167) falls between strength 8 and 9.
-  function courseBowl(){
-    const s={kind:'bowl',stretch:12,bowl:1,rotation:0,start:[-3.3,2],wells:[],ripples:null,charger:[0,0],biome:'training',camera:0,bestSteps:Infinity,witness:null};
+  // The course page's first round: the original widget's bowl f = ½(x² + k·y²), k = 12 unless the course page's
+  // stretch control sets it (1-25, as in the original), from its start (−3.3, 2), with no dips or scenery.
+  // On the absolute scale the divergence limit 2/k (0.167 at k = 12) falls between strength 8 and 9.
+  function courseBowl(stretch=12){
+    const s={kind:'bowl',stretch,bowl:1,rotation:0,start:[-3.3,2],wells:[],ripples:null,charger:[0,0],biome:'training',camera:0,bestSteps:Infinity,witness:null};
     for(const strength of strengths)for(const momentum of momenta){const rate=rateFor(s,strength),e=trajectory(s,{rate,momentum});if(e.success&&e.entry<s.bestSteps){s.bestSteps=e.entry;s.witness={strength,rate,momentum};}}
     return s;
   }
@@ -481,9 +486,9 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     return {score,success:pairs?score===4:score===s.bestSingle && (diagnosis===undefined || diagnosis===(s.needsPairs?'pairs':'single'))};
   }
   const factories={shapes:shapeScenario,optimizer:gradientScenario,threshold:thresholdScenario,pca:pcaScenario,power:powerScenario,nlp:nlpScenario};
-  const create=(game,seed,level='standard')=>{
+  const create=(game,seed,level='standard',opts)=>{
     if(!factories[game] || !['guided','standard','stretch','course'].includes(level))throw Error('Invalid game or level');
-    return factories[game](seed>>>0,level);
+    return factories[game](seed>>>0,level,opts);
   };
   root.ArcadeModels={version:'2.0.0',rng,choose,normal,cdf,invNorm,grid,clamp,round,create,shapeScore,curveY,curveScore,netY,netScore,netLossGrad,netTrain,pieceKeys,NET_BOUNDS,trajectory,rateFor,robotLoss,robotGrad,confusion,thresholdEval,pcaEval,mapEval,powerAt,powerEval,nlpScore,nlpValues,nlpEval};
 })(typeof globalThis==='undefined'?window:globalThis);
@@ -491,11 +496,14 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
 <script>(function(){
   'use strict';
   const M=globalThis.ArcadeModels, $=id=>document.getElementById(id), GAME=document.body.dataset.game;
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds
+  // the original course widget's controls and the lecture's terms, and drops the arcade links. The arcade never sees it.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pct=(n,d=0)=>n===null?'undefined':(100*n).toFixed(d)+'%';
   const CONFIG={
     shapes:{title:'Recycling Day',topic:'A robot needs a sorting rule',lead:'A recycling robot weighs and measures each item. Help it tell metal cans from plastic bottles by building the rule that draws a divider between them.',original:'widget-fit-by-hand.html',replay:'Another batch changes the sizes and weights, and sometimes the shape of the gap between cans and bottles. The pieces that worked last time may not be the fewest this time.',scoring:'Each item is placed by its size (across) and weight (up), and drawn larger when it is bigger. Cans must lie above the divider and bottles on or below it. The divider is y = f(x): an output bias plus up to three pieces. A Line adds m·x. A ReLU unit adds k·ReLU(x − h), a bend at h. A sigmoid unit adds k·σ(w(x − h)), a smooth step at h. Training adjusts every weight to lower the training error, a logistic loss on how far each item sits on the wrong side, and stops early once every item is clearly on its side. You choose the pieces; training chooses the numbers. This is a toy dataset, not a model of real recycling materials.',about:'Adapted from Sorting examples by hand, Deep Learning 6.7960.1x (the Unit 1 opener). The original set one or two straight pieces by hand; this version builds the divider from network pieces and trains it, which covers the rest of Unit 1: pieces, error to minimize, learned versus fixed numbers, and an optimizer doing the search.'},
-    optimizer:{title:'Downhill Racer',topic:'Tune a robot’s homing system',lead:'A robot rolls downhill toward its charging station at the lowest point of a valley. Set how strongly it moves and how much of its previous motion it carries into the next move.',original:'widget-gradient-descent.html',replay:'Another valley changes the terrain. Some have a dip on the way down; others are long, narrow or steep.',scoring:'The terrain is the loss function. Each move is a gradient-descent step with momentum: downhill from where the robot stands, plus a share of the previous move. The robot docks once it has stayed within 0.10 of the charger for 5 moves in a row, and the run stops there. It also stops early if it comes to rest anywhere else. Some valleys have a dip on the way down: a local minimum, where the slope is flat, so plain gradient descent stops in it. In others a hollow just past the charger catches a robot that arrives too fast, so high carry-over fails. The rest have no dip at all but are long or narrow, which rewards stronger moves or some carry-over. This is a simplified homing simulation, not a physical robot model.',about:'Adapted from Gradient descent and momentum, Deep Learning 6.7960.2x. The original descended a single stretched bowl; this version adds a local minimum and early stopping. Move strength 1 to 20 sets the learning rate from 0.02 to 0.40, the same scale in every valley. Par is 1.4 times the fewest moves any pair of settings needs (twice, on the first valley). Carry-over is the momentum coefficient as a percentage.'},
+    optimizer:{title:'Downhill Racer',topic:'Tune a robot’s homing system',lead:'A robot rolls downhill toward its charging station at the lowest point of a valley. Set how strongly it moves and how much of its previous motion it carries into the next move.',original:'widget-gradient-descent.html',replay:'Another valley changes the terrain. Some have a dip on the way down; others are long, narrow or steep.',scoring:'The terrain is the loss function. Each move is a gradient-descent step with momentum: downhill from where the robot stands, plus a share of the previous move. The robot docks once it has stayed within 0.10 of the charger for 5 moves in a row, and the run stops there. It also stops early if it comes to rest anywhere else. Some valleys have a dip on the way down: a local minimum, where the slope is flat, so plain gradient descent stops in it. In others a hollow just past the charger catches a robot that arrives too fast, so high carry-over fails. The rest have no dip at all but are long or narrow, which rewards stronger moves or some carry-over. This is a simplified homing simulation, not a physical robot model.',about:'Adapted from Gradient descent and momentum, Deep Learning 6.7960.2x. The original descended a single stretched bowl; this version adds a local minimum and a stopping rule. Move strength 1 to 20 sets the learning rate from 0.02 to 0.40, the same scale in every valley. Par is 1.4 times the fewest moves any pair of settings needs (twice, on the first valley). Carry-over is the momentum coefficient as a percentage.'},
     threshold:{title:'Find the wildlife',topic:'Help a ranger review camera-trap images',lead:'A camera has taken 200 images. Its detector gives each one a score from 0 to 100. Choose which scores deserve a ranger’s attention.',original:'widget-threshold-metrics.html',replay:'Another batch changes the images and the ranger’s instructions. Sometimes the priority is catching wildlife; sometimes review time is limited.',scoring:'Images with detector scores at or above the cutoff create alerts. Scores are rankings, not calibrated probabilities. A detection brief requires the stated number of species images, then the fewest false alarms. A review-budget brief maximizes detections within the limit, breaking ties with fewer false alarms. All equally good cutoffs are accepted. Each batch comes with two requests from the ranger. The second uses the same images and always needs a different cutoff.',about:'Adapted from Moving the decision threshold, Deep Learning 6.7960.2x. The confusion counts and threshold logic are retained. Images are represented by synthetic scores and labels.'},
     pca:{title:'Pocket Map',topic:'Fit a map through a slow radio link',lead:'A field team must send sensor locations using one number per sensor instead of two coordinates. Store positions along the red line; the receiver will place each sensor back on that line.',original:'widget-pca.html',replay:'Another map puts the sensors in different places. Look at the pattern before choosing a direction.',scoring:'Each location is projected onto your line and reconstructed there. Map error is the root mean square distance between original and reconstructed positions, in meters. Larger mistakes therefore count more. The target is set near the best possible projection and rounded up to 0.1 m. The received map stays hidden until your first send, so that send records how well you read the shape of the sensor group. This is the same projection used by principal component analysis (PCA).',about:'Adapted from PCA: the best direction to project onto, Deep Learning 6.7960.4x. One plot unit represents 10 meters. The centered covariance and projection mathematics are retained.'},
     power:{title:'The Taste Test',topic:'Help a café test a new recipe',lead:'Before changing its menu, a café wants evidence that customers prefer a new recipe. Each taster costs $8. Invite enough people to give the test a good chance of detecting the expected improvement.',original:'widget-ht-power.html',replay:'Another café brief changes the expected improvement, the required detection chance and the budget. Some briefs cannot be met within budget.',scoring:'“Chance of spotting the improvement” is statistical power. The assumed rating improvement is d × 2 points, with a known rating SD of 2 points. A one-sided z-test uses power = 1 − Φ(z₁₋α − d√n). Choose the smallest integer sample that reaches the target, or report an insufficient budget if no affordable sample does. This idealized calculation is a learning model, not a study-design recommendation.',about:'Adapted from Significance, error, and power, Probability & SDA 6.3710.5x. Effect size, false-alarm tolerance and budget stay fixed within an example.'},
@@ -503,14 +511,14 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
   };
   const config=CONFIG[GAME];
   if(!config)throw Error('Unknown pilot');
-  let state,scenario,level='guided',seed=1;
+  let state,scenario,level='guided',seed=1,stretch=12; // stretch: the course bowl's k, set by the course page's control
   const freshSeed=()=>{try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(Math.random()*4294967296))>>>0;}};
   const say=t=>{$('announcement').textContent=t;};
   function start(nextSeed,nextLevel){
     level=['guided','standard','stretch','course'].includes(nextLevel)?nextLevel:'standard';seed=level==='guided'||level==='course'?1:nextSeed>>>0;
-    scenario=M.create(GAME,seed,level);
+    scenario=M.create(GAME,seed,level,{stretch});
     stopAnim();initCount=0;
-    state={stage:1,pending:false,done:false,lastRun:null,play:null,checked:false,bestSeen:0,sent:false,firstSend:null,firstCut:null,fam:'line',morph:null,net:{b:0,units:[]},training:null,trained:null,claimResult:null,p:{tilt:0,shift:0,bend:0,m:0,b:0,a:0,bends:1,k1:0,h1:0,k2:0,h2:-.4,k3:0,h3:.4,strength:2,rate:GAME==='optimizer'?M.rateFor(scenario,2):.02,momentum:0,threshold:scenario.startCut??.5,angle:scenario.startAngle??20,n:Math.min(10,scenario.cap||100),mode:'count',bias:0,not:0,good:0,bad:0,ng:0,nb:0}};
+    state={stage:1,pending:false,done:false,lastRun:null,play:null,checked:false,bestSeen:0,sent:false,firstSend:null,firstCut:null,fam:'line',morph:null,net:{b:0,units:[]},training:null,trained:null,claimResult:null,p:{tilt:0,shift:0,bend:0,m:0,b:0,a:0,bends:1,k1:0,h1:0,k2:0,h2:-.4,k3:0,h3:.4,strength:2,rate:GAME==='optimizer'?M.rateFor(scenario,2):.02,momentum:0,threshold:scenario.startCut??.5,angle:scenario.startAngle??20,n:Math.min(10,scenario.cap||100),mode:'count',bias:0,not:0,good:0,bad:0,ng:0,nb:0,stretch}};
     $('result').hidden=true;$('solution').disabled=false;$('solution').textContent='Show a working answer';
     // URL parameters reproduce a review example without adding a case-management interface.
     try{const u=new URL(location.href);u.searchParams.set('seed',seed);u.searchParams.set('level',level);history.replaceState(null,'',u.href);}catch(e){}
@@ -526,7 +534,7 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     const t0=performance.now(),tick=now=>{const k=Math.min(1,(now-t0)/ms);frame(k);if(k<1)anim=requestAnimationFrame(tick);else{anim=null;done&&done();}};
     anim=requestAnimationFrame(tick);
   }
-  function changed(){stopAnim();state.play=null;state.pending=false;state.done=false;state.checked=false;$('result').hidden=true;$('solution').disabled=false;$('solution').textContent='Show a working answer';if(GAME==='optimizer'){state.lastRun=null;state.p.rate=M.rateFor(scenario,state.p.strength);$('plot').classList.remove('outcome-win','outcome-lose','outcome-over');}if(GAME==='shapes'){state.trained=null;syncShape();}if(GAME==='nlp'){if(state.claimResult==='right')state.pending=true;else state.claimResult=null;}draw();}
+  function changed(){stopAnim();state.play=null;state.pending=false;state.done=false;state.checked=false;$('result').hidden=true;$('solution').disabled=false;$('solution').textContent='Show a working answer';if(GAME==='optimizer'){if(scenario.kind==='bowl'&&state.p.stretch!==scenario.stretch){stretch=state.p.stretch;scenario=M.create(GAME,seed,'course',{stretch});}state.lastRun=null;state.p.rate=M.rateFor(scenario,state.p.strength);$('plot').classList.remove('outcome-win','outcome-lose','outcome-over');}if(GAME==='shapes'){state.trained=null;syncShape();}if(GAME==='nlp'){if(state.claimResult==='right')state.pending=true;else state.claimResult=null;}draw();}
   function slider(id,label,min,max,step,help,scale=1){
     const host=document.createElement('div');host.className='slider';
     host.innerHTML=`<div class="slhead"><label for="${id}">${esc(label)}</label><input id="${id}-number" aria-label="${esc(label)}, numeric entry" aria-describedby="${id}-help" type="number" min="${min*scale}" max="${max*scale}" step="${step*scale}" value="${M.round(state.p[id]*scale)}"></div><input id="${id}" aria-describedby="${id}-help" type="range" min="${min*scale}" max="${max*scale}" step="${step*scale}" value="${M.round(state.p[id]*scale)}"><p id="${id}-help" class="control-help">${esc(help)}</p>`;
@@ -551,25 +559,32 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
       const panel=document.createElement('div');panel.className='netbuild';
       panel.innerHTML=`<div class="nb-left"><span class="choice-label" id="palette-label">Pieces</span><div class="palette" role="group" aria-labelledby="palette-label">${Object.entries(PIECES).map(([type,p])=>`<button type="button" class="piece" data-piece="${type}" ${full||type==='linear'&&hasLine||busy?'disabled':''} aria-label="Add a ${p.name} piece"><svg viewBox="0 0 24 21" aria-hidden="true">${p.glyph}</svg>${p.name}</button>`).join('')}</div>
       <span class="choice-label" id="net-label">Your network <small>${state.net.units.length} of 3 pieces</small></span>
-      <div class="dropzone" id="dropzone" aria-labelledby="net-label">${state.net.units.length?state.net.units.map((u,j)=>`<div class="piece-card"><div class="piece-head"><svg viewBox="0 0 24 21" aria-hidden="true">${PIECES[u.type].glyph}</svg><strong>${PIECES[u.type].name}${names[j]?' '+names[j]:''}</strong><button type="button" class="remove" data-remove="${j}" aria-label="Remove ${PIECES[u.type].name} piece" ${busy?'disabled':''}>×</button></div><details><summary>Adjust by hand</summary>${M.pieceKeys(u).map(k=>`<label class="mini" for="p${j}-${k}"><span>${PARAM[k][0]}</span><output id="p${j}-${k}-v">${u[k].toFixed(2)}</output></label><input type="range" id="p${j}-${k}" data-j="${j}" data-k="${k}" min="${PARAM[k][1]}" max="${PARAM[k][2]}" step="${PARAM[k][3]}" value="${u[k]}" aria-describedby="p${j}-${k}-help"><span class="sr-only" id="p${j}-${k}-help">${esc(PARAM[k][0])} for this ${esc(PIECES[u.type].label)}, adjusted by hand.</span>`).join('')}</details></div>`).join(''):'<p class="drop-hint">Drag pieces here, or press one above to add it.</p>'}${full?'<p class="drop-hint">Three pieces is the limit. Remove one to try another.</p>':''}</div>
-      </div><div class="nb-right"><details class="bias"><summary>Adjust the output bias by hand</summary><label class="mini" for="p-b"><span>${PARAM.b[0]}</span><output id="p-b-v">${state.net.b.toFixed(2)}</output></label><input type="range" id="p-b" min="-2" max="2" step=".05" value="${state.net.b}" aria-describedby="p-b-help"><span class="sr-only" id="p-b-help">Raises or lowers the whole divider.</span></details>
-      <p class="formula" id="formula" aria-live="off"></p>
-      <div class="actions"><button type="button" id="train" class="accent" ${busy?'disabled':''}>Train</button><button type="button" id="reinit" ${state.net.units.length&&!busy?'':'disabled'}>New starting weights</button></div></div>`;
+      <div class="dropzone" id="dropzone" aria-labelledby="net-label">${state.net.units.length?state.net.units.map((u,j)=>`<div class="piece-card"><div class="piece-head"><svg viewBox="0 0 24 21" aria-hidden="true">${PIECES[u.type].glyph}</svg><strong>${PIECES[u.type].name}${names[j]?' '+names[j]:''}</strong><button type="button" class="remove" data-remove="${j}" aria-label="Remove ${PIECES[u.type].name} piece" ${busy?'disabled':''}>×</button></div><details${COURSE?' open':''}><summary>${COURSE?'Set its numbers by hand':'Adjust by hand'}</summary>${M.pieceKeys(u).map(k=>`<label class="mini" for="p${j}-${k}"><span>${PARAM[k][0]}</span><output id="p${j}-${k}-v">${u[k].toFixed(2)}</output></label><input type="range" id="p${j}-${k}" data-j="${j}" data-k="${k}" min="${PARAM[k][1]}" max="${PARAM[k][2]}" step="${PARAM[k][3]}" value="${u[k]}" aria-describedby="p${j}-${k}-help"><span class="sr-only" id="p${j}-${k}-help">${esc(PARAM[k][0])} for this ${esc(PIECES[u.type].label)}, adjusted by hand.</span>`).join('')}</details></div>`).join(''):'<p class="drop-hint">Drag pieces here, or press one above to add it.</p>'}${full?'<p class="drop-hint">Three pieces is the limit. Remove one to try another.</p>':''}</div>
+      </div><div class="nb-right"><details class="bias"${COURSE?' open':''}><summary>${COURSE?'Set the height by hand':'Adjust the output bias by hand'}</summary><label class="mini" for="p-b"><span>${PARAM.b[0]}</span><output id="p-b-v">${state.net.b.toFixed(2)}</output></label><input type="range" id="p-b" min="-2" max="2" step=".05" value="${state.net.b}" aria-describedby="p-b-help"><span class="sr-only" id="p-b-help">Raises or lowers the whole divider.</span></details>
+      ${COURSE?'':'<p class="formula" id="formula" aria-live="off"></p>'}
+      <div class="actions"><button type="button" id="train" class="accent" ${busy||!handTried?'disabled':''}>Train</button><button type="button" id="reinit" ${state.net.units.length&&!busy?'':'disabled'}>${COURSE?'New starting numbers':'New starting weights'}</button></div>${COURSE?`<p class="drop-hint" id="train-note">${handTried?'Train turns every number for you.':'Train unlocks once you have moved some numbers yourself.'}</p>`:''}</div>`;
       $('controls').appendChild(panel);
       panel.querySelectorAll('[data-piece]').forEach(b=>{b.addEventListener('click',()=>addPiece(b.dataset.piece));b.addEventListener('pointerdown',ev=>{if(!b.disabled)startPaletteDrag(ev,b.dataset.piece);});});
       panel.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>removePiece(Number(b.dataset.remove))));
-      panel.querySelectorAll('input[data-j]').forEach(el=>el.addEventListener('input',()=>{const u=state.net.units[Number(el.dataset.j)];u[el.dataset.k]=Number(el.value);syncShape();changed();}));
-      $('p-b').addEventListener('input',()=>{state.net.b=Number($('p-b').value);syncShape();changed();});
+      panel.querySelectorAll('input[data-j]').forEach(el=>el.addEventListener('input',()=>{const u=state.net.units[Number(el.dataset.j)];u[el.dataset.k]=Number(el.value);syncShape();changed();triedByHand();}));
+      $('p-b').addEventListener('input',()=>{state.net.b=Number($('p-b').value);syncShape();changed();triedByHand();});
       $('train').addEventListener('click',trainNet);$('reinit').addEventListener('click',reinit);
-      const help=document.createElement('button');help.type='button';help.className='quiet';help.id='show-rule';help.textContent='Show a working network';help.addEventListener('click',showRule);panel.querySelector('.nb-right').appendChild(help);
+      const help=document.createElement('button');help.type='button';help.className='quiet';help.id='show-rule';help.textContent=COURSE?'Show a working divider':'Show a working network';help.addEventListener('click',showRule);panel.querySelector('.nb-right').appendChild(help);
       $('submit').hidden=true;note='Items with a dashed ring are in the wrong bin.';
       syncShape();
     }else if(GAME==='optimizer'){
       title='Your job: get the robot to the charger';brief='The charger sits at the lowest point of the valley. Reach it within 60 moves. The robot stops as soon as it comes to rest, wherever that is.';
       first='Start with a small move strength and no carry-over. Run the robot and watch where it stops, then change one setting.';
+      if(COURSE){
+        // The original widget's three controls, in the lecture's terms. Stretch exists only on the bowl.
+        slider('strength','Learning rate',1,20,1,'How far each step moves along the downhill slope.',.02);
+        slider('momentum','Momentum',0,.95,.05,'The share of the previous step carried into the next one. At 0 this is plain gradient descent.');
+        if(scenario.kind==='bowl')slider('stretch','Stretch k',1,25,1,'The bowl is f(x, y) = ½(x² + k·y²), so it is k times steeper across the valley than along it.');
+      }else{
       slider('strength','Move strength',1,20,1,'Sets the learning rate: how big each step downhill is. In a sharp valley, too high sends the robot flying off.');
       {const lr=document.createElement('p');lr.className='lr-readout';lr.id='lr-readout';$('controls').lastElementChild.appendChild(lr);}
       slider('momentum','Carry-over motion (%)',0,.95,.05,'Keep this percentage of the previous move. It can speed up travel, but also make the robot overshoot.',100);
+      }
       $('submit').textContent='Run the robot';note='Each run starts from the same place. Change a setting and run again to compare the route.';
     }else if(GAME==='threshold'){
       const b=thresholdBrief();
@@ -632,6 +647,14 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     sigmoid:{name:'Sigmoid',label:'sigmoid unit',glyph:'<path d="M3,17C9,17 10,16 12,10.5S15,4 21,4" stroke="currentColor" stroke-width="2.2" fill="none"/>'}
   };
   const PARAM={m:['Direct weight (m)',-4,4,.05],h:['Threshold (h)',-1.2,1.2,.05],k:['Output weight (k)',-8,8,.1],w:['Steepness (w)',.5,20,.5],b:['Output bias (b)',-2,2,.05]};
+  // The course page opens Unit 1 before its lectures, so pieces and their numbers carry everyday names there and the
+  // learner turns the numbers by hand before Train unlocks. The explainer names the units once they have played.
+  let handTried=!COURSE;
+  if(COURSE){
+    Object.assign(PIECES.linear,{name:'Straight',label:'straight piece'});Object.assign(PIECES.relu,{name:'Bend',label:'bend'});Object.assign(PIECES.sigmoid,{name:'Step',label:'step'});
+    for(const [k,name] of [['m','Slope'],['h','Position'],['k','Size'],['w','Sharpness'],['b','Height']])PARAM[k]=[name,...PARAM[k].slice(1)];
+  }
+  function triedByHand(){if(handTried)return;handTried=true;if($('train'))$('train').disabled=!!state.training;if($('train-note'))$('train-note').textContent='Now press Train and let it turn every number for you.';}
   const fx=x=>M.netY(state.net,x);
   let initCount=0;
   // Small random starting weights, seeded so a round replays the same way. Thresholds start inside the data.
@@ -687,7 +710,7 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     g+='</g>';
     g+=`<text x="${w-r}" y="${h-9}" text-anchor="end">size →</text><text x="${l-5}" y="${t+12}" text-anchor="end">wt ↑</text>`;
     const loss=M.netLossGrad(s,state.net).loss;
-    if(tr)g+=`<text x="${w-r-6}" y="${t+16}" text-anchor="end" class="map-label">training step ${tr.frames[tr.at].step} · loss ${tr.frames[tr.at].loss.toFixed(3)}</text>`;
+    if(tr)g+=`<text x="${w-r-6}" y="${t+16}" text-anchor="end" class="map-label">training step ${tr.frames[tr.at].step} · ${COURSE?'error':'loss'} ${tr.frames[tr.at].loss.toFixed(3)}</text>`;
     else if(!mk){const pc=state.net.units.length,oc=won?(pc<=s.minPieces?'win':'over'):state.trained?'lose':'';if(oc)g+=`<text x="${w-r-6}" y="${t+16}" text-anchor="end" class="map-label ${oc}">${oc==='win'?`Sorted with ${pc} piece${pc===1?'':'s'}`:oc==='over'?`Sorted with ${pc} pieces · ${s.minPieces} would do`:`${count} of 12 sorted`}</text>`;}
     plot(g,w,h,`${count} of 12 items sorted by a divider built from ${state.net.units.length} piece${state.net.units.length===1?'':'s'}. Cans belong above the divider and bottles below it. Items in the wrong bin have dashed rings.`);
     $('legend').innerHTML='<span>Can: squat, with rims</span><span>Bottle: with a neck</span><span>Bigger icon: bigger item</span><span>Drag the divider up or down</span>';
@@ -696,10 +719,11 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     $('plot').classList.toggle('outcome-win',outcome==='win');$('plot').classList.toggle('outcome-over',outcome==='over');$('plot').classList.toggle('outcome-lose',outcome==='lose');
     if($('st-status')){$('st-status').textContent=tr?'Training':outcome==='win'?'Sorted, fewest pieces':outcome==='over'?'Sorted, extra pieces':outcome==='lose'?'Training fell short':pieces?'Ready to train':'Building';$('st-status').className=outcome||'';
       $('st-sorted').textContent=count+' / 12';$('st-pieces').textContent=pieces+' / 3';}
-    if(outcome&&$('explainer'))$('explainer').hidden=false;
+    if(outcome&&(!COURSE||state.trained)&&$('explainer'))$('explainer').hidden=false; // on the course page, only once training has run
     const n=state.net.units.length,min=s.minPieces;
-    $('live').textContent=mk||tr?'':won?(n>min?`All 12 sorted with ${n} pieces. This batch can be sorted with ${min}.`:`All 12 sorted with ${n} piece${n===1?'':'s'}, the fewest this batch needs.`):state.trained?`Training stopped at ${count} of 12. Either these pieces cannot make the shape this batch needs, or training started badly. Try new starting weights to tell which.`:`${12-count} item${12-count===1?' is':'s are'} in the wrong bin.`;
-    $('table').innerHTML=won?`<p class="chart-note">${esc('You chose the pieces; training chose their weights. That split, a fixed architecture with learned parameters, is how every network in the course is built.')} ${esc(CONNECTIONS.shapes)}</p>`:'';
+    $('live').textContent=mk||tr?'':won?(n>min?`All 12 sorted with ${n} pieces. This batch can be sorted with ${min}.`:`All 12 sorted with ${n} piece${n===1?'':'s'}, the fewest this batch needs.`):state.trained?`Training stopped at ${count} of 12. Either these pieces cannot make the shape this batch needs, or training started badly. Try new starting ${COURSE?'numbers':'weights'} to tell which.`:`${12-count} item${12-count===1?' is':'s are'} in the wrong bin.`;
+    if(COURSE&&won&&!state.trained&&!mk&&!tr)$('live').textContent+=' Now press Train and watch training find numbers for these pieces by itself.';
+    $('table').innerHTML=won&&!COURSE?`<p class="chart-note">${esc('You chose the pieces; training chose their weights. That split, a fixed architecture with learned parameters, is how every network in the course is built.')} ${esc(CONNECTIONS.shapes)}</p>`:'';
   }
   // Pieces move from the palette to the network by drag and drop (pointer events, so touch works too);
   // pressing a piece adds it as well. Dragging on the plot moves the whole divider up or down (the bias).
@@ -709,7 +733,7 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     $('plot').classList.add('draggable');
     $('plot').addEventListener('pointerdown',ev=>{if(!state.frame||state.training)return;const [px,py]=plotPoint(ev),[x]=state.frame.inv(px,py);if(Math.abs(state.frame.Y(fx(x))-py)>22)return;
       dragging={y0:py,b0:state.net.b};$('plot').setPointerCapture?.(ev.pointerId);ev.preventDefault();});
-    $('plot').addEventListener('pointermove',ev=>{if(!dragging)return;const [,py]=plotPoint(ev),[,y1]=state.frame.inv(0,py),[,y0]=state.frame.inv(0,dragging.y0);state.net.b=M.clamp(dragging.b0+y1-y0,-2,2);syncShape();changed();});
+    $('plot').addEventListener('pointermove',ev=>{if(!dragging)return;const [,py]=plotPoint(ev),[,y1]=state.frame.inv(0,py),[,y0]=state.frame.inv(0,dragging.y0);state.net.b=M.clamp(dragging.b0+y1-y0,-2,2);syncShape();changed();triedByHand();});
     const drop=()=>{dragging=null;};$('plot').addEventListener('pointerup',drop);$('plot').addEventListener('pointercancel',drop);
     // Palette drag: a floating copy follows the pointer; releasing over the network adds the piece.
     document.addEventListener('pointermove',ev=>{if(!ghost)return;ghost.el.style.left=ev.clientX+'px';ghost.el.style.top=ev.clientY+'px';if(Math.hypot(ev.clientX-ghost.x,ev.clientY-ghost.y)>6)ghost.moved=true;const z=$('dropzone');if(z){const r=z.getBoundingClientRect();z.classList.toggle('over',ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom);}});
@@ -742,7 +766,7 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
   const robotGlyph=(x,y,deg)=>`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${deg.toFixed(1)})"><rect x="-9" y="-7" width="16" height="14" rx="4" fill="#E9A83C" stroke="#111827" stroke-width="1.6"/><path d="M7,-4l5,4l-5,4z" fill="#111827"/><circle cx="2" cy="-3" r="1.6" fill="#111827"/><circle cx="2" cy="3" r="1.6" fill="#111827"/></g>`;
   // Build the lit, terraced surface once per round and width; the robot and its trail are drawn over it each frame.
   function terrain(w,h,s){
-    const key=`${seed}|${level}|${w}`;if(terrainCache&&terrainCache.key===key)return terrainCache;
+    const key=`${seed}|${level}|${s.stretch}|${w}`;if(terrainCache&&terrainCache.key===key)return terrainCache;
     const L=(x,y)=>M.robotLoss(s,x,y),step=.2,xs=M.grid(-4.5,4.5,step),ys=M.grid(-3.5,3.5,step);
     const all0=xs.flatMap(x=>ys.map(y=>L(x,y))),fmin=Math.min(...all0),H=2.8,sig=(L(...s.start)-fmin)*1.4,B=BIOMES[s.biome]||BIOMES.training;
     // Drawn height rises with the loss and levels off gently near the peaks; the robot's physics is untouched.
@@ -794,9 +818,9 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     const behind=T.hidden(...bot.pos);
     g+=behind?`<circle cx="${b[0].toFixed(1)}" cy="${(b[1]-4).toFixed(1)}" r="15" fill="none" stroke="#111827" stroke-width="1.6" stroke-dasharray="3 2"/><g opacity=".5">`+robotGlyph(b[0],b[1]-4,run?Math.atan2(ahead[1]-b[1],ahead[0]-b[0])*180/Math.PI:0)+'</g>':`<ellipse cx="${b[0].toFixed(1)}" cy="${(b[1]+6).toFixed(1)}" rx="10" ry="4" fill="#000" opacity=".18"/>`+robotGlyph(b[0],b[1]-4,run?Math.atan2(ahead[1]-b[1],ahead[0]-b[0])*180/Math.PI:0);
     const o=r?robotOutcome(r):null,status=state.play?'Driving':o?o.status:'Ready';
-    g+=`<text x="16" y="26" text-anchor="start" class="map-label">${run?'move '+moveNo:'ready'}</text>`+(o?`<text x="${w-16}" y="26" text-anchor="end" class="map-label ${o.win?'win':o.over?'over':'lose'}">${o.label}</text>`:'');
+    g+=`<text x="16" y="26" text-anchor="start" class="map-label">${run?(COURSE?'step ':'move ')+moveNo:'ready'}</text>`+(o?`<text x="${w-16}" y="26" text-anchor="end" class="map-label ${o.win?'win':o.over?'over':'lose'}">${o.label}</text>`:'');
     plot(g,w,h,`Three-dimensional view of the terrain the robot descends: a valley with hills and hollows, the charger at its lowest point${s.kind==='bowl'?' (a plain stretched bowl)':s.kind==='dip'?', and a dip partway down':''}. ${state.play?`The robot is driving: move ${moveNo}.`:r?`Robot status: ${status}.`:'The robot waits at its start, high on the valley side.'}`);
-    $('legend').innerHTML=`<span>Height: ${T.words}</span>`+'<span><b style="color:#1F2937">●</b> each move</span><span>White disk: charger</span><span>Dashed ring: robot behind a rise</span>';
+    $('legend').innerHTML=`<span>Height: ${T.words}</span>`+`<span><b style="color:#1F2937">●</b> each ${COURSE?'step':'move'}</span>`+'<span>White disk: charger</span><span>Dashed ring: robot behind a rise</span>';
     $('metrics').innerHTML=metric('Robot status',status)+metric('Moves',state.play?moveNo+' / 60':r?(r.success?'docked at '+r.entry:(r.path.length-1)+' / 60'):'0 / 60');
     if($('lr-readout'))$('lr-readout').textContent=`Learning rate ${state.p.rate.toFixed(3)}`;
     if($('st-status')){$('st-status').textContent=status;$('st-status').className=o?(o.win?'win':o.over?'over':'lose'):'';$('st-moves').textContent=`${state.play?moveNo:r?(r.success?r.entry:r.path.length-1):0} / par ${s.par}`;}
@@ -899,7 +923,10 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     draw();say(title+' '+value+' '+message);if(!quiet){$('result-title').focus();$('result').scrollIntoView?.({block:'nearest',behavior:'auto'});}
   }
   // What happened on a finished run, in three lengths: the frame label, the status, and the reason under the frame.
-  function robotOutcome(r){
+  // Course pages say step, learning rate and momentum where the arcade says move, move strength and carry-over.
+  const courseWords=s=>s.replace(/move strength/g,'learning rate').replace(/carry-over/g,'momentum').replace(/\bmoves\b/g,'steps').replace(/\bmove\b/g,'step');
+  function robotOutcome(r){const o=robotOutcomeText(r);return COURSE?{...o,label:courseWords(o.label),status:courseWords(o.status),why:courseWords(o.why)}:o;}
+  function robotOutcomeText(r){
     const stuck=robotStuck(r),over=stuck&&overshot(r),passed=r.path.some(q=>Math.hypot(q[0]-(scenario.charger||[0,0])[0],q[1]-(scenario.charger||[0,0])[1])<.3);
     const par=scenario.par;
     if(r.success&&r.entry<=par)return {win:true,label:`Docked at move ${r.entry} · par ${par}`,status:'Docked within par',why:`The robot reached the charger at move ${r.entry}, within par (${par}). The run stopped once it had stayed there for five moves.`};
@@ -1008,18 +1035,44 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
     const ex=document.createElement('section');ex.id='explainer';ex.className='explainer';ex.hidden=true;ex.setAttribute('aria-labelledby','explainer-title');
     ex.innerHTML=`<h2 id="explainer-title">${o.explainerTitle}</h2>${o.explainer}`;wrap.after(ex);
   }
-  if(GAME==='optimizer')applyGameFormat({status:[['Valley','st-valley','1'],['Status','st-status','Ready'],['Moves','st-moves','0']],
+  if(GAME==='optimizer'&&COURSE)applyGameFormat({status:[['Valley','st-valley','1'],['Status','st-status','Ready'],['Steps','st-moves','0']],
+    prompt:'Set the learning rate and momentum, then run gradient descent down to the minimum.',
+    howto:['<strong>Learning rate</strong> sets how far each step moves along the downhill slope.','<strong>Momentum</strong> carries a share of the previous step into the next one. At 0 this is plain gradient descent.',
+      '<strong>Stretch k</strong>, on the bowl only, sets how much steeper the bowl is across the valley than along it.','Press <strong>Run the robot</strong> to watch up to 60 steps. The robot docks when it stays at the minimum for five steps in a row.',
+      '<strong>Par</strong> is how many steps a well-tuned setting needs. <strong>New valley</strong> brings terrain the bowl does not have, and <strong>The bowl</strong> brings the bowl back.'],
+    footLabel:'New terrain',footTag:'every valley needs its own settings',newText:'New valley',newIcon:ICONS.terrain,
+    onNew:()=>{valleyCount++;$('st-valley').textContent=valleyCount;},
+    explainerTitle:'What the robot is doing',explainer:`<p>The ground is the loss surface and the charger sits at its minimum. Each step is gradient descent with momentum: the new velocity is the momentum times the old velocity, minus the learning rate times the gradient, and the robot moves by that velocity. With momentum 0, each step is just the learning rate times the downhill slope.</p>
+      <p>The first valley is the stretched bowl f(x, y) = ½(x² + k·y²). With momentum 0, raise the learning rate one notch at a time until the robot no longer settles. Then change the stretch and find that limit again. Which direction of the bowl sets it?</p>
+      <p>Then set the learning rate a little below the limit and compare momentum 0 with momentum 0.5. Watch how the path crosses the valley in each run, and count the steps each one needs.</p>
+      <p>New valley brings terrain the bowl does not have. Some valleys have a dip on the way down: a local minimum, where the gradient is zero and plain gradient descent stops for good. Whether momentum carries the robot out depends on how fast it is moving when it arrives. Other valleys are long or sharp, and a learning rate that races down one flies off in the next, which is why learning rate and momentum are tuned for each problem.</p>
+      <p class="explainer-note">The run ends once the robot has stayed within 0.10 of the minimum for five steps in a row, has come to rest anywhere else, or has diverged. The learning rate runs from 0.02 to 0.40 on the same scale in every valley. Par is 1.4 times the fewest steps any learning rate and momentum on the grid need (twice, on the bowl). The 3D view exaggerates height for clarity; the robot moves on the true loss.</p>`});
+  else if(GAME==='optimizer')applyGameFormat({status:[['Valley','st-valley','1'],['Status','st-status','Ready'],['Moves','st-moves','0']],
     prompt:'Set how the robot moves, then run it down to the charger at the lowest point.',
     howto:["<strong>Move strength</strong> sets how big each step downhill is.", "<strong>Carry-over</strong> keeps part of the last move going into the next one, like momentum.", "Press <strong>Run the robot</strong> and watch where it stops. It docks when it stays at the charger for five moves in a row.", "<strong>Par</strong> is how many moves a well-tuned robot needs in this valley. Dock within par to win.", "Some valleys have a dip on the way down; others are long or narrow. Each new valley needs its own settings."],
     footLabel:'New terrain',footTag:'every valley needs its own settings',newText:'New valley',newIcon:ICONS.terrain,
     onNew:()=>{valleyCount++;$('st-valley').textContent=valleyCount;},
     explainerTitle:'How the robot moves',explainer:`<p>The ground is the loss function, and the charger sits at its lowest point. On every move the robot looks only at the slope under it and steps downhill by an amount set by move strength, then adds a share of its previous move set by carry-over. That is gradient descent with momentum.</p>
       <p>A dip on the way down is a local minimum. The ground there is flat, so a robot with no carry-over stops as if it had arrived, and carry-over lets it coast up and over the rise. Carry-over can also hurt: with too much, the robot swings back and forth past the charger and cannot settle.</p>
-      <p>The run stops once the robot has stayed within 0.10 of the charger for five moves in a row, or has come to rest anywhere else. Training uses the same idea, called early stopping: once more steps stop changing the model, stop.</p>
+      <p>The run stops once the robot has stayed within 0.10 of the charger for five moves in a row, or has come to rest anywhere else.</p>
       <p>Every valley is different. Some have a dip on the way down, some a sharp, narrow basin around the charger, and some a long, gentle approach. The same learning rate that races down a gentle valley flies off in a sharp one, which is why learning rate and momentum are tuned for each problem. Par asks for that tuning: reaching the charger is not enough, you need to get there efficiently.</p>
       <p class="explainer-link">${esc(CONNECTIONS.optimizer)}</p>
       <p class="explainer-note">Move strength 1 to 20 sets the learning rate from 0.02 to 0.40, the same scale in every valley. Par is 1.4 times the fewest moves any pair of settings needs (twice, on the first valley). Carry-over is the momentum coefficient. The 3D view exaggerates height for clarity; the robot moves on the true loss. This is a simplified homing simulation, not a physical robot model.</p>`});
-  if(GAME==='shapes')applyGameFormat({status:[['Batch','st-batch','1'],['Status','st-status','Building'],['Sorted','st-sorted','0 / 12'],['Pieces','st-pieces','0 / 3']],
+  if(GAME==='shapes'&&COURSE)applyGameFormat({status:[['Batch','st-batch','1'],['Status','st-status','Building'],['Sorted','st-sorted','0 / 12'],['Pieces','st-pieces','0 / 3']],
+    prompt:'Build a divider from up to three pieces, set its numbers by hand, then let training set them.',
+    howto:['<strong>Pieces</strong> build the divider: a Straight piece, a Bend or a Step. Drag one onto the network, or press it.',
+      '<strong>Set the numbers by hand</strong> first. Move the sliders under each piece, or drag the divider up and down, and watch which items change bins.',
+      '<strong>Train</strong> unlocks once you have tried. It turns every number at once, pushing each item to its own side of the divider.',
+      '<strong>New starting numbers</strong> retries training from a different start. Training can stall even with the right pieces.',
+      '<strong>Fewest pieces</strong> wins. Some batches need two pieces, some only one.'],
+    footLabel:'New batch',footTag:'some batches need a bend, some a step',newText:'New batch',newIcon:ICONS.batch,
+    onNew:()=>{batchCount++;$('st-batch').textContent=batchCount;},
+    explainerTitle:'What training did',
+    explainer:`<p>A straight piece stops at 10 of 12 on these batches, whatever its numbers. A bend or a step lets the divider take the shape a batch needs, and after that the only question is which numbers to use.</p>
+      <p>You turned some of those numbers yourself. Training turned all of them at once. It adjusts every number to lower a measured error, the cross-entropy loss, which grows the further an item sits on the wrong side of the divider, and it stops once every item is clearly on its side.</p>
+      <p>Lecture 1 gives the pieces their names. The straight piece is a linear unit, m·x. The bend is a ReLU unit, k·ReLU(x − h). The step is a sigmoid unit, k·σ(w(x − h)). Which units you stack is fixed before training and decides which shapes the divider can take. The numbers inside them are learned from the data.</p>
+      <p class="explainer-note">When training stops short of 12, either the pieces cannot make the shape the batch needs or training started badly, and New starting numbers tells the two apart. This is a toy dataset, not a model of real recycling materials.</p>`});
+  else if(GAME==='shapes')applyGameFormat({status:[['Batch','st-batch','1'],['Status','st-status','Building'],['Sorted','st-sorted','0 / 12'],['Pieces','st-pieces','0 / 3']],
     prompt:'Build a divider from up to three pieces, then train it so cans land above and bottles below.',
     howto:['<strong>Pieces</strong> are the building blocks of the network: a Line, a ReLU bend or a Sigmoid step. Drag one onto the network, or press it.',
       '<strong>Train</strong> lets the network adjust every weight until the items sort. You choose the pieces; training chooses the numbers.',
@@ -1047,8 +1100,16 @@ body.gameformat .plot{background:#fff}body.gameformat .plot text{fill:#40464C}
       <p>Phrase points add a feature for each “not …” phrase. They are added on top of the word points, so the filter can treat a negated word differently from the same word on its own. Adding features like this is the first step toward models that represent word order and meaning.</p>
       <p class="explainer-link">${esc(CONNECTIONS.nlp)}</p>
       <p class="explainer-note">The reviews and word points are made up for this puzzle.</p>`});
-  const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw),initialLevel=params.get('level')||(raw!==null&&n!==1?'standard':params.get('embed')==='1'&&GAME==='optimizer'?'course':'guided'); // a shared ?seed=N opens that round; in a lesson, the robot opens on the original's plain bowl
-  if(params.get('embed')==='1')document.body.classList.add('embedded');
+  const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw),initialLevel=params.get('level')||(raw!==null&&n!==1?'standard':(COURSE||params.get('embed')==='1')&&GAME==='optimizer'?'course':'guided'); // a shared ?seed=N opens that round; in a lesson, the robot opens on the original's plain bowl
+  if(COURSE||params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    if(GAME==='optimizer'){const b=document.createElement('button');b.type='button';b.id='bowl';b.innerHTML=ICONS.terrain+'The bowl';b.addEventListener('click',()=>{valleyCount++;$('st-valley').textContent=valleyCount;start(1,'course');});document.querySelector('.foot-buttons').append(b);}
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,m=document.querySelector('main');if(f&&m){const h=Math.ceil(m.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
   start(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1,initialLevel);
 })();
 </script>
