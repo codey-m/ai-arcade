@@ -27,10 +27,12 @@ main{max-width:1240px;margin:auto;padding:28px 24px 56px}
 .gamestatus b{color:var(--body);font-weight:600}.gamestatus b.win{color:var(--win)}.gamestatus b.over{color:var(--over)}.gamestatus b.lose{color:var(--lose)}
 .gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}.gameprompt strong{color:var(--body);font-weight:600}
 .gameplay{padding:0 24px}
-.reason{text-align:center;min-height:3.2em;margin:10px 0 0;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
-.gamecontrols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end;padding:14px 24px 24px}
-.gamecontrols .controls{display:grid;grid-template-columns:1fr;gap:0}
-.gamecontrols .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 6px}.gamecontrols .actions button{min-width:190px}
+.reason{text-align:center;min-height:3.2em;margin:0 0 10px;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
+/* Controls sit above the play area, so the field and the chart below them stay in view together while a test runs. */
+.gamecontrols{padding:4px 24px 12px}
+.levers{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 24px}
+.runrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end}
+.runrow .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 14px}.runrow .actions button{min-width:190px}
 .gamefoot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 24px 22px;border-top:1px solid var(--rule);background:linear-gradient(#FBFBFC,#F6F7F9)}
 .gamefoot p{margin:0 0 12px;font-size:16px;color:var(--muted)}.gamefoot strong{color:var(--body);font-weight:600}
 .gamefoot button{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--button-line);border-radius:4px;padding:10px 22px;font-weight:500;color:var(--ink-2)}.gamefoot button svg{width:22px;height:22px}
@@ -70,7 +72,7 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
 .world label{position:relative;cursor:pointer}.world input{position:absolute;opacity:0;pointer-events:none}.world span{display:block;padding:9px 12px;font-size:14px;min-height:40px;color:var(--ink-2)}.world input:checked+span{background:var(--ink-2);color:#fff}
 
 /* Evidence panel: the Lecture 6 chart and the causes of variation */
-.evidence-panel{margin:0 24px 18px;padding:18px 18px 16px;border:1px solid var(--line);border-radius:4px}
+.evidence-panel{margin:14px 24px 18px;padding:18px 18px 16px;border:1px solid var(--line);border-radius:4px}
 .panel-head h2{font-size:17px;font-weight:600;margin:0;color:var(--ink);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.panel-head p{font-size:14px;color:var(--muted);margin:4px 0 10px}
 .evidence-panel h3{font-size:15px;font-weight:600;margin:20px 0 8px;display:flex;justify-content:space-between;color:var(--ink)}
 .spread{font:500 13px ui-monospace,SFMono-Regular,monospace;color:var(--muted)}
@@ -88,8 +90,8 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
 .noise-key{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted)}.noise-key b{color:var(--body);font-weight:600}.noise-key .key{margin-left:0}
 .cause-table{margin:0 24px 16px}.cause-table table{font-size:13px;border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}#accessible-table{overflow:auto}
 
-@media(max-width:900px){.gamewrap{grid-template-columns:1fr}.gamecontrols{grid-template-columns:1fr}.gamecontrols .actions{margin:0}.gamecontrols .actions button{width:100%}}
-@media(max-width:560px){main{padding:20px 12px 40px}.gamecontrols .controls{grid-template-columns:1fr}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}
+@media(max-width:900px){.gamewrap{grid-template-columns:1fr}.runrow{grid-template-columns:1fr}.runrow .actions{margin:0 0 4px}.runrow .actions button{width:100%}}
+@media(max-width:560px){main{padding:20px 12px 40px}.levers{grid-template-columns:1fr}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}
   .evidence-panel{margin:0 14px 16px;padding:14px 12px}.cause-table{margin:0 14px 16px}.options{grid-template-columns:1fr}.option span{min-height:0;flex-direction:row;align-items:center;gap:10px}.option .icon{margin:0}.option small{margin-left:auto}.gamebar{padding:10px 12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* Course pages (course mode): course-only copy and the Type II shading; arcade-only copy and links hidden. */
@@ -109,19 +111,21 @@ body.course main{padding:12px 12px 16px}
     <section class="playcard" aria-label="Game">
       <div class="gamestatus"><span>Test: <b id="st-test">1</b></span><span>Status: <b id="st-status">Not reliable yet</b></span><span>Chance: <b id="st-chance">51% of 80%</b></span><span>Time: <b id="st-time">40 / par 41 min</b></span></div>
       <p class="gameprompt">Plan the quickest test that backs a real <strong id="gain-brief">1.5 m</strong> gain at least 80% of the time<span class="course-only">, with significance level α = <span class="alpha-n">5</span>%</span>.</p>
-      <div class="gameplay">
-        <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="place">A gusty playing field</span><span class="corner corner-right" id="outcome-label"></span><svg id="field" class="field" viewBox="0 0 640 210" role="img" aria-labelledby="field-desc"><desc id="field-desc">The test field.</desc><g id="field-env"></g><g id="field-marks"></g><g id="field-planes"></g></svg></div>
-        <p class="legend field-key"><i class="dot std"></i>Standard fold, upper lane <i class="dot won"></i>Wonder fold, lower lane <i class="key avg"></i>Each fold’s average</p>
-        <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
-      </div>
       <div class="gamecontrols">
-        <div class="controls">
+        <div class="levers">
           <fieldset class="lever"><legend>Wind</legend><div class="options" id="wind"></div><p class="why" id="wind-why" aria-live="polite"></p></fieldset>
           <fieldset class="lever"><legend>Measuring landings</legend><div class="options" id="measure"></div><p class="why" id="measure-why" aria-live="polite"></p></fieldset>
           <fieldset class="lever course-only"><legend>Significance level</legend><div class="options" id="alpha"></div><p class="why">α is the chance the test backs a fold that does nothing: the Type I error rate. Predict which way the dashed line moves before you change it.</p></fieldset>
-          <div class="lever flights"><label for="flights"><b>Flight pairs</b><output id="flights-value" for="flights">20</output></label><input type="range" id="flights" min="1" max="80" step="1" value="20" aria-describedby="flights-help time-line"><p class="why" id="flights-help">Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.</p><p class="why" id="time-line">Your test takes <b id="cost">40</b> minutes (<span id="cost-detail">setup 0 + flights 40</span>). The quickest reliable test takes <b id="par">41</b>; <span id="allowance">up to 45 counts</span>.</p></div>
         </div>
-        <div class="actions"><div class="world" role="radiogroup" aria-label="Run a test where the fold"><span class="world-label" aria-hidden="true">The fold</span><label><input type="radio" name="world" value="works" checked><span>really works</span></label><label><input type="radio" name="world" value="nothing"><span>does nothing</span></label></div><button type="button" id="rerun" class="primary">Run the test</button></div>
+        <div class="runrow">
+          <div class="lever flights"><label for="flights"><b>Flight pairs</b><output id="flights-value" for="flights">20</output></label><input type="range" id="flights" min="1" max="80" step="1" value="20" aria-describedby="flights-help time-line"><p class="why" id="flights-help">Each flight pair takes 2 minutes: two throws and a walk to fetch the planes.</p><p class="why" id="time-line">Your test takes <b id="cost">40</b> minutes (<span id="cost-detail">setup 0 + flights 40</span>). The quickest reliable test takes <b id="par">41</b>; <span id="allowance">up to 45 counts</span>.</p></div>
+          <div class="actions"><div class="world" role="radiogroup" aria-label="Run a test where the fold"><span class="world-label" aria-hidden="true">The fold</span><label><input type="radio" name="world" value="works" checked><span>really works</span></label><label><input type="radio" name="world" value="nothing"><span>does nothing</span></label></div><button type="button" id="rerun" class="primary">Run the test</button></div>
+        </div>
+      </div>
+      <div class="gameplay">
+        <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
+        <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="place">A gusty playing field</span><span class="corner corner-right" id="outcome-label"></span><svg id="field" class="field" viewBox="0 0 640 210" role="img" aria-labelledby="field-desc"><desc id="field-desc">The test field.</desc><g id="field-env"></g><g id="field-marks"></g><g id="field-planes"></g></svg></div>
+        <p class="legend field-key"><i class="dot std"></i>Standard fold, upper lane <i class="dot won"></i>Wonder fold, lower lane <i class="key avg"></i>Each fold’s average</p>
       </div>
       <section class="evidence-panel" aria-labelledby="evidence-title">
         <div class="panel-head"><h2 id="evidence-title">What your test’s average could look like <span class="spread" id="pairs-in"></span></h2><p id="odds">If the fold really adds 1.5 m, a test planned like this backs it 51% of the time. The goal is 80%.</p></div>
