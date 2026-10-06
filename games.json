@@ -18,6 +18,24 @@
       "alt": "Cans and bottles of different sizes, sorted into two bins by a V-shaped divider."
     },
     {
+      "slug": "trace-the-trail",
+      "title": "Trace the Trail",
+      "source": "trace-the-trail.html",
+      "hook": "Plan a delivery rover's route from nine measurements taken in mist. You get four bends. Where does the hidden trail really turn?",
+      "course": "Deep Learning",
+      "topic": "Generalization",
+      "number": "6.7960.1x",
+      "colour": "#82192A",
+      "play": "#map",
+      "thumb_steps": [
+        "#add",
+        "#add",
+        "#send"
+      ],
+      "thumb_zoom": true,
+      "alt": "A forest map where the mist has lifted to reveal a winding trail, with a blue route bending twice between the depot and the delivery hut, a shaded strip where the route strays furthest, and a small yellow rover at the hut."
+    },
+    {
       "slug": "guide-the-robot-home",
       "title": "Downhill Racer",
       "source": "widget-gradient-descent.html",
@@ -52,6 +70,26 @@
       "colour": "#BB460A",
       "play": "#stage-wrap",
       "alt": "Two dancers side by side, the original on the left and its echo on the right."
+    },
+    {
+      "slug": "next-note",
+      "title": "Next Note",
+      "source": "next-note.html",
+      "hook": "Three songbirds write tunes one note at a time. Set the randomness and how many likely notes to keep, so each tune escapes its riff without odd leaps.",
+      "course": "Deep Learning",
+      "topic": "Generation",
+      "number": "6.7960.5x",
+      "colour": "#632EBE",
+      "play": "#playarea",
+      "thumb_steps": [
+        {
+          "set": "#temp",
+          "value": 1.4
+        },
+        "#keep button[data-k=\"3\"]",
+        "#play"
+      ],
+      "alt": "A piano roll of a tune rising and falling across an octave, above a line divided into the chances of each next note, with a marker showing where this note's luck fell."
     },
     {
       "slug": "the-wonder-fold",
