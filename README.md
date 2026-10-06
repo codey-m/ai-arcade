@@ -7,10 +7,10 @@ Eight short games built from MIT course activities, prototyped for MIT Learn. Ea
 | Game | Course | Idea |
 | --- | --- | --- |
 | [Recycling Day](https://codey-m.github.io/ai-arcade/sort-the-recycling.html) | Deep Learning 6.7960.1x | Model capacity: building and training a small network |
-| [Trace the Trail](https://codey-m.github.io/ai-arcade/trace-the-trail.html) | Deep Learning 6.7960.1x | Generalization: fitting measurements without following their noise |
+| [Rover Route](https://codey-m.github.io/ai-arcade/trace-the-trail.html) | Deep Learning 6.7960.1x | Generalization: fitting measurements without following their noise |
 | [Downhill Racer](https://codey-m.github.io/ai-arcade/guide-the-robot-home.html) | Deep Learning 6.7960.2x | Learning rate, momentum and local minima |
 | [Photo Finish](https://codey-m.github.io/ai-arcade/photo-finish.html) | Deep Learning 6.7960.2x | Accuracy, precision and recall with a rare class |
-| [Echo the Dance](https://codey-m.github.io/ai-arcade/echo-the-dance.html) | Deep Learning 6.7960.4x | Principal component analysis |
+| [Echo Dancer](https://codey-m.github.io/ai-arcade/echo-the-dance.html) | Deep Learning 6.7960.4x | Principal component analysis |
 | [Next Note](https://codey-m.github.io/ai-arcade/next-note.html) | Deep Learning 6.7960.5x | Generating one piece at a time: temperature and top-k sampling |
 | [The Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability+SDA 6.3710.5x | Sample size and the power of a test |
 | [Robot Theatre](https://codey-m.github.io/ai-arcade/robot-theatre.html) | CV+NLP 6.4600.1x | Bag-of-words features, word order and bigrams |

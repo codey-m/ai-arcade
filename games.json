@@ -19,7 +19,7 @@
     },
     {
       "slug": "trace-the-trail",
-      "title": "Trace the Trail",
+      "title": "Rover Route",
       "source": "trace-the-trail.html",
       "hook": "Plan a delivery rover's route from nine measurements taken in mist. You get four bends. Where does the hidden trail really turn?",
       "course": "Deep Learning",
@@ -61,7 +61,7 @@
     },
     {
       "slug": "echo-the-dance",
-      "title": "Echo the Dance",
+      "title": "Echo Dancer",
       "source": "echo-the-dance.html",
       "hook": "A dancer performs in one city while an echo dances the routine in another. The link carries two numbers a frame. Which two tracks keep the dance?",
       "course": "Deep Learning",
