@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Beach Beeps · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* Beach Beeps in the MIT Learn game format. Chrome rules are a local copy of the arcade standard, as in
+   wonder-fold/style.css. Scene colours: sand by ground type, slate sea, gold coins, slate bottle caps, ink beep rings;
+   green/amber/red only for outcomes. */
+:root{color-scheme:light;--ink:#0C0C0D;--ink-2:#40464C;--body:#212326;--muted:#626A73;--line:#DDE1E6;--rule:#E6E9EE;--ground:#F3F4F8;--red:#750014;--red-dark:#5A0010;--button-line:#B8C2CC;
+  --win:#216044;--over:#B45309;--lose:#A31F34;
+  --sea:#7A9FBF;--sea-wash:#DCE6EF;--gold:#E9A83C;--gold-dark:#A86F12;--cap:#52667C;--cap-2:#7D90A5;--art-ink:#111827}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font:16px/1.55 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:var(--red);text-underline-offset:3px}button,input{font:inherit}button,summary{cursor:pointer}
+button{border:1px solid var(--button-line);border-radius:4px;padding:10px 15px;background:#fff;color:var(--ink-2);font-weight:500;min-height:44px;touch-action:manipulation}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}button.primary:hover{background:var(--red-dark);border-color:var(--red-dark)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+[hidden]{display:none!important}
+
+/* Page chrome */
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.gamebar .back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;color:var(--ink);border-radius:4px}.gamebar .back svg{width:26px;height:26px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+main{max-width:1240px;margin:auto;padding:28px 24px 56px}
+.gamewrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.playcard,.howto,.explainer{background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05)}
+.playcard{overflow:hidden}
+.gamestatus{display:flex;justify-content:center;gap:12px 40px;flex-wrap:wrap;padding:26px 24px 4px;font-size:18px;color:var(--muted)}
+.gamestatus b{color:var(--body);font-weight:600}.gamestatus b.win{color:var(--win)}
+.gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}.gameprompt strong{color:var(--body);font-weight:600}
+.gameplay{padding:0 24px;display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:24px;align-items:start}
+.reason{min-height:3.2em;margin:14px 24px 0;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
+.bayes-line{margin:6px 24px 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gamecontrols{padding:16px 24px 22px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.actions button{min-width:190px}
+.actions button{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.bi{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.bi .fill{fill:currentColor;stroke:none}
+.why{font-size:14px;color:var(--muted);margin:8px 0 0;line-height:1.5}
+.gamefoot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 24px 22px;border-top:1px solid var(--rule);background:linear-gradient(#FBFBFC,#F6F7F9)}
+.gamefoot p{margin:0 0 12px;font-size:16px;color:var(--muted)}.gamefoot strong{color:var(--body);font-weight:600}
+.gamefoot button{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--button-line);border-radius:4px;padding:10px 22px;font-weight:500;color:var(--ink-2)}.gamefoot button svg{width:22px;height:22px}
+.howto{padding:24px}.howto h2{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:500;margin:0 0 16px;color:var(--ink)}.howto h2 svg{width:28px;height:20px;flex:none}
+.howto p{font-size:15px;line-height:1.6;color:var(--body);margin:0 0 14px}.howto strong{font-weight:700}
+.explainer{margin-top:28px;padding:24px}.explainer h2{font-size:19px;margin:0 0 10px;letter-spacing:-.015em;color:var(--ink)}.explainer p{font-size:15px;line-height:1.65;margin:0 0 12px}
+.explainer .explainer-link{color:var(--muted);font-size:14px}.explainer .explainer-note{color:var(--muted);font-size:13px}
+.review-about{margin-top:24px}details summary{min-height:40px;padding:8px 0;font-size:14px;font-weight:600;color:var(--ink-2)}.review-about p{font-size:13px;color:var(--muted)}
+body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded main{padding-top:20px}
+
+/* Play area: the beach */
+.beach-wrap{position:relative;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#E2CFA6;transition:box-shadow .2s}
+.beach-wrap.outcome-win{box-shadow:0 0 0 3px var(--win)}.beach-wrap.outcome-over{box-shadow:0 0 0 3px var(--over)}.beach-wrap.outcome-lose{box-shadow:0 0 0 3px var(--lose)}
+.corner{position:absolute;top:8px;font:12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.9);color:var(--ink-2)}.corner-left{left:8px}.corner-right{right:8px;font-weight:600}
+.corner-right.win{color:var(--win)}.corner-right.over{color:var(--over)}.corner-right.lose{color:var(--lose)}.corner-right:empty{display:none}
+.beach{display:block;width:100%;height:auto}
+.sea{fill:var(--sea)}.surf{fill:var(--sea-wash)}.wave{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;opacity:.8}
+.prop{fill:var(--cap)}.prop-light{fill:var(--cap-2)}.grass{stroke:#6E8B5A;stroke-width:2;stroke-linecap:round;fill:none}
+.cell{fill:var(--sand)}.speck{fill:var(--speck)}
+.print{fill:#9C8457;opacity:.55}
+.ripple{fill:none;stroke:#D9C49A;stroke-width:1.6;opacity:.9}
+.blotch{fill:#A8916A;opacity:.18}
+.puddle{fill:#B9D5E2;stroke:#8FB4C7;stroke-width:1;opacity:.75}.shine{stroke:#fff;stroke-width:2;stroke-linecap:round;opacity:.8}
+.mini-wrap{display:flex;gap:10px;align-items:flex-start}.mini-grid{width:46px;height:46px;flex:none;margin-top:2px}
+.m-coin{fill:#E9A83C;stroke:#A86F12;stroke-width:.6}.m-coin.faint{opacity:.45}.m-sand{fill:#E2CFA6}
+.m-beep{fill:none;stroke:#111827;stroke-width:1.6}.m-quiet{fill:none;stroke:#B8A57E;stroke-width:1;stroke-dasharray:2 1.5}
+.mini-rates{display:grid;gap:3px;margin-top:6px}.mini-rates>span{display:flex;align-items:center;gap:8px;font-size:12px}.mini-row{height:8px;flex:none}.mini-rates>span{white-space:nowrap}
+.pi{width:18px;height:18px;vertical-align:-4px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pi.coin-i circle{fill:#E9A83C;stroke:#A86F12;stroke-width:1.6}.pi.coin-i .inner{fill:none;stroke-width:1}
+.beach.soft{--sand:#F3E8CF;--speck:#D6C49C}.beach.firm{--sand:#EBDAB5;--speck:#CDB78A}.beach.damp{--sand:#DCC8A0;--speck:#BCA478}.beach.wet{--sand:#CDB892;--speck:#A99269}
+.ring{fill:none;stroke:var(--art-ink);stroke-width:3}
+.detector circle{fill:none;stroke:var(--red);stroke-width:3}.detector line{stroke:var(--red);stroke-width:3;stroke-linecap:round}
+/* Side panel: clues and the dig pile */
+.clues{display:grid;gap:8px;margin-bottom:14px}
+.clue{display:grid;grid-template-columns:62px 1fr;gap:0 10px;padding:9px 12px;border:1px solid var(--line);border-radius:4px}
+.clue-k{grid-row:span 2;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:2px}
+.clue b{font-size:15px;font-weight:600;color:var(--ink)}.clue span:last-child{font-size:13px;color:var(--muted);line-height:1.45}
+.pile h2{font-size:15px;font-weight:600;margin:0 0 6px;color:var(--ink)}
+.pile-row{display:flex;flex-wrap:wrap;gap:4px;min-height:44px;padding:8px;border:1px dashed var(--button-line);border-radius:4px;background:#FCFAF5}
+.pile-row svg{width:26px;height:26px}
+.pile-count{font-size:14px;color:var(--muted);margin:6px 0 0;font-variant-numeric:tabular-nums}.pile-count b{color:var(--body)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:13px;color:var(--muted);margin:14px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}.legend svg{width:22px;height:22px;flex:none}
+
+/* Free play (course mode only): the original widget's three sliders, with exact values. */
+.freeplay{grid-column:1;padding:24px;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05)}
+.freeplay h2{font-size:19px;margin:0 0 4px;letter-spacing:-.015em;color:var(--ink)}.free-sub{font-size:14px;color:var(--muted);margin:0 0 16px}
+.free-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.free-controls{display:grid;gap:14px}
+.lever label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:16px}
+.lever label b{font-weight:600;color:var(--body)}.lever .nota{font-weight:400;color:var(--muted);font-size:14px;margin-left:6px}
+.lever output{font:600 20px ui-monospace,SFMono-Regular,monospace;color:var(--ink);white-space:nowrap}
+.track{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}.track span{flex:none;width:40px}.track span:first-child{text-align:right}
+.track input{flex:1;min-width:0;margin:6px 0 2px;accent-color:var(--red)}
+.track input:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+.lever .why{margin-top:2px}
+.odds{padding:12px 14px;background:#FBF6EA;border-left:3px solid var(--gold-dark);border-radius:4px;margin-bottom:14px}
+.odds .big{font-size:28px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}.odds .lbl{font-size:14px;color:var(--body)}
+.bar-label{font-size:13px;font-weight:600;color:var(--ink);margin:10px 0 4px}
+.fbar{display:flex;height:22px;border-radius:3px;overflow:hidden;border:1px solid var(--line)}
+.seg{height:100%}.seg.coin,.sw.coin{background:var(--gold)}.seg.empty,.sw.empty{background:#EEDFC0}
+.seg.cap,.sw.cap{background:repeating-linear-gradient(135deg,#52667C 0 4px,#7D90A5 4px 7px)}
+.seg.coin+.seg{border-left:2px solid #fff}
+.bar-key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted);margin:8px 0 0}.bar-key span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:14px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.2)}
+.freq{font-size:14px;line-height:1.55;color:var(--body);margin:12px 0 0;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.free-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.gamewrap{grid-template-columns:1fr}}
+@media(max-width:700px){.gameplay{grid-template-columns:1fr}.beach-wrap{max-width:420px;margin:0 auto;width:100%}}
+@media(max-width:560px){main{padding:20px 12px 40px}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay{padding:0 14px}.reason,.bayes-line{margin-left:14px;margin-right:14px}.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}.actions button{flex:1;min-width:0}.legend{grid-template-columns:1fr}.gamebar{padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages (course mode): lecture terms shown, arcade-only copy and links hidden. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only,body.course .explainer-link{display:none}
+body.course main{padding:12px 12px 16px}
+/* Course pages embed the game and free play in separate frames: ?view=free shows free play alone. */
+body.game-only .freeplay{display:none}
+body.free-only .playcard,body.free-only .howto,body.free-only .explainer,body.free-only .review-about{display:none}
+body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:12px}
+</style></head>
+<body class="gameformat">
+<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Beach Beeps</h1></header>
+<main>
+  <div class="gamewrap">
+    <section class="playcard" aria-label="Game">
+      <div class="gamestatus"><span>Day: <b id="st-day">1</b></span><span>Spot: <b id="st-spot">1 of 5</b></span><span>Points: <b id="st-points">0</b></span></div>
+      <p class="gameprompt">Each dig <svg class="pi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3l2 2M20 4l-8 8"/><path d="M12.5 11.5 6.5 13l-3 7.5 7.5-3z"/></svg> costs <strong>3 points</strong> and each coin <svg class="pi coin-i" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="9"/><circle r="5.2" class="inner"/></svg> is worth <strong>10</strong>. Dig every beep, or walk on?</p>
+      <div class="gameplay">
+        <div class="beach-wrap" id="beach-wrap"><span class="corner corner-left" id="place"></span><span class="corner corner-right" id="outcome-label"></span>
+          <svg id="beach" class="beach" viewBox="0 0 400 452" role="img" aria-label="A beach of 100 squares of sand.">
+            <defs>
+              <symbol id="coin" viewBox="-12 -12 24 24"><circle r="10" fill="#E9A83C" stroke="#A86F12" stroke-width="1.6"/><circle r="6" fill="none" stroke="#A86F12" stroke-width="1"/></symbol>
+              <symbol id="cap" viewBox="-12 -12 24 24"><polygon id="cap-edge" fill="#52667C"/><circle r="6.2" fill="#7D90A5"/></symbol>
+              <symbol id="lost" viewBox="-12 -12 24 24"><circle r="9" fill="#F4D9A6" stroke="#A86F12" stroke-width="1.2"/><circle r="11" fill="none" stroke="#40464C" stroke-width="1.5" stroke-dasharray="2.6 2"/></symbol>
+              <symbol id="beep" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="4" fill="#EBDAB5" stroke="#111827" stroke-width="3"/></symbol>
+            </defs>
+            <g id="scene"></g>
+            <g id="cells"></g>
+            <g id="items"></g>
+            <g id="rings"></g>
+            <g id="detector" class="detector" style="display:none"><circle r="12"/><line x1="8" y1="-9" x2="17" y2="-22"/></g>
+          </svg>
+        </div>
+        <div class="side">
+          <div class="clues">
+            <div class="clue"><span class="clue-k">Where</span><b id="c-place"></b><span id="c-place-why"></span></div>
+            <div class="clue"><span class="clue-k">Ground</span><b id="c-ground"></b><span id="c-ground-why"></span></div>
+            <div class="clue"><span class="clue-k">Beeps</span><b id="c-beeps"></b><span id="c-beeps-why"></span></div>
+          </div>
+          <div class="pile">
+            <h2 id="pile-title">What the beeps dug up</h2>
+            <div class="pile-row" id="pile" aria-hidden="true"></div>
+            <p class="pile-count" id="pile-count"></p>
+          </div>
+          <div class="legend">
+            <span><svg aria-hidden="true"><use href="#beep"/></svg>A beep<span class="course-only">(tests +)</span></span>
+            <span><svg aria-hidden="true"><use href="#coin"/></svg>Coin<span class="course-only">(has D)</span></span>
+            <span><svg aria-hidden="true"><use href="#cap"/></svg>Bottle cap</span>
+            <span><svg aria-hidden="true"><use href="#lost"/></svg>Coin it missed</span>
+          </div>
+        </div>
+      </div>
+      <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
+      <p class="bayes-line course-only" id="bayes-line"></p>
+      <div class="gamecontrols">
+        <div class="actions"><button type="button" id="dig" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3l2 2M20 4l-8 8"/><path d="M12.5 11.5 6.5 13l-3 7.5 7.5-3z"/></svg><span id="dig-label">Dig every beep</span></button><button type="button" id="walk"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><ellipse class="fill" cx="8" cy="15" rx="2.6" ry="4"/><ellipse class="fill" cx="16" cy="7.5" rx="2.6" ry="4"/><path d="M6.5 21.5h3M14.5 14h3"/></svg><span>Walk on</span></button><button type="button" id="next" class="primary" hidden><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span id="next-label">Next spot</span></button></div>
+        <p class="why" id="cost-line"></p>
+      </div>
+      <div class="gamefoot">
+        <div class="foot-left"><p><strong>New day</strong> <span>- five new spots along the beach</span></p><div class="foot-buttons"><button id="new-day" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M2 20c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>New day</button></div></div>
+        <div class="foot-right"><button id="reset" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Start over</button></div>
+      </div>
+    </section>
+    <section class="freeplay course-only" aria-labelledby="free-title">
+      <h2 id="free-title">Free play: set your own beach</h2>
+      <p class="free-sub">Set how common coins are and how good the detector is, then read off P(D | +), the share of beeps that are coins.</p>
+      <div class="free-grid">
+        <div class="free-controls">
+          <div class="lever">
+            <label for="f-prior"><span><b>Coins in the sand</b><span class="nota">base rate P(D)</span></span><output id="fv-prior" for="f-prior"></output></label>
+            <div class="track"><span aria-hidden="true">1%</span><input id="f-prior" type="range" min="1" max="50" step="1" value="1" aria-describedby="fh-prior"><span aria-hidden="true">50%</span></div>
+            <p class="why" id="fh-prior"></p>
+          </div>
+          <div class="lever">
+            <label for="f-sens"><span><b>Finds coins</b><span class="nota">sensitivity P(+ | D)</span></span><output id="fv-sens" for="f-sens"></output></label>
+            <div class="track"><span aria-hidden="true">50%</span><input id="f-sens" type="range" min="50" max="100" step="1" value="95" aria-describedby="fh-sens"><span aria-hidden="true">100%</span></div>
+            <p class="why" id="fh-sens"></p>
+          </div>
+          <div class="lever">
+            <label for="f-spec"><span><b>Ignores empty sand</b><span class="nota">specificity P(&minus; | not D)</span></span><output id="fv-spec" for="f-spec"></output></label>
+            <div class="track"><span aria-hidden="true">50%</span><input id="f-spec" type="range" min="50" max="100" step="1" value="95" aria-describedby="fh-spec"><span aria-hidden="true">100%</span></div>
+            <p class="why" id="fh-spec"></p>
+          </div>
+        </div>
+        <div class="free-out">
+          <div class="odds"><div class="big" id="f-post"></div><div class="lbl">the share of beeps that are coins</div></div>
+          <p class="bar-label">All squares</p>
+          <div class="fbar" aria-hidden="true"><span class="seg coin" id="f-sq-coin"></span><span class="seg empty" id="f-sq-empty"></span></div>
+          <p class="bar-label">All beeps</p>
+          <div class="fbar" aria-hidden="true"><span class="seg coin" id="f-bp-coin"></span><span class="seg cap" id="f-bp-cap"></span></div>
+          <p class="bar-key"><span><i class="sw coin"></i>Coin</span><span><i class="sw empty"></i>Empty square</span><span><i class="sw cap"></i>Empty square that beeps</span></p>
+          <p class="freq" id="f-freq" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+    <aside class="howto" aria-labelledby="howto-title">
+      <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+      <p><strong>Lost coins</strong> hide under the sand, more where people gather: hardly any in the quiet dunes, plenty under the pier.</p>
+      <p><strong>Your detector</strong> beeps over most coins. Bottle caps set it off too, and damp or wet sand makes it beep more often.</p>
+      <p><strong>At each spot</strong> the detector sweeps 100 squares. Then you choose: dig up every beep, or walk on to the next spot.</p>
+      <p><strong>Follow the odds.</strong> Digging has a positive expected return when more than 3 beeps in 10 are coins on average. A good call can still lose points on one beach. Each dig costs 3 points and each coin is worth 10.</p>
+      <p><strong>A day</strong> is five spots. Make the call that pays at every one.</p>
+    </aside>
+  </div>
+  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+    <h2 id="takeaway-title">A beep means more where coins are common</h2>
+    <p>The detector is just as good at every spot on the same ground, but a beep means different things in different places. In the dunes only 2 squares in 100 hide a coin, so the 98 empty squares make most of the beeps, even if each one sets it off only now and then. Under the pier, 30 squares hide a coin, and real beeps outnumber false ones. How common coins are to begin with, the base rate, decides what a beep is worth.</p>
+    <p class="course-only">In this lecture's terms a coin is the condition D and a beep is a positive test. The place sets the base rate P(D). The ground sets the sensitivity P(+ | D) and the false-positive rate P(+ | not D), which is 1 minus the specificity. The share of beeps that are coins is P(D | +), from Bayes' rule: P(D | +) = P(+ | D)P(D) / [P(+ | D)P(D) + P(+ | not D)P(not D)]. Digging has a positive expected return when P(D | +) is above 3/10, the cost of a dig over the value of a coin.</p>
+    <p class="arcade-only">The calculation is Bayes' rule, from Probability &amp; Statistical Data Analysis (6.3710.1x) Lec. 2, Conditioning and Bayes' rule.</p>
+    <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: conditioning, Bayes' rule and the base rate.</p>
+    <p class="explainer-note">Each beach is one random sweep with independent coin locations and detector outcomes. No outcomes are discarded. The verdict judges your choice using the rates; the points report what happened on this beach. The percentage comes from Bayes' rule, not from the coins found on a particular sweep.</p>
+  </section>
+  
+</main>
+<noscript><p>This interactive activity requires JavaScript.</p></noscript>
+<script>/* Beach Beeps: spots on a beach, a detector with known rates, and a call to dig or walk on. Pure and deterministic. */
+(function(root){
+  'use strict';
+  // Each dig costs DIG points and each coin is worth COIN, so digging every beep pays exactly when more
+  // than DIG/COIN of the beeps are coins.
+  const N=100,COLS=10,COIN=10,DIG=3,BREAK_EVEN=DIG/COIN,SPOTS=5;
+  // k/100 is each square's independent chance of hiding a coin; the realized count varies.
+  const PLACES=[
+    {key:'dunes',name:'The quiet dunes',at:'in the quiet dunes',k:2},
+    {key:'beach',name:'The open beach',at:'on the open beach',k:5},
+    {key:'boardwalk',name:'By the boardwalk',at:'by the boardwalk',k:15},
+    {key:'pier',name:'Under the pier',at:'under the pier',k:30}];
+  // sens: the share of coins the detector beeps over. fpr: the share of empty squares it beeps over anyway
+  // (bottle caps, foil, salty wet sand). finds/false: the same rates as plain counts for the clue card.
+  const GROUNDS=[
+    {key:'soft',name:'Dry, soft sand',sens:.7,fpr:.05,finds:'7 coins in 10',falses:'1 empty square in 20',note:'Coins sink deep here.'},
+    {key:'firm',name:'Firm sand',sens:.9,fpr:.05,finds:'9 coins in 10',falses:'1 empty square in 20',note:''},
+    {key:'damp',name:'Damp sand',sens:.9,fpr:.1,finds:'9 coins in 10',falses:'1 empty square in 10',note:'Damp sand sets it off more often.'},
+    {key:'wet',name:'Wet sand by the water',sens:.9,fpr:.2,finds:'9 coins in 10',falses:'1 empty square in 5',note:'Salty wet sand sets it off a lot.'}];
+  const posterior=(p,g)=>g.sens*p/(g.sens*p+g.fpr*(1-p));
+  // Keep the expected decision clear by omitting near-tie scenarios. Random outcomes are never screened.
+  const COMBOS=[];
+  PLACES.forEach((pl,place)=>GROUNDS.forEach((gr,ground)=>{
+    const post=posterior(pl.k/N,gr);
+    if(Math.abs(post-BREAK_EVEN)>=.06)COMBOS.push({place,ground,post,dig:post>BREAK_EVEN});
+  }));
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  // One unscreened sweep. Independent coin locations make P(coin | beep) valid even after seeing the beep count.
+  function beach(seed,combo){
+    const pl=PLACES[combo.place],gr=GROUNDS[combo.ground],r=rng(seed);
+    const cells=Array.from({length:N},()=>{const coin=r()<pl.k/N;return {coin,beep:r()<(coin?gr.sens:gr.fpr),specks:[r(),r(),r(),r(),r(),r()]};});
+    const beeps=cells.filter(c=>c.beep).length,TP=cells.filter(c=>c.coin&&c.beep).length,coins=cells.filter(c=>c.coin).length;
+    return {...combo,seed,cells,beeps,TP,FP:beeps-TP,missed:coins-TP,share:beeps?TP/beeps:null,
+      expectedProfit:beeps*(COIN*combo.post-DIG),profit:COIN*TP-DIG*beeps};
+  }
+  // The first day teaches in order: an easy dig, a quiet walk-on, a modest dig, a trap with many beeps, a dig despite caps.
+  const INTRO=[['pier','firm'],['dunes','soft'],['beach','firm'],['dunes','wet'],['boardwalk','wet']];
+  const find=(p,g)=>COMBOS.find(c=>PLACES[c.place].key===p&&GROUNDS[c.ground].key===g);
+  // A day is five different scenarios, two or three of which favor digging in expectation.
+  function day(seed=1){
+    seed>>>=0;let combos;
+    if(seed===1)combos=INTRO.map(([p,g])=>find(p,g));
+    else{
+      const r=rng(seed^0x5bd1e995);
+      for(;;){
+        combos=Array.from({length:SPOTS},()=>COMBOS[Math.floor(r()*COMBOS.length)]);
+        const digs=combos.filter(c=>c.dig).length;
+        if(digs>=2&&digs<=3&&new Set(combos).size===SPOTS)break;
+      }
+    }
+    const spots=combos.map((c,i)=>beach((Math.imul(seed,31)+i*7919)>>>0,c));
+    return {seed,spots};
+  }
+  root.BeachBeeps={N,COLS,COIN,DIG,BREAK_EVEN,SPOTS,PLACES,GROUNDS,COMBOS,posterior,beach,day};
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const B=globalThis.BeachBeeps,$=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+  // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
+  // lecture's terms (P(D), sensitivity, false-positive rate, P(D | +)) and the Bayes calculation after every spot.
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
+  const raf=typeof globalThis.requestAnimationFrame==='function'?globalThis.requestAnimationFrame.bind(globalThis):null;
+  const now=()=>globalThis.performance?.now?.()??Date.now();
+  const PITCH=38,CELL=34,X0=10,Y0=62,cx=i=>X0+(i%B.COLS)*PITCH,cy=i=>Y0+Math.floor(i/B.COLS)*PITCH;
+  const plural=(n,one,many)=>n+' '+(n===1?one:many),pct=v=>Math.round(v*100)+'%',num=v=>Number.isInteger(v)?String(v):v.toFixed(1);
+  const signed=v=>v>0?'+'+v:v<0?'−'+(-v):'0';
+  let d,seed=1,days=1,idx=0,points=0,soundCalls=0,anim=null;
+  const spot=()=>d.spots[idx],place=s=>B.PLACES[s.place],ground=s=>B.GROUNDS[s.ground];
+
+  function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+  // The bottle cap's crimped edge.
+  $('cap-edge').setAttribute('points',[...Array(42).keys()].map(i=>{const a=i*Math.PI/21,r=i%2?8.6:10.6;return (r*Math.cos(a)).toFixed(2)+','+(r*Math.sin(a)).toFixed(2);}).join(' '));
+
+  function setURL(){try{const u=new URL(location.href);u.searchParams.set('seed',seed);history.replaceState(null,'',u.href);}catch(e){}}
+  function startDay(next){seed=next>>>0;d=B.day(seed);idx=0;points=0;soundCalls=0;setURL();startSpot();}
+
+  // Strip of sea along the top, with a prop for the part of the beach.
+  function scene(s){
+    const g=$('scene');g.innerHTML='';
+    el('rect',{class:'sea',x:0,y:0,width:400,height:36},g);el('rect',{class:'surf',x:0,y:36,width:400,height:12},g);
+    for(let x=20;x<400;x+=90)el('path',{class:'wave',d:`M${x} 18q8 -6 16 0t16 0`},g);
+    const k=place(s).key;
+    if(k==='dunes')for(let x=250;x<390;x+=34)el('path',{class:'grass',d:`M${x} 58l-4 -12M${x} 58l0 -14M${x} 58l5 -11`},g);
+    if(k==='beach'){el('path',{class:'prop',d:'M300 34a26 14 0 0 1 52 0z'},g);el('rect',{class:'prop',x:325,y:34,width:2.5,height:22},g);}
+    if(k==='boardwalk')for(let x=240;x<400;x+=16)el('rect',{class:'prop-light',x,y:46,width:13,height:10},g);
+    if(k==='pier'){el('rect',{class:'prop',x:150,y:22,width:250,height:7},g);for(let x=160;x<400;x+=40)el('rect',{class:'prop',x,y:29,width:5,height:28},g);}
+    $('beach').setAttribute('class','beach '+ground(s).key);
+    $('cells').innerHTML='';
+    s.cells.forEach((c,i)=>{el('rect',{class:'cell',x:cx(i),y:cy(i),width:CELL,height:CELL,rx:4},$('cells'));
+      for(let j=0;j<6;j+=2)el('circle',{class:'speck',cx:cx(i)+4+c.specks[j]*(CELL-8),cy:cy(i)+4+c.specks[j+1]*(CELL-8),r:1.1},$('cells'));});
+    groundMarks(s);footprints(s);
+    $('items').innerHTML='';$('rings').innerHTML='';
+  }
+  /* The spot's settings, drawn on the sand (Cody, 2026-10-07: settings that decide the call should be visible).
+     Footprints show how busy the place is, so how common lost coins are: one step for every half coin in 100
+     (a single short trail in the quiet dunes, a crowd under the pier). They come from their own random stream,
+     independent of where the coins are, so they never point at a square. */
+  function stream(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const GRID={x0:X0,y0:Y0,x1:X0+9*PITCH+CELL,y1:Y0+9*PITCH+CELL};
+  function footprints(s){
+    const r=stream((s.seed^0x51F15EED)>>>0),k=place(s).k,steps=2*k,trails=Math.max(1,Math.round(k/6)),g=el('g',{class:'prints'},$('cells'));
+    for(let t=0;t<trails;t++){
+      let x=GRID.x0+20+r()*(GRID.x1-GRID.x0-40),y=GRID.y0+20+r()*(GRID.y1-GRID.y0-40),a=r()*Math.PI*2;
+      const n=Math.round(steps/trails);
+      for(let k2=0;k2<n;k2++){
+        a+=(r()-.5)*.5;x+=Math.cos(a)*15;y+=Math.sin(a)*15;
+        if(x<GRID.x0+6||x>GRID.x1-6){a=Math.PI-a;x=Math.max(GRID.x0+6,Math.min(GRID.x1-6,x));}
+        if(y<GRID.y0+6||y>GRID.y1-6){a=-a;y=Math.max(GRID.y0+6,Math.min(GRID.y1-6,y));}
+        const side=k2%2?1:-1,px=x+Math.cos(a+Math.PI/2)*4*side,py=y+Math.sin(a+Math.PI/2)*4*side;
+        el('ellipse',{class:'print',cx:px.toFixed(1),cy:py.toFixed(1),rx:2.6,ry:4.4,transform:`rotate(${(a*180/Math.PI+90).toFixed(0)} ${px.toFixed(1)} ${py.toFixed(1)})`},g);
+      }
+    }
+  }
+  // The ground, drawn by how much it fools the detector: dry soft sand lies in loose ripples (coins sink deep);
+  // firm sand is smooth; damp sand is blotched darker; wet sand by the water shines with puddles.
+  function groundMarks(s){
+    const key=ground(s).key,r=stream((s.seed^0x6A09E667)>>>0),g=el('g',{class:'ground-marks '+key},$('cells'));
+    if(key==='soft')for(let y=GRID.y0+18;y<GRID.y1;y+=34){let d=`M${GRID.x0} ${y}`;for(let x=GRID.x0;x<GRID.x1;x+=40)d+=` q10 -5 20 0 t20 0`;el('path',{class:'ripple',d},g);}
+    if(key==='damp')for(let k=0;k<12;k++)el('ellipse',{class:'blotch',cx:(GRID.x0+r()*(GRID.x1-GRID.x0)).toFixed(1),cy:(GRID.y0+r()*(GRID.y1-GRID.y0)).toFixed(1),rx:(14+r()*18).toFixed(1),ry:(8+r()*10).toFixed(1)},g);
+    if(key==='wet'){
+      for(let k=0;k<9;k++)el('ellipse',{class:'puddle',cx:(GRID.x0+r()*(GRID.x1-GRID.x0)).toFixed(1),cy:(GRID.y0+r()*(GRID.y1-GRID.y0)).toFixed(1),rx:(12+r()*20).toFixed(1),ry:(5+r()*7).toFixed(1)},g);
+      for(let k=0;k<14;k++){const x=GRID.x0+r()*(GRID.x1-GRID.x0-20),y=GRID.y0+r()*(GRID.y1-GRID.y0);el('path',{class:'shine',d:`M${x.toFixed(1)} ${y.toFixed(1)}h${(8+r()*12).toFixed(1)}`},g);}
+    }
+  }
+  // Mini pictures for the clue cards: 100 squares with the coin share filled, and the detector's two rates.
+  function mini100(k){let d='';for(let i=0;i<100;i++)d+=`<circle cx="${(i%10)*6+3}" cy="${Math.floor(i/10)*6+3}" r="2.2" class="${i<k?'m-coin':'m-sand'}"/>`;return `<svg viewBox="0 0 60 60" class="mini-grid" aria-hidden="true">${d}</svg>`;}
+  function miniRow(n,of,on,off){let d='';for(let i=0;i<of;i++)d+=`<g transform="translate(${i*13} 0)">${i<n?on:off}</g>`;return `<svg viewBox="0 0 ${of*13} 12" class="mini-row" style="width:${of*13*0.62}px" aria-hidden="true">${d}</svg>`;}
+  const FOUND='<circle cx="6" cy="6" r="3.6" class="m-coin"/><rect x="1" y="1" width="10" height="10" rx="2.5" class="m-beep"/>',
+        SUNK='<circle cx="6" cy="6" r="3.6" class="m-coin faint"/><rect x="1" y="1" width="10" height="10" rx="2.5" class="m-quiet"/>',
+        FALSE='<rect x="1" y="1" width="10" height="10" rx="2.5" class="m-beep"/>',
+        EMPTY='<rect x="1" y="1" width="10" height="10" rx="2.5" class="m-quiet"/>';
+  const ring=i=>el('rect',{class:'ring',x:cx(i)-1.5,y:cy(i)-1.5,width:CELL+3,height:CELL+3,rx:5},$('rings'));
+  const put=(i,sym)=>el('use',{href:'#'+sym,x:cx(i)+5,y:cy(i)+5,width:24,height:24},$('items'));
+
+  function clues(s,swept){
+    const pl=place(s),gr=ground(s);
+    $('place').textContent=pl.name;
+    $('c-place').textContent=pl.name;
+    $('c-place-why').innerHTML=`<span class="mini-wrap">${mini100(pl.k)}<span>About ${pl.k} squares in 100 hide a coin.${COURSE?` P(D) = ${pl.k/100}.`:''} Busier places lose more coins: see the footprints.</span></span>`;
+    $('c-ground').textContent=gr.name;
+    $('c-ground-why').innerHTML=`${gr.note?gr.note+' ':''}The detector finds ${gr.finds} and beeps at ${gr.falses}.${COURSE?` P(+ | D) = ${gr.sens}, P(+ | not D) = ${gr.fpr}.`:''}<span class="mini-rates"><span>${miniRow(Math.round(gr.sens*10),10,FOUND,SUNK)} coins found</span><span>${miniRow(Math.round(gr.fpr*20),20,FALSE,EMPTY)} false beeps</span></span>`;
+    $('c-beeps').textContent=swept?plural(s.beeps,'beep','beeps'):'Sweeping…';
+    $('c-beeps-why').textContent=swept?'Coin or bottle cap? Only digging shows which.':'';
+  }
+  function status(){
+    $('st-day').textContent=days;$('st-spot').textContent=`${idx+1} of ${B.SPOTS}`;
+    $('st-points').textContent=points;
+  }
+  function clearOutcome(){$('beach-wrap').classList.remove('outcome-win','outcome-over','outcome-lose');$('outcome-label').textContent='';$('outcome-label').className='corner corner-right';}
+
+  // The dig pile: the beeps in dig order, coin or cap, with the running tally.
+  function pile(s,count,dug){
+    const order=s.cells.map((c,i)=>c.beep?i:-1).filter(i=>i>=0).slice(0,count);
+    $('pile-title').textContent=dug===false?'What digging would have found':'What the beeps dug up';
+    $('pile').innerHTML=order.map(i=>`<svg><use href="#${s.cells[i].coin?'coin':'cap'}"/></svg>`).join('');
+    if(!count){$('pile-count').textContent=dug===undefined?'Nothing dug yet.':'';return;}
+    const coins=order.filter(i=>s.cells[i].coin).length,caps=count-coins;
+    $('pile-count').innerHTML=`<b>${plural(coins,'coin','coins')}</b> (+${coins*B.COIN}) and <b>${plural(caps,'bottle cap','bottle caps')}</b>, from ${plural(count,'dig','digs')} (−${count*B.DIG}): <b>${signed(coins*B.COIN-count*B.DIG)}</b>`;
+  }
+
+  function startSpot(){
+    const s=spot();anim=null;
+    clearOutcome();scene(s);clues(s,false);pile(s,0);
+    $('next').hidden=true;$('next').dataset.end='';$('dig').hidden=$('walk').hidden=false;$('dig').disabled=$('walk').disabled=true;
+    $('dig-label').textContent='Dig every beep';$('cost-line').textContent='';
+    $('feedback-title').textContent='';$('feedback-text').textContent='The detector is sweeping the beach.';$('bayes-line').textContent='';
+    status();
+    sweep(s,()=>{
+      clues(s,true);$('dig').disabled=$('walk').disabled=false;$('dig-label').textContent=`Dig all ${s.beeps} beeps`;
+      $('cost-line').textContent=`Digging every beep costs ${s.beeps*B.DIG} points. Each coin you find is worth ${B.COIN}.`;
+      $('feedback-text').textContent=`${plural(s.beeps,'beep','beeps')} ${place(s).at}. Dig them all, or walk on?`;
+      $('beach').setAttribute('aria-label',`${place(s).name}, ${ground(s).name.toLowerCase()}: 100 squares of sand, ${plural(s.beeps,'beep','beeps')} outlined.`);
+    });
+  }
+  // The sweep: the detector crosses the beach row by row, and each square that beeps gets its ring as it passes.
+  function sweep(s,done){
+    const order=[...Array(B.N).keys()].map(i=>{const r=Math.floor(i/B.COLS),c=i%B.COLS;return r*B.COLS+(r%2?B.COLS-1-c:c);});
+    if(!raf||reduced()){s.cells.forEach((c,i)=>{if(c.beep)ring(i);});done();return;}
+    const T=1600,t0=now(),token={},det=$('detector');anim=token;let shown=0;det.style.display='';
+    const step=()=>{
+      if(anim!==token){det.style.display='none';return;}
+      const u=Math.min(1,(now()-t0)/T),upto=Math.floor(u*B.N);
+      while(shown<upto){const i=order[shown++];if(s.cells[i].beep)ring(i);}
+      const i=order[Math.min(B.N-1,upto)];det.setAttribute('transform',`translate(${cx(i)+CELL/2} ${cy(i)+CELL/2})`);
+      if(u<1)raf(step);else{det.style.display='none';anim=null;done();}
+    };
+    raf(step);
+  }
+  // Dig: each beep opens in turn and drops into the pile. Walk on: the beach shows what digging would have found.
+  function decide(dig){
+    const s=spot(),beeps=s.cells.map((c,i)=>c.beep?i:-1).filter(i=>i>=0);
+    $('dig').disabled=$('walk').disabled=true;
+    const finish=()=>{
+      if(!dig)beeps.forEach(i=>put(i,s.cells[i].coin?'coin':'cap'));
+      s.cells.forEach((c,i)=>{if(c.coin&&!c.beep)put(i,'lost');});
+      pile(s,beeps.length,dig);verdict(s,dig);
+    };
+    if(!dig||!beeps.length||!raf||reduced()){if(dig)beeps.forEach(i=>put(i,s.cells[i].coin?'coin':'cap'));finish();return;}
+    const token={};anim=token;let k=0;const gap=Math.min(120,1500/beeps.length);
+    const tick=()=>{if(anim!==token)return;const i=beeps[k++];put(i,s.cells[i].coin?'coin':'cap');pile(s,k,true);
+      if(k<beeps.length)setTimeout(tick,gap);else{anim=null;finish();}};
+    tick();
+  }
+
+  // Judge the choice by expected return; report this beach's actual points separately.
+  function verdict(s,dig){
+    const pl=place(s),gr=ground(s),right=!s.beeps||dig===s.dig;
+    if(right)soundCalls++;
+    if(dig)points+=s.profit;
+    const tally=`${plural(s.TP,'coin','coins')} and ${plural(s.FP,'bottle cap','bottle caps')}`;
+    const money=`${s.TP} × ${B.COIN} − ${s.beeps} × ${B.DIG} = ${signed(s.profit)}`;
+    const real=num(Math.round(pl.k*gr.sens*10)/10),falses=num(Math.round((B.N-pl.k)*gr.fpr*10)/10);
+    const why=s.beeps?` The rates give about ${real} coin beeps and ${falses} false beeps per 100 squares on average. About ${pct(s.post)} of beeps are coins, so ${s.dig?'digging':'walking on'} has the higher expected return.`:' With no beeps, either choice costs nothing.';
+    // Two halves: was the call right on the odds, and did this beach agree? When they differ, the verdict says "but".
+    // Green: right call, and this beach went its way. Amber: the odds and this beach disagree. Red: wrong call, and this beach
+    // went against it too.
+    const lost=s.profit<0,even=s.profit===0,paid=s.profit>0,borne=dig?paid:!paid;
+    const outcome=!s.beeps?'win':right?(borne?'win':'over'):(borne?'over':'lose');
+    const [label,title]=!s.beeps?['Nothing to dig','No beeps to dig.']
+      :dig?(right?(paid?['Good call',`Good call: ${signed(s.profit)} points.`]
+                        :['Good call, unlucky beach',`Good call on the odds, but this beach ${lost?`lost ${-s.profit} points`:'only broke even'}.`])
+                 :(paid?['Lucky beach',`This dig paid ${signed(s.profit)} points, but the odds favored walking on.`]
+                        :[lost?'Mostly caps':'Broke even',lost?`Mostly bottle caps: ${signed(s.profit)} points.`:'This dig broke even, and the odds favored walking on.']))
+          :(right?(paid?['Good call, lucky beach',`Good call on the odds, but this beach would have paid ${signed(s.profit)} points.`]
+                       :['Good call',`Good call: digging would have ${even?'only broken even':`lost ${-s.profit} points`}.`])
+                 :(paid?['Missed out',`Missed out: digging would have paid ${signed(s.profit)} points.`]
+                       :['Lucky miss',`Walking on dodged ${even?'a dig that only broke even':`a loss of ${-s.profit} points`}, but the odds favored digging.`]));
+    const text=dig?`This dig found ${tally}: ${money} points.`:`Digging would have found ${tally}: ${money} points. Walking on earned 0.`;
+    // When the beach and the odds disagree, show where this beach differed from a typical one.
+    const odd=s.beeps&&outcome==='over'?` This beach turned up ${plural(s.TP,'coin beep','coin beeps')} and ${plural(s.FP,'false beep','false beeps')}, against about ${real} and ${falses} on a typical beach like it.`:'';
+    $('beach-wrap').classList.add('outcome-'+outcome);$('outcome-label').textContent=label;$('outcome-label').className='corner corner-right '+outcome;
+    $('feedback-title').textContent=title;$('feedback-text').textContent=text+(odd?odd+` About ${pct(s.post)} of beeps are coins on beaches like this, so ${s.dig?'digging':'walking on'} has the higher expected return.`:why);
+    const p=pl.k/B.N;
+    $('bayes-line').textContent=`Bayes' rule: P(D | +) = ${gr.sens} × ${p} / (${gr.sens} × ${p} + ${gr.fpr} × ${+(1-p).toFixed(2)}) = ${(s.post*100).toFixed(1)}%. Digging has positive expected return when P(D | +) is above 3/10.`;
+    $('beach').setAttribute('aria-label',`${pl.name}: ${plural(s.beeps,'beep','beeps')}, ${tally}${s.missed?`, and ${plural(s.missed,'coin','coins')} the detector missed`:''}. ${title}`);
+    $('dig').hidden=$('walk').hidden=true;$('cost-line').textContent='';
+    const last=idx===B.SPOTS-1;$('next').hidden=false;$('next').dataset.end=last?'1':'';$('next-label').textContent=last?'Next day':'Next spot';
+    if(last)$('feedback-text').textContent+=` Day over: ${soundCalls} of ${B.SPOTS} calls followed the odds; actual score ${points} points.`;
+    status();$('takeaway').hidden=false;$('next').focus({preventScroll:true});
+  }
+
+  // Free play (course mode): the original widget's sliders in whole percents. Per 10,000 squares every count is a whole
+  // number, so the sentence and the bars are exact, and P(D | +) is shown to 0.001 (the graded check accepts ±0.005).
+  function freePlay(){
+    const p=+$('f-prior').value,s=+$('f-sens').value,sp=+$('f-spec').value,f=v=>v.toLocaleString('en-US');
+    const coins=100*p,empty=10000-coins,coinBeeps=p*s,capBeeps=(100-p)*(100-sp),beeps=coinBeeps+capBeeps,post=coinBeeps/beeps;
+    $('fv-prior').textContent=p+'%';$('fv-sens').textContent=s+'%';$('fv-spec').textContent=sp+'%';
+    $('fh-prior').textContent=`${p} square${p===1?'':'s'} in 100 hide${p===1?'s':''} a coin. P(D) = ${(p/100).toFixed(2)}.`;
+    $('fh-sens').textContent=`It beeps over ${s} of every 100 coins. P(+ | D) = ${(s/100).toFixed(2)}.`;
+    $('fh-spec').textContent=`It stays quiet over ${sp} of every 100 empty squares and beeps over ${100-sp}. P(+ | not D) = ${((100-sp)/100).toFixed(2)}.`;
+    for(const [id,v] of [['f-prior',p],['f-sens',s],['f-spec',sp]])$(id).setAttribute('aria-valuetext',v+' percent');
+    $('f-post').textContent=`P(D | +) = ${post.toFixed(3)} (${(post*100).toFixed(1)}%)`;
+    $('f-sq-coin').style.width=Math.max(.6,p)+'%';$('f-sq-empty').style.width=(100-p)+'%';
+    $('f-bp-coin').style.width=(post*100)+'%';$('f-bp-cap').style.width=((1-post)*100)+'%';
+    $('f-freq').textContent=`Out of ${f(10000)} squares, ${f(coins)} hide a coin, and the detector beeps over ${f(coinBeeps)} of them. It also beeps over ${f(capBeeps)} of the ${f(empty)} empty squares. So ${f(coinBeeps)} of the ${f(beeps)} beeps are coins: ${f(coinBeeps)} ÷ ${f(beeps)} = ${post.toFixed(3)}.`;
+  }
+  ['f-prior','f-sens','f-spec'].forEach(id=>$(id).addEventListener('input',freePlay));
+
+  function randomSeed(){try{return crypto.getRandomValues(new Uint32Array(1))[0];}catch(e){return (Date.now()^Math.floor(Math.random()*4294967296))>>>0;}}
+  const newDay=()=>{let next=randomSeed();if(next===seed||next===1)next=(next+2)>>>0;days++;startDay(next);};
+  $('dig').addEventListener('click',()=>decide(true));
+  $('walk').addEventListener('click',()=>decide(false));
+  $('next').addEventListener('click',()=>{if($('next').dataset.end==='1')newDay();else{idx++;startSpot();}});
+  $('new-day').addEventListener('click',newDay);
+  $('reset').addEventListener('click',()=>startDay(seed));
+  const params=new URLSearchParams(location.search),raw=params.get('seed'),n=raw===null?1:Number(raw);
+  if(COURSE||params.get('embed')==='1')document.body.classList.add('embedded');
+  if(COURSE){
+    document.body.classList.add('course');
+    // Course pages embed free play in its own frame (?view=free), directly above the graded check; the game frame leaves it out.
+    document.body.classList.add(new URLSearchParams(location.search).get('view')==='free'?'free-only':'game-only');
+    // Size the course page's frame to the game when the page allows it (same origin); otherwise its set height stands.
+    const fit=()=>{try{const f=window.frameElement,mn=document.querySelector('main');if(f&&mn){const h=Math.ceil(mn.getBoundingClientRect().bottom+window.scrollY+8);if(Math.abs(f.offsetHeight-h)>4)f.style.height=h+'px';}}catch(e){}};
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('load',fit);
+  }
+  if(COURSE)freePlay();
+  startDay(Number.isInteger(n)&&n>=0&&n<=4294967295?n:1);
+})();
+</script>
+</body></html>

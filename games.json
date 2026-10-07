@@ -3,6 +3,22 @@
   "pilots": "../ai-arcade-review/pilots",
   "games": [
     {
+      "slug": "beach-beeps",
+      "title": "Beach Beeps",
+      "source": "beach-beeps.html",
+      "hook": "A metal detector beeps over most buried coins, but bottle caps set it off too. At each spot on the beach, decide whether digging every beep will pay.",
+      "topic": "Bayes' rule",
+      "number": "6.3710.1x",
+      "play": "#beach-wrap",
+      "thumb_steps": [
+        "#dig"
+      ],
+      "alt": "Sand squares on a beach, with the squares the detector beeped over outlined, most holding gold coins and a few holding bottle caps.",
+      "course": "Probability+SDA",
+      "colour": "#4B7293",
+      "thumb_zoom": "fill"
+    },
+    {
       "slug": "sort-the-recycling",
       "title": "Recycling Day",
       "source": "widget-fit-by-hand.html",
@@ -16,6 +32,27 @@
         "#show-rule"
       ],
       "alt": "Cans and bottles of different sizes, sorted into two bins by a V-shaped divider."
+    },
+    {
+      "slug": "backup-power",
+      "title": "Backup Power",
+      "source": "backup-power.html",
+      "hook": "The harbor needs its lamps lit so boats can find the way in. Wire lamps to backup generators so enough stay lit on 9 nights in 10, for as little as possible.",
+      "topic": "Independence",
+      "number": "6.3710.1x",
+      "play": "#field-wrap",
+      "thumb_steps": [
+        "[data-tray]",
+        "[data-new]",
+        "[data-tray]",
+        "[data-new]",
+        "#run",
+        "#run",
+        "#run"
+      ],
+      "alt": "Three generators by the harbor wall, each running and powering one lamp, with every lamp lit.",
+      "course": "Probability+SDA",
+      "colour": "#4B7293"
     },
     {
       "slug": "trace-the-trail",
@@ -36,6 +73,29 @@
       "alt": "A forest map where the mist has lifted to reveal a winding trail, with a blue route bending twice between the depot and the delivery hut, a shaded strip where the route strays furthest, and a small yellow rover at the hut."
     },
     {
+      "slug": "prize-wheel",
+      "title": "Prize Wheel",
+      "source": "prize-wheel.html",
+      "hook": "Twelve sectors share a fixed prize budget, so the average prize never moves. Reshape the wheel so a spin reaches the bar as often as possible.",
+      "course": "Probability+SDA",
+      "topic": "Distributions and expected value",
+      "number": "6.3710.2x",
+      "colour": "#4B7293",
+      "play": "#field-wrap",
+      "thumb_steps": [
+        {
+          "set": "#big",
+          "value": 8
+        },
+        {
+          "set": "#count",
+          "value": 7
+        },
+        "#spin-btn"
+      ],
+      "alt": "A prize wheel of twelve sectors, seven of them gold and paying more than the rest, beside a dot plot of the prizes with seven dots past the bar."
+    },
+    {
       "slug": "guide-the-robot-home",
       "title": "Downhill Racer",
       "source": "widget-gradient-descent.html",
@@ -46,6 +106,48 @@
       "colour": "#173EAD",
       "play": "#plot",
       "alt": "A small robot on a three-dimensional valley, above the charger at the valley floor."
+    },
+    {
+      "slug": "lookout-tower",
+      "title": "Lookout Tower",
+      "source": "lookout-tower.html",
+      "hook": "A tower of lookouts reads a marsh photo floor by floor. Stack just enough floors, and halve the lookouts often enough, to outline every bird for the census on the least battery.",
+      "course": "Deep Learning",
+      "topic": "Convolution and the receptive field",
+      "number": "6.7960.3x",
+      "colour": "#047854",
+      "play": ".stage",
+      "thumb_steps": [
+        "#floors-up",
+        "#floors-up",
+        "#halvings-up",
+        "#halvings-up",
+        "#halvings-up",
+        "#scan"
+      ],
+      "alt": "A pixel marsh with three birds, each outlined, beside a tapering stack of floors over the photo with a pyramid of squares running from one top-floor lookout down to a bird."
+    },
+    {
+      "slug": "mean-flights",
+      "title": "Mean Flights",
+      "source": "mean-flights.html",
+      "hook": "A paper plane's score is its average over several throws. Mark where 9 scores in 10 will land, then fly 1,000 rounds to see.",
+      "topic": "Central limit theorem",
+      "number": "6.3710.4x",
+      "play": ".stack",
+      "thumb_steps": [
+        "#fly",
+        "#next",
+        "#fly",
+        "#next",
+        "#fly",
+        "#next",
+        "#fly"
+      ],
+      "alt": "Paper-plane landings on a lawn above two charts on the same distance scale: single throws land in two separate humps, while averages of many throws pile into one narrow bell between them.",
+      "course": "Probability+SDA",
+      "colour": "#4B7293",
+      "hold": true
     },
     {
       "slug": "photo-finish",
@@ -72,28 +174,8 @@
       "alt": "Two dancers side by side, the original on the left and its echo on the right."
     },
     {
-      "slug": "next-note",
-      "title": "Next Note",
-      "source": "next-note.html",
-      "hook": "Three songbirds write tunes one note at a time. Set the randomness and how many likely notes to keep, so each tune escapes its riff without odd leaps.",
-      "course": "Deep Learning",
-      "topic": "Generation",
-      "number": "6.7960.5x",
-      "colour": "#632EBE",
-      "play": "#playarea",
-      "thumb_steps": [
-        {
-          "set": "#temp",
-          "value": 1.4
-        },
-        "#keep button[data-k=\"3\"]",
-        "#play"
-      ],
-      "alt": "A piano roll of a tune rising and falling across an octave, above a line divided into the chances of each next note, with a marker showing where this note's luck fell."
-    },
-    {
       "slug": "the-wonder-fold",
-      "title": "The Wonder Fold",
+      "title": "Wonder Fold",
       "source": "wonder-fold.html",
       "hook": "A friend says a new paper-plane fold flies 1.5 m farther. Plan the quickest test that backs a real gain at least 80% of the time.",
       "course": "Probability+SDA",
@@ -112,6 +194,26 @@
       ],
       "thumb_zoom": true,
       "alt": "Paper-plane landings in two indoor lanes, with each lane's average marked."
+    },
+    {
+      "slug": "next-note",
+      "title": "Next Note",
+      "source": "next-note.html",
+      "hook": "Three songbirds write tunes one note at a time. Set the randomness and how many likely notes to keep, so each tune escapes its riff without odd leaps.",
+      "course": "Deep Learning",
+      "topic": "Generation",
+      "number": "6.7960.5x",
+      "colour": "#632EBE",
+      "play": "#playarea",
+      "thumb_steps": [
+        {
+          "set": "#temp",
+          "value": 1.4
+        },
+        "#keep button[data-k=\"3\"]",
+        "#play"
+      ],
+      "alt": "A piano roll of a tune rising and falling across an octave, above a line divided into the chances of each next note, with a marker showing where this note's luck fell."
     },
     {
       "slug": "robot-theatre",

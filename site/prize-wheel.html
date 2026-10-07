@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prize Wheel · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* Prize Wheel in the MIT Learn game format. The chrome rules are a local copy of the arcade standard
+   (as in wonder-fold/style.css). Scene colours: slate sectors, gold for
+   winning sectors and dots (always with an ink outline and a rim tick), ink for the bar and pointer, green/red only for outcomes. */
+:root{color-scheme:light;--ink:#0C0C0D;--ink-2:#40464C;--body:#212326;--muted:#626A73;--line:#DDE1E6;--rule:#E6E9EE;--ground:#F3F4F8;--red:#750014;--red-dark:#5A0010;--button-line:#B8C2CC;
+  --win:#216044;--over:#B45309;--lose:#A31F34;
+  --s-base:#7A9FBF;--s-body:#ADC3D7;--s-line:#4B7293;--s-darks:#52667C;--s-wash:#DCE6EF;--gold:#E9A83C;--gold-dark:#A86F12;--gold-wash:#FDF3E1;--art-ink:#111827;--art-ground:#F9FAFB;--frame:#CBD2DB}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font:16px/1.55 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:var(--red);text-underline-offset:3px}button,input{font:inherit}button,summary{cursor:pointer}
+button{border:1px solid var(--button-line);border-radius:4px;padding:10px 15px;background:#fff;color:var(--ink-2);font-weight:500;min-height:44px;touch-action:manipulation}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}button.primary:hover:not(:disabled){background:var(--red-dark);border-color:var(--red-dark)}
+button:disabled{cursor:default;opacity:.55}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible+span,[tabindex="-1"]:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+[tabindex="-1"]:focus:not(:focus-visible){outline:none}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Page chrome */
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.gamebar .back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;color:var(--ink);border-radius:4px}.gamebar .back svg{width:26px;height:26px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+main{max-width:1240px;margin:auto;padding:28px 24px 56px}
+.gamewrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.playcard,.howto,.explainer{background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05)}
+.playcard{overflow:hidden}
+.gamestatus{display:flex;justify-content:center;gap:12px 40px;flex-wrap:wrap;padding:26px 24px 4px;font-size:18px;color:var(--muted)}
+.gamestatus b{color:var(--body);font-weight:600}.gamestatus b.win{color:var(--win)}.gamestatus b.over{color:var(--over)}.gamestatus b.lose{color:var(--lose)}
+.gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}.gameprompt strong{color:var(--body);font-weight:600}
+.gameplay{padding:0 24px}
+.reason{text-align:center;min-height:3.2em;margin:10px 0 0;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
+.gamecontrols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end;padding:14px 24px 24px}
+.gamecontrols .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 6px}.gamecontrols .actions button{min-width:190px}
+.gamefoot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 24px 22px;border-top:1px solid var(--rule);background:linear-gradient(#FBFBFC,#F6F7F9)}
+.gamefoot p{margin:0 0 12px;font-size:16px;color:var(--muted)}.gamefoot strong{color:var(--body);font-weight:600}
+.gamefoot button{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--button-line);border-radius:4px;padding:10px 22px;font-weight:500;color:var(--ink-2)}.gamefoot button svg{width:22px;height:22px}
+.howto{padding:24px}.howto h2{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:500;margin:0 0 16px;color:var(--ink)}.howto h2 svg{width:28px;height:20px;flex:none}
+.howto p{font-size:15px;line-height:1.6;color:var(--body);margin:0 0 14px}.howto strong{font-weight:700}
+.explainer{margin-top:28px;padding:24px}.explainer h2{font-size:19px;margin:0 0 10px;letter-spacing:-.015em;color:var(--ink)}.explainer p{font-size:15px;line-height:1.65;margin:0 0 12px}
+.explainer .explainer-note{color:var(--muted);font-size:13px}
+.review-about{margin-top:24px}details summary{min-height:40px;padding:8px 0;font-size:14px;font-weight:600;color:var(--ink-2)}.review-about p{font-size:13px;color:var(--muted)}
+body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded main{padding-top:20px}
+
+
+/* Play area: the wheel and the plot of its prizes, side by side */
+.field-wrap{position:relative;border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:box-shadow .2s;background:var(--art-ground);padding:34px 12px 12px}
+.field-wrap.outcome-win{box-shadow:0 0 0 3px var(--win)}.field-wrap.outcome-lose{box-shadow:0 0 0 3px var(--lose)}
+.corner{position:absolute;top:8px;font:12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.88);color:var(--ink-2)}.corner-left{left:8px}.corner-right{right:8px;font-weight:600}
+.corner-right.win{color:var(--win)}.corner-right.lose{color:var(--lose)}.corner-right:empty,.corner-left:empty{display:none}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:center}
+.wheel,.plot{display:block;width:100%;height:auto}
+.wheel{max-width:360px;margin:0 auto}
+#spin{transform-origin:160px 170px;transform-box:view-box}
+.sector .face{stroke:#fff;stroke-width:1.5}.sector.a .face{fill:var(--s-wash)}.sector.b .face{fill:var(--s-body)}
+.sector.win .face{fill:var(--gold);stroke:var(--art-ink);stroke-width:1.5}
+.sector .tick{stroke:var(--art-ink);stroke-width:4;stroke-linecap:round;opacity:0}.sector.win .tick{opacity:1}
+.sector text{font:700 17px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--art-ink);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.sector text.idx{font:500 11px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--muted)}
+.sector.editable{cursor:pointer}.sector.editable:focus{outline:none}.sector.editable:focus-visible .hit{stroke:#1472ae;stroke-width:4}
+.sector .hit{fill:transparent;stroke:none}.sector.selected .hit{stroke:var(--red);stroke-width:4}
+.sector.landed .hit{stroke:var(--art-ink);stroke-width:5}
+.hub circle{fill:#fff;stroke:var(--frame)}
+.pointer{fill:var(--art-ink)}
+.plot .axis{stroke:var(--frame)}.plot .tl{font:12px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--muted);text-anchor:middle}
+.plot .dot{stroke:var(--s-darks);stroke-width:1.6;fill:#fff}.plot .dot.win{fill:var(--gold);stroke:var(--art-ink)}
+.plot .bar{stroke:var(--art-ink);stroke-width:2;stroke-dasharray:5 4}.plot .bar-label{font:600 12px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--art-ink)}
+.plot .mean{fill:var(--s-line)}
+.readout{font-size:14px;color:var(--muted);margin:4px 0 0;text-align:center}.readout b{color:var(--body);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px;font-size:13px;color:var(--muted);margin:8px 0 0}
+.legend i{display:inline-block;margin-left:12px;vertical-align:-2px}.legend i:first-child{margin-left:0}
+.k-win{width:12px;height:12px;border-radius:50%;background:var(--gold);border:1.6px solid var(--art-ink)}.k-lose{width:12px;height:12px;border-radius:50%;background:#fff;border:1.6px solid var(--s-darks)}
+.k-bar{width:2px;height:13px;border-left:2px dashed var(--art-ink)}.k-mean{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--s-line)}
+
+/* Controls */
+.gamecontrols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end;padding:14px 24px 24px}
+.gamecontrols .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 6px}.gamecontrols .actions button{min-width:190px}
+.sel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px}
+.levers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}
+.lever label,.lever-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px;color:var(--body)}.lever label b,.lever-title b{font-weight:600}
+.lever output{font:600 20px ui-monospace,SFMono-Regular,monospace;color:var(--ink);white-space:nowrap}
+.lever input[type=range]{width:100%;margin:8px 0 2px;accent-color:var(--red)}.lever input[type=range]:disabled{opacity:.45}
+.lever input[type=range]:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+.why{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:1.5}.why b{color:var(--body);font-weight:600}
+.gamefoot .foot-buttons{display:flex;gap:10px;flex-wrap:wrap}
+
+@media(max-width:900px){.gamewrap{grid-template-columns:1fr}.gamecontrols{grid-template-columns:1fr}.gamecontrols .actions{margin:0}.gamecontrols .actions button{width:100%}}
+@media(max-width:640px){.scene{grid-template-columns:1fr}.wheel{max-width:300px}.levers{grid-template-columns:1fr}}
+@media(max-width:560px){main{padding:20px 12px 40px}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}.gamebar{padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages: two guided rounds, then optional practice. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only{display:none!important}
+body.course .gamewrap{grid-template-columns:1fr}
+body.course main{padding:12px 12px 16px}
+.actions button{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.bi{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.rounding{font-size:12px}
+.course-end{margin:0;padding:0 24px 22px;text-align:center;font-size:14px;color:var(--muted)}
+</style></head>
+<body class="gameformat">
+<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Prize Wheel</h1></header>
+<main>
+  <div class="gamewrap">
+    <section class="playcard" aria-label="Game">
+      <div class="gamestatus arcade-only"><span>Round: <b id="st-round">1</b></span><span>Chance of winning: <b id="st-wins">0 of 12 sectors</b></span><span>Best possible: <b id="st-best">7</b></span></div>
+      <div class="gamestatus course-only"><span id="st-course-round">Round 1 of 2</span><span>Chance of winning: <b id="st-course-wins">0 of 12 sectors</b></span></div>
+      <p class="gameprompt" id="prompt" tabindex="-1"></p>
+      <div class="gameplay">
+        <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="corner-left"></span><span class="corner corner-right" id="outcome-label"></span>
+          <div class="scene">
+            <svg id="wheel" class="wheel" viewBox="0 0 320 330" role="group" aria-labelledby="wheel-desc"><desc id="wheel-desc">The prize wheel.</desc><g id="spin"><g id="sectors"></g></g><g id="hub"></g><path class="pointer" d="M160 2 l-11 0 l11 22 l11 -22 z"/></svg>
+            <div class="plot-wrap">
+              <svg id="plot" class="plot" viewBox="0 0 320 210" role="img" aria-labelledby="plot-desc"><desc id="plot-desc"></desc><g id="plot-g"></g></svg>
+              <p class="readout" id="readout-mean"></p>
+              <p class="readout" id="readout-spread"></p>
+              <p class="readout rounding" id="readout-rounding" hidden>≈ marks a rounded label. The dots use exact values.</p>
+            </div>
+          </div>
+        </div>
+        <p class="legend" id="legend"><i class="k-win"></i>Reaches the bar <i class="k-lose"></i>Doesn't reach the bar <i class="k-bar"></i>The bar <i class="k-mean"></i>Average</p>
+        <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
+      </div>
+      <div class="gamecontrols">
+        <div class="controls">
+          <div class="editor" id="editor1">
+            <div class="levers">
+              <div class="lever"><label for="big"><b>Big prize</b><output id="big-val" for="big">5</output></label><input type="range" id="big" min="5" max="10" step="1" value="5" aria-describedby="big-help"><p class="why" id="big-help"></p></div>
+              <div class="lever"><label for="count"><b>Sectors paying it</b><output id="count-val" for="count">6</output></label><input type="range" id="count" min="1" max="11" step="1" value="6" aria-describedby="share-line"><p class="why" id="share-line"></p></div>
+            </div>
+          </div>
+
+        </div>
+        <div class="actions"><button type="button" id="spin-btn" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14.3-4.9"/><path d="M19 3v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-14.3 4.9"/><path d="M5 21v-4.5h4.5"/></svg><span>Spin</span></button><button type="button" id="next-course" class="course-only" hidden><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Next round</span></button><button type="button" id="practice-btn" class="course-only" hidden>Keep playing (optional)</button></div>
+      </div>
+      <p id="course-end" class="course-end course-only" hidden>The two opening rounds are complete. Further play is optional.</p>
+      <div class="gamefoot arcade-only">
+        <div class="foot-left"><p><strong>New round</strong> <span>- a new bar, a new wheel</span></p><div class="foot-buttons"><button id="new-round" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.4"/></svg>New round</button></div></div>
+        <div class="foot-right"><button id="reset" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Start over</button></div>
+      </div>
+    </section>
+    <aside class="howto arcade-only" aria-labelledby="howto-title">
+      <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+      <p><strong>The wheel</strong> has 12 equal sectors, so each is equally likely to land under the pointer. The number in a sector is the prize it pays, from 0 to 10. A spin wins if its prize reaches the bar, so your chance of winning is the number of sectors that reach it, out of 12.</p>
+      <p><strong>Shape the prizes</strong> with two sliders: the big prize, and how many sectors pay it. The other sectors share whatever is left, so the average never changes.</p>
+
+      <p><strong>Best possible</strong> is the most sectors any wheel could win in this round. Change the wheel, then spin. The verdict judges its chance of winning, even when that one spin loses.</p>
+    </aside>
+  </div>
+  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+    <h2 id="takeaway-title"></h2>
+    <p id="takeaway-1"></p>
+    <p id="takeaway-2"></p>
+    <p class="explainer-note arcade-only">Every sector is equally likely. The winning chance is counted exactly; a random spin illustrates that chance and never decides the verdict. New rounds change the average, the bar and the starting wheel while keeping the same two controls.</p>
+  </section>
+  
+  <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+</main>
+<noscript><p>This interactive activity requires JavaScript. Changing a wheel while keeping its average prize fixed can change its chance of winning: a wheel that pays 5 on every sector never reaches a bar of 8, while one with seven sectors on 8 and the rest low wins 7 spins in 12.</p></noscript>
+<script>/* Prize Wheel: shape one distribution without changing its average. Pure and deterministic.
+   Two levers: a big prize and how many sectors pay it; the other sectors share what is left. */
+(function(root){
+  'use strict';
+  const S=12,MAXV=10;
+  const sum=a=>a.reduce((x,y)=>x+y,0);
+  const mean=a=>sum(a)/a.length;
+  const sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length);};
+  const wins=(values,bar)=>values.filter(v=>v>=bar-1e-9).length;
+  /* Exact integer test for the small prize, so 3.0 never reads as 2.9999. */
+  const maxCount=(mu,H)=>H<=mu?S-1:Math.min(S-1,Math.floor(S*mu/H));
+  const small=(mu,H,k)=>(S*mu-k*H)/(S-k);
+  function winsTwo(mu,H,k,bar){return (H>=bar?k:0)+((S*mu-k*H)>=bar*(S-k)?S-k:0);}
+  // Big-prize sectors spread evenly round the wheel.
+  function bigSlots(k){const out=new Set();for(let j=0;j<k;j++)out.add(Math.round(j*S/k)%S);return out;}
+  function wheel(mu,H,k){const big=bigSlots(k),L=H<=mu?mu:small(mu,H,k);return Array.from({length:S},(_,i)=>H<=mu?mu:big.has(i)?H:L);}
+  // Most sectors that can reach the bar with this average: all of them if the bar is at or below the average; otherwise as
+  // many as the points allow exactly on the bar (checked against free editing and brute force in test.mjs).
+  function best(mu,bar){
+    if(bar<=mu)return S;
+    let best=0;for(let H=mu;H<=MAXV;H++)for(let k=1;k<=maxCount(mu,H);k++)best=Math.max(best,winsTwo(mu,H,k,bar));
+    return best;
+  }
+
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const pick=(r,a)=>a[Math.floor(r()*a.length)];
+  // Alternate bars above the average (reach) and at or below it (safe).
+  const ORDER=['reach','safe','reach','safe','reach','reach','safe','reach'];
+  function round(seed,index){
+    const r=rng(seed*7919+1013+index*104729+11);
+    const kind=ORDER[index%ORDER.length];
+    for(let tries=0;tries<5000;tries++){
+      const mu=index===0?5:pick(r,[3,4,5,6]);
+      const bar=kind==='safe'?mu-pick(r,[0,1,2]):index===0?8:mu+pick(r,[2,3,4,5]);
+      if(bar>MAXV||bar<1)continue;
+      const optimum=best(mu,bar);
+      if(kind==='reach'&&(optimum<3||optimum>=S))continue;
+      // Reach rounds start even (or from a wheel that overshoots); safe rounds start spread out.
+      let H,k;
+      if(index===0){H=mu;k=6;}
+      else{H=pick(r,[mu,mu+2,mu+3,mu+4,MAXV].filter(h=>h<=MAXV));k=1+Math.floor(r()*maxCount(mu,H));}
+      if(winsTwo(mu,H,k,bar)>=optimum)continue;
+      if(H<=mu&&bar<=mu)continue;
+      if(kind==='safe'&&winsTwo(mu,H,k,bar)>S-3)continue;
+      return Object.freeze({seed,index,kind,mu,bar,best:optimum,startH:H,startK:k});
+    }
+    throw new Error(`No round for seed ${seed}, index ${index}`);
+  }
+  // Two fixed opening rounds; optional practice uses the same one-wheel rules.
+  const COURSE_ROUNDS=[
+    {kind:'reach',mu:5,bar:8,startH:5,startK:6},
+    {kind:'safe',mu:5,bar:3,startH:10,startK:6}
+  ];
+  function courseRound(index){
+    const c=COURSE_ROUNDS[index];
+    return Object.freeze({...c,index,course:true,best:best(c.mu,c.bar)});
+  }
+  const api=Object.freeze({S,MAXV,sum,mean,sd,wins,maxCount,small,winsTwo,wheel,best,rng,round,courseRound,COURSE_ROUNDS,ORDER});
+  root.PrizeWheel=api;
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const M=globalThis.PrizeWheel,$=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  const params=new URLSearchParams(location.search),embed=COURSE||params.get('embed')==='1';
+  document.body.classList.toggle('course',COURSE);document.body.classList.toggle('embedded',embed);
+  const instant=params.get('instant')==='1'||(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const seed=Math.max(1,Math.floor(Number(params.get('seed'))||1));
+  const CX=160,CY=170,R=140,STEP=360/M.S;
+  const fmt=x=>Number(x.toFixed(1)).toString();
+  const rounded=x=>Math.abs(x-Number(fmt(x)))>1e-9;
+  const payout=x=>(rounded(x)?'≈':'')+fmt(x);
+  function announce(t){$('announcement').textContent=t;}
+  function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const key in attrs)e.setAttribute(key,attrs[key]);if(parent)parent.appendChild(e);return e;}
+  function fit(){try{const f=window.frameElement;if(COURSE&&f)f.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+24)+'px';}catch(e){}}
+
+  let index=0,r=null,H=5,k=6,solved=false,courseComplete=false;
+  let spinning=false,spins=0,angle=0,landed=null,timer=null,random=M.rng(seed*31+7);
+  // The last wheel spun this round, so feedback can compare with it instead of pointing at a move.
+  let last=null;
+  const guided=()=>COURSE&&index<2;
+  const prizes=()=>M.wheel(r.mu,H,k);
+  const winsNow=()=>M.wins(prizes(),r.bar);
+
+  function load(){
+    clearTimeout(timer);spinning=false;
+    r=guided()?M.courseRound(index):M.round(seed,index);last=null;
+    H=r.startH;k=r.startK;$('big').min=r.mu;$('big').max=M.MAXV;
+    resetSpin();clearOutcome();render();
+    $('takeaway').hidden=!(COURSE?courseComplete:solved);
+    if(!$('takeaway').hidden)explainer();
+    fit();
+  }
+
+  /* One wheel and a dot for every equally likely sector. */
+  const pt=(rad,deg)=>{const a=deg*Math.PI/180;return [CX+rad*Math.sin(a),CY-rad*Math.cos(a)];};
+  function arc(a0,a1){
+    const [x1,y1]=pt(R,a0),[x2,y2]=pt(R,a1);
+    return `M${CX} ${CY}L${x1} ${y1}A${R} ${R} 0 0 1 ${x2} ${y2}Z`;
+  }
+  function drawWheel(){
+    const g=$('sectors');g.innerHTML='';const P=prizes();
+    for(let i=0;i<M.S;i++){
+      const a0=i*STEP,a1=a0+STEP,mid=a0+STEP/2,win=P[i]>=r.bar-1e-9;
+      const s=el('g',{class:['sector',i%2?'b':'a',win?'win':'',landed===i?'landed':''].filter(Boolean).join(' ')},g);
+      el('path',{class:'face',d:arc(a0,a1)},s);
+      const [k1x,k1y]=pt(R-2,mid),[k2x,k2y]=pt(R-14,mid);el('line',{class:'tick',x1:k1x,y1:k1y,x2:k2x,y2:k2y},s);
+      const [tx,ty]=pt(R*.68,mid);el('text',{x:tx,y:ty,transform:`rotate(${-angle} ${tx} ${ty})`},s).textContent=payout(P[i]);
+      el('path',{class:'hit',d:arc(a0,a1)},s);
+    }
+    const hub=$('hub');hub.innerHTML='';el('circle',{cx:CX,cy:CY,r:14},hub);hub.setAttribute('class','hub');
+    $('wheel-desc').textContent=`A wheel of 12 equal sectors: ${H>r.mu?`${k} pay ${H} and ${M.S-k} pay ${payout(M.small(r.mu,H,k))}`:`all pay ${r.mu}`}. ${winsNow()} of 12 reach the bar of ${r.bar}.`;
+  }
+  function drawPlot(){
+    const g=$('plot-g');g.innerHTML='';const P=prizes(),x=v=>22+v/10*276,base=172,gap=13;
+    el('line',{class:'axis',x1:12,y1:base+8,x2:308,y2:base+8},g);
+    for(let v=0;v<=10;v++)el('text',{class:'tl',x:x(v),y:base+24},g).textContent=v;
+    const stacks={};
+    P.slice().sort((a,b)=>a-b).forEach(v=>{const key=v.toFixed(3),n=stacks[key]=(stacks[key]||0)+1;el('circle',{class:'dot'+(v>=r.bar-1e-9?' win':''),cx:x(v),cy:base-(n-1)*gap,r:6},g);});
+    const bx=x(r.bar);el('line',{class:'bar',x1:bx,y1:8,x2:bx,y2:base+8},g);
+    el('text',{class:'bar-label',x:Math.min(bx+5,262),y:16},g).textContent=`bar ${r.bar}`;
+    const m=M.mean(P),mx=x(m);el('path',{class:'mean',d:`M${mx} ${base+9} l-6 9 h12 z`},g);
+    $('plot-desc').textContent=`One dot per sector. Prizes: ${P.slice().sort((a,b)=>a-b).map(payout).join(', ')}. Average ${fmt(m)}. ${winsNow()} reach the bar of ${r.bar}.`;
+    $('readout-mean').innerHTML=`Average prize: <b>${fmt(m)}</b>, always`;
+    $('readout-spread').innerHTML=`Spread (typical distance from the average): <b>${fmt(M.sd(P))}</b>`;
+    $('readout-rounding').hidden=!P.some(rounded);
+  }
+  function render(){
+    const w=winsNow(),even=H<=r.mu,maxK=M.maxCount(r.mu,H);
+    $('st-round').textContent=index+1;$('st-wins').textContent=`${w} of 12 sectors`;$('st-best').textContent=`${r.best} of 12`;
+    $('st-course-round').textContent=guided()?`Round ${index+1} of 2`:`Optional practice ${index-1}`;
+    $('st-course-wins').textContent=`${w} of 12 sectors`;
+    $('prompt').textContent=promptText();$('corner-left').textContent=`Average ${r.mu} · bar ${r.bar}`;
+    $('big').value=H;$('big-val').textContent=H;$('big').setAttribute('aria-valuetext',`${H} points`);
+    $('count').max=maxK;$('count').value=k;$('count').disabled=spinning||even;$('count-val').textContent=even?'all':k;
+    $('count').setAttribute('aria-valuetext',even?'All 12 sectors pay the same prize':`${k} of 12 sectors pay ${H}`);
+    $('big').disabled=spinning;
+    $('big-help').textContent=even?`At ${r.mu}, every sector pays the average. Raise it to give some sectors more.`:`At most ${maxK} sectors can pay ${H} while the average stays ${r.mu}.`;
+    $('share-line').innerHTML=even?`Every sector pays <b>${r.mu}</b>.`:`The other ${M.S-k} sectors share what's left: <b>${payout(M.small(r.mu,H,k))}</b> each, so the average stays ${r.mu}.`;
+    for(const id of ['spin-btn','next-course','practice-btn','new-round','reset'])$(id).disabled=spinning;
+    $('practice-btn').hidden=!COURSE||!courseComplete;
+    $('practice-btn').textContent=guided()?'Keep playing (optional)':'Another wheel';
+    $('course-end').hidden=!COURSE||!courseComplete||!guided();
+    drawWheel();drawPlot();fit();
+  }
+  function promptText(){
+    if(guided())return index===0
+      ?'The wheel has 12 equal sectors. Every sector pays 5, so no spin reaches 8. Change the big prize and how many sectors pay it; the rest share what is left. Keep the average at 5 and win 8 or more as often as you can.'
+      :'Same average, new bar: a spin now wins if it pays 3 or more. Half the sectors pay 10 and half pay nothing, so this wheel wins only half the time. Make it win more often.';
+    return `12 equal sectors, each paying the prize written on it. Every wheel this round averages ${r.mu}. Make a spin pay ${r.bar} or more as often as you can.`;
+  }
+
+  function edited(msg){resetSpin();clearOutcome();render();announce(`${msg} ${winsNow()} of 12 sectors win.`);}
+  $('big').addEventListener('input',()=>{if(spinning)return;H=Number($('big').value);if(H>r.mu)k=Math.max(1,Math.min(k,M.maxCount(r.mu,H)));edited(H>r.mu?`Big prize ${H} on ${k} sectors.`:`Every sector pays ${r.mu}.`);});
+  $('count').addEventListener('input',()=>{if(spinning)return;k=Number($('count').value);edited(`${k} sectors pay ${H}; the rest pay ${payout(M.small(r.mu,H,k))}.`);});
+
+  /* A spin illustrates chance; the verdict evaluates the wheel, not that one outcome. */
+  function resetSpin(){const g=$('spin');g.style.transition='none';g.style.transform='rotate(0deg)';spins=0;angle=0;landed=null;}
+  function clearOutcome(){$('field-wrap').classList.remove('outcome-win','outcome-lose');const o=$('outcome-label');o.textContent='';o.className='corner corner-right';$('feedback-title').textContent='';$('feedback-text').textContent='';$('next-course').hidden=true;}
+  function spin(){
+    if(spinning)return;
+    const n=Math.floor(random()*M.S);landed=null;clearOutcome();
+    const target=360*(spins+3)+(360-(n+.5)*STEP);spins+=4;
+    const g=$('spin');
+    if(instant){g.style.transition='none';g.style.transform=`rotate(${target}deg)`;finish(n);return;}
+    spinning=true;render();
+    g.style.transition='transform 1.7s cubic-bezier(.17,.67,.21,1)';g.style.transform=`rotate(${target}deg)`;
+    timer=setTimeout(()=>{spinning=false;finish(n);},1750);
+  }
+  function finish(n){
+    landed=n;angle=360-(n+.5)*STEP;
+    const P=prizes(),w=winsNow(),best=w===r.best,won=P[n]>=r.bar-1e-9;
+    if(best)solved=true;
+    if(guided()&&index===1)courseComplete=true;
+    render();$('field-wrap').classList.add(best?'outcome-win':'outcome-lose');
+    const o=$('outcome-label');o.className='corner corner-right '+(won?'win':'lose');
+    o.textContent=`This spin: ${payout(P[n])} — ${won?'win':'no win'}`;
+    // Restrained feedback: how this distribution of prizes compares with the last one spun, never by how much a prize misses the bar.
+    const changed=last&&!(last.H===H&&last.k===k),moved=changed&&w!==last.w;
+    $('feedback-title').textContent=best?'Best odds for this round.':!changed?'Not the best odds yet.':w>last.w?'You improved the odds with this distribution.':w<last.w?'This distribution lowers the odds.':'This distribution keeps the same odds.';
+    $('feedback-text').textContent=`This wheel wins on ${w} of 12 sectors${moved?`, ${w>last.w?'up':'down'} from ${last.w}`:''}. ${best?'One spin can land on any sector.':'A wheel with the same average can win more often.'}`;
+    last={H,k,w};
+    if(COURSE?courseComplete:solved)explainer();
+    if(guided()&&index===0)$('next-course').hidden=false;
+    announce(`${o.textContent}. ${$('feedback-title').textContent} ${$('feedback-text').textContent}`);
+    fit();
+  }
+  function explainer(){
+    $('takeaway').hidden=false;$('takeaway-title').textContent='Same average, different chances';
+    $('takeaway-1').textContent='The average prize stays fixed, but the chance of reaching the bar changes. A bigger top prize can leave fewer sectors reaching the bar. A wheel that works well for one bar can work poorly for another.';
+    $('takeaway-2').textContent='The average is the expected value of a spin. This unit studies the full distribution of possible prizes and how to summarize its spread with variance. Neither the average alone nor one lucky spin tells you the chance of winning.';
+  }
+  function next(){if(spinning)return;index++;load();announce(`${COURSE?'Optional practice':'Round'} ${COURSE?index-1:index+1}. ${promptText()}`);$('prompt').focus();}
+  $('spin-btn').addEventListener('click',spin);
+  $('new-round').addEventListener('click',next);
+  $('practice-btn').addEventListener('click',next);
+  $('reset').addEventListener('click',()=>{if(spinning)return;index=0;solved=false;courseComplete=false;random=M.rng(seed*31+7);load();announce('Starting over.');});
+  $('next-course').addEventListener('click',()=>{if(spinning||!guided()||index!==0)return;index=1;load();announce(`Round 2 of 2. ${promptText()}`);$('prompt').focus();});
+  load();
+  if(COURSE&&typeof addEventListener==='function')addEventListener('resize',fit);
+})();
+</script>
+</body></html>

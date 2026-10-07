@@ -31,10 +31,10 @@ body *{{visibility:hidden!important}}{play},{play} *{{visibility:visible!importa
 </style>'''
 
 
-# Runs the optional "thumb_steps" (a selector to click, or {"set": selector, "value": v} for a slider),
+# Runs the optional "thumb_steps" (a selector to click, SVG elements included, or {"set": selector, "value": v} for a slider),
 # 400 ms apart, then measures the play area once the result has settled.
 PROBE = '''<script>addEventListener('load',()=>{const steps=%s;let i=0;const next=()=>{if(i<steps.length){const t=steps[i++];
-if(typeof t==='string')document.querySelector(t)?.click();else{const e=document.querySelector(t.set);if(e){e.value=t.value;
+if(typeof t==='string'){const e=document.querySelector(t);if(e&&e.click)e.click();else if(e)e.dispatchEvent(new MouseEvent('click',{bubbles:true}));}else{const e=document.querySelector(t.set);if(e){e.value=t.value;
 e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}}setTimeout(next,400);return;}
 setTimeout(()=>{const e=document.querySelector(%s);const r=e.getBoundingClientRect();
 document.body.setAttribute('data-thumb',[r.left+scrollX,r.top+scrollY,r.width,r.height].map(Math.round).join(','));},2500);};setTimeout(next,800);});</script>'''
@@ -48,9 +48,12 @@ def chrome(*args):
 
 def box(x, y, w, h, zoom=False):
     """Grow the play area to 16:10 around its centre, kept inside the captured window.
-    With zoom, a wide play area is trimmed to 16:10 at its centre instead of padded."""
+    With zoom, a wide play area is trimmed to 16:10 at its centre instead of padded; with zoom "fill",
+    a tall one is trimmed too, so the scene fills the card."""
     if zoom and w / h > ASPECT:
         h2, w2 = h, h * ASPECT
+    elif zoom == 'fill':
+        w2, h2 = w, w / ASPECT
     elif w / h > ASPECT:
         h2, w2 = w / ASPECT, w
     else:
@@ -62,7 +65,7 @@ def box(x, y, w, h, zoom=False):
 
 
 def main(only=()):
-    games = json.loads((HERE / 'games.json').read_text())['games']
+    games = [g for g in json.loads((HERE / 'games.json').read_text())['games'] if not g.get('hold')]
     (SITE / 'thumbs').mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         for game in games:

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Wonder Fold · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* The Wonder Fold in the MIT Learn game format. The chrome rules are a local copy of the arcade standard
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wonder Fold · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* Wonder Fold in the MIT Learn game format. The chrome rules are a local copy of the arcade standard
    (pilots/src/pilot.css, body.gameformat, taken from "Guide the robot home"); swap for a shared file if one is agreed.
    Scene colours: the neutral (slate) family from the Deep Learning card palette, gold as the single accent for the
    wonder fold, ink for lines and marks, green/amber/red only for outcomes. */
@@ -50,7 +50,9 @@ body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded ma
 .corner-right.win{color:var(--win)}.corner-right.over{color:var(--over)}.corner-right.lose{color:var(--lose)}.corner-right:empty{display:none}
 .field{display:block;width:100%;height:auto}.sky{fill:var(--art-ground)}.grass{fill:var(--s-wash)}.wall{fill:var(--s-body)}.lamp{fill:var(--art-ground);stroke:var(--frame)}.floor{fill:#E8EEF4}.board{stroke:var(--s-wash);stroke-width:1}
 .lane{fill:var(--art-ground);opacity:.6}.launch{stroke:var(--art-ink);stroke-width:2;stroke-dasharray:3 4}.tick{stroke:var(--s-darks);stroke-width:1.5}.screen{fill:var(--s-base);opacity:.85}
-.gust{fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;animation:gust 2.7s linear infinite}@keyframes gust{from{transform:translateX(-60px)}to{transform:translateX(120px)}}
+.mown{fill:#fff;opacity:.28}.tuft{fill:none;stroke:#7C9A84;stroke-width:1.5;stroke-linecap:round}
+.swirl{animation:wf-drift 4s linear infinite}.swirl path{fill:none;stroke:#6F8BA6;stroke-width:2.2;stroke-linecap:round;opacity:.85}
+@keyframes wf-drift{from{transform:translateX(-20px);opacity:0}25%{opacity:1}75%{opacity:1}to{transform:translateX(40px);opacity:0}}
 .tape{stroke:var(--s-line);stroke-width:3}.tape-tick{stroke:var(--art-ink);stroke-width:1}.step{fill:var(--s-darks);opacity:.35}.laser{fill:var(--art-ink)}.beam{stroke:var(--art-ink);stroke-width:.7;opacity:.25}
 .mark .dot{stroke:#fff;stroke-width:1}.mark.std .dot{fill:var(--s-darks)}.mark.won .dot{fill:var(--gold);stroke:var(--art-ink);stroke-width:.8}.mark .halo{fill:none;stroke:currentColor;opacity:.35}.mark.std{color:var(--s-darks)}.mark.won{color:var(--gold-dark)}
 .pending{opacity:0}.mark,.summary{transition:opacity .25s}
@@ -105,7 +107,7 @@ body.course main{padding:12px 12px 16px}
 
 </style></head>
 <body class="gameformat">
-<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">The Wonder Fold</h1></header>
+<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Wonder Fold</h1></header>
 <main>
   <div class="gamewrap">
     <section class="playcard" aria-label="Game">
@@ -169,7 +171,7 @@ body.course main{padding:12px 12px 16px}
   
 </main>
 <noscript><p>This interactive activity requires JavaScript.</p></noscript>
-<script>/* The Wonder Fold: a paper-plane comparison, exact power and a cost par. Pure and deterministic. */
+<script>/* Wonder Fold: a paper-plane comparison, exact power and a cost par. Pure and deterministic. */
 (function(root){
   'use strict';
   const ALPHA=.05,Z_ALPHA=1.6448536269514722,
@@ -253,7 +255,7 @@ body.course main{padding:12px 12px 16px}
   const INTRO={gain:1.5,sd:{throw:1,wind:2.6,measure:.4}};
   function scenario(seed=1){
     seed>>>=0;
-    if(seed===1){const s=build(1,INTRO);if(!valid(s))throw Error('The Wonder Fold: the introductory test is invalid');return s;}
+    if(seed===1){const s=build(1,INTRO);if(!valid(s))throw Error('Wonder Fold: the introductory test is invalid');return s;}
     // Pick the answer first, evenly, then draw conditions until that bench really is the quickest reliable test.
     const target=TARGETS[rng(seed^0x5bd1e995)()*TARGETS.length|0];
     for(let attempt=0;attempt<600;attempt++){
@@ -261,7 +263,7 @@ body.course main{padding:12px 12px 16px}
       const sd={throw:u(.7,1.3),wind:u(.2,3.2),measure:u(.2,2.8)},s=build(seed,{gain:choose(r,[1.2,1.5,1.8]),sd});
       if(valid(s,target)){s.target=target;return s;}
     }
-    throw Error('The Wonder Fold: no valid test for seed '+seed);
+    throw Error('Wonder Fold: no valid test for seed '+seed);
   }
   root.WonderFold={ALPHA,zFor,atAlpha,TARGET,NMAX,PAIR_MINUTES,TOLERANCE,BASE_DISTANCE,WIND,MEASURE,SOURCES,TARGETS,placeFor,cdf,scenario,evaluate,simulate,after,minFlights,designs,benchCost,pairMinutes};
 })(globalThis);
@@ -319,6 +321,7 @@ body.course main{padding:12px 12px 16px}
   }
 
   // The field: one simulated test, drawn flight by flight. The verdict on the plan never depends on it.
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
   function environment(){
     const wind=W.WIND[d.wind].key,meas=W.MEASURE[d.measure].key,lanes=Object.values(LANE).map(y=>`<rect class="lane" x="0" y="${y-24}" width="640" height="48"/>`).join('');
     let g=wind==='gym'?`<rect class="wall" width="640" height="44"/>${[120,320,520].map(x=>`<circle class="lamp" cx="${x}" cy="14" r="6"/>`).join('')}<rect class="floor" y="44" width="640" height="166"/>${Array.from({length:9},(_,i)=>`<line class="board" x1="0" y1="${60+i*18}" x2="640" y2="${60+i*18}"/>`).join('')}`
@@ -326,7 +329,21 @@ body.course main{padding:12px 12px 16px}
     g+=lanes+`<line class="launch" x1="${X(0)}" y1="50" x2="${X(0)}" y2="180"/>`;
     for(let t=2;t<=14;t+=2)g+=`<line class="tick" x1="${X(t)}" y1="196" x2="${X(t)}" y2="202"/>`;
     if(wind==='screens')g+=Array.from({length:10},(_,i)=>`<rect class="screen" x="${70+i*56}" y="44" width="44" height="9"/><rect class="screen" x="${70+i*56}" y="178" width="44" height="9"/>`).join('');
-    if(wind!=='gym'){const k=wind==='open'?1:.45;g+=Array.from({length:wind==='open'?6:3},(_,i)=>`<path class="gust" style="animation-delay:${-i*.9}s;opacity:${.55*k}" d="M${40+i*97} ${58+(i%3)*50}c30-8 60 8 90 0"/>`).join('');}
+    // The round's conditions, drawn (Cody, 2026-10-07): settings that decide the bench should be visible.
+    // The ground shows how hard landings are to mark: a striped, freshly mown lawn when measuring is easy, scattered
+    // tufts as it gets harder, then long grass. Indoors the floor replaces it.
+    if(wind!=='gym'){
+      const gm=s.sd.measure,r=rng((s.seed^0x2545F491)>>>0);
+      if(gm<.8)g+=Array.from({length:8},(_,i)=>`<rect class="mown" x="${i*80}" y="44" width="40" height="166"/>`).join('');
+      else{const n=Math.round(gm*16),h=4+gm*4;
+        for(let k=0;k<n;k++){const x=r()*640,y=50+r()*156;g+=`<path class="tuft" d="M${x.toFixed(1)} ${y.toFixed(1)}l-3 -${h.toFixed(1)}M${x.toFixed(1)} ${y.toFixed(1)}l0 -${(h*1.15).toFixed(1)}M${x.toFixed(1)} ${y.toFixed(1)}l3 -${h.toFixed(1)}"/>`;}}
+    }
+    // Wind as little swirls: more and bigger the gustier the round, fewer behind wind screens, none in the gym.
+    if(wind!=='gym'){
+      const w=s.sd.wind*W.WIND[d.wind].keep,n=Math.max(0,Math.min(9,Math.round(w*2.6))),rad=5+w*2.2,r=rng((s.seed^0x7F4A7C15)>>>0);
+      for(let k=0;k<n;k++){const x=30+r()*580,y=54+r()*140,R=rad*(.8+r()*.4);
+        g+=`<g class="swirl" style="animation-delay:${(-r()*4).toFixed(2)}s"><path transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" d="M${R.toFixed(1)} 0A${R.toFixed(1)} ${R.toFixed(1)} 0 1 0 0 ${R.toFixed(1)}A${(R*.62).toFixed(1)} ${(R*.62).toFixed(1)} 0 1 0 ${(R*.38).toFixed(1)} ${(-R*.2).toFixed(1)}M${R.toFixed(1)} 0h${(R*1.4).toFixed(1)}"/></g>`;}
+    }
     if(meas==='tape')g+=Object.values(LANE).map(y=>`<line class="tape" x1="${X(0)}" y1="${y+21}" x2="${X(15.8)}" y2="${y+21}"/>`+Array.from({length:16},(_,i)=>`<line class="tape-tick" x1="${X(i)}" y1="${y+19}" x2="${X(i)}" y2="${y+23}"/>`).join('')).join('');
     if(meas==='pacing')g+=Object.values(LANE).map(y=>Array.from({length:14},(_,i)=>`<ellipse class="step" cx="${X(i+.5)}" cy="${y+19+(i%2?2:-2)}" rx="3" ry="1.6"/>`).join('')).join('');
     if(meas==='laser')g+=Object.values(LANE).map(y=>`<rect class="laser" x="624" y="${y-6}" width="12" height="12" rx="2"/>`).join('');

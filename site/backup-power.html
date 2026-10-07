@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Backup Power · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>/* Backup Power in the MIT Learn game format. The chrome rules are a local copy of the arcade standard
+   (as in wonder-fold/style.css). Scene colours: the neutral (slate) family from the Deep Learning card palette,
+   gold for light, ink for lines and outlines, green/amber/red only for outcomes. Lit lamps keep an ink outline
+   and rays, and failed generators a dashed outline, so state never rests on colour alone. */
+:root{color-scheme:light;--ink:#0C0C0D;--ink-2:#40464C;--body:#212326;--muted:#626A73;--line:#DDE1E6;--rule:#E6E9EE;--ground:#F3F4F8;--red:#750014;--red-dark:#5A0010;--button-line:#B8C2CC;
+  --win:#216044;--over:#B45309;--lose:#A31F34;
+  --s-base:#7A9FBF;--s-body:#ADC3D7;--s-line:#4B7293;--s-darks:#52667C;--s-wash:#DCE6EF;--gold:#E9A83C;--gold-dark:#A86F12;--gold-wash:#FDF3E1;--art-ink:#111827;--art-ground:#F9FAFB;--frame:#CBD2DB}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);font:16px/1.55 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif}
+a{color:var(--red);text-underline-offset:3px}button,input{font:inherit}button,summary{cursor:pointer}
+button{border:1px solid var(--button-line);border-radius:4px;padding:10px 15px;background:#fff;color:var(--ink-2);font-weight:500;min-height:44px;touch-action:manipulation}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}button.primary:hover:not(:disabled){background:var(--red-dark);border-color:var(--red-dark)}
+button:disabled{cursor:default;opacity:.55}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible+span,[tabindex="-1"]:focus-visible{outline:3px solid #1472ae;outline-offset:3px}
+[tabindex="-1"]:focus:not(:focus-visible){outline:none}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Page chrome */
+.gamebar{background:#fff;display:grid;grid-template-columns:52px 1fr 52px;align-items:center;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.gamebar .back{display:flex;align-items:center;justify-content:center;width:44px;height:44px;color:var(--ink);border-radius:4px}.gamebar .back svg{width:26px;height:26px}
+.gamebar h1{grid-column:2;text-align:center;margin:0;font-size:clamp(26px,3vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+main{max-width:1240px;margin:auto;padding:28px 24px 56px}
+.gamewrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
+.playcard,.howto,.explainer{background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 3px 10px rgba(16,24,40,.05)}
+.playcard{overflow:hidden}
+.gamestatus{display:flex;justify-content:center;gap:12px 40px;flex-wrap:wrap;padding:26px 24px 4px;font-size:18px;color:var(--muted)}
+.gamestatus b{color:var(--body);font-weight:600}.gamestatus b.win{color:var(--win)}.gamestatus b.over{color:var(--over)}.gamestatus b.lose{color:var(--lose)}
+.gameprompt{text-align:center;color:var(--muted);font-size:17px;margin:8px 24px 18px}.gameprompt strong{color:var(--body);font-weight:600}
+.gameplay{padding:0 24px}
+.reason{text-align:center;min-height:3.2em;margin:10px 0 0;font-size:15px;color:var(--muted)}.reason strong{color:var(--body);font-weight:600}
+.gamecontrols{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 28px;align-items:end;padding:14px 24px 24px}
+.gamecontrols .actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;margin:0 0 6px}.gamecontrols .actions button{min-width:190px}
+.gamefoot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:18px 24px 22px;border-top:1px solid var(--rule);background:linear-gradient(#FBFBFC,#F6F7F9)}
+.gamefoot p{margin:0 0 12px;font-size:16px;color:var(--muted)}.gamefoot strong{color:var(--body);font-weight:600}
+.gamefoot button{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--button-line);border-radius:4px;padding:10px 22px;font-weight:500;color:var(--ink-2)}.gamefoot button svg{width:22px;height:22px}
+.howto{padding:24px}.howto h2{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:500;margin:0 0 16px;color:var(--ink)}.howto h2 svg{width:28px;height:20px;flex:none}
+.howto p{font-size:15px;line-height:1.6;color:var(--body);margin:0 0 14px}.howto strong{font-weight:700}
+.explainer{margin-top:28px;padding:24px}.explainer h2{font-size:19px;margin:0 0 10px;letter-spacing:-.015em;color:var(--ink)}.explainer p{font-size:15px;line-height:1.65;margin:0 0 12px}
+.explainer .explainer-note{color:var(--muted);font-size:13px}
+.review-about{margin-top:24px}details summary{min-height:40px;padding:8px 0;font-size:14px;font-weight:600;color:var(--ink-2)}.review-about p{font-size:13px;color:var(--muted)}
+body.embedded .gamebar,body.embedded .review-about{display:none}body.embedded main{padding-top:20px}
+
+/* The station: generators along the quay, lamps strung below them, the water at the bottom */
+.field-wrap{position:relative;border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:box-shadow .2s;background:var(--art-ground)}
+.field-wrap.outcome-win{box-shadow:0 0 0 3px var(--win)}.field-wrap.outcome-over{box-shadow:0 0 0 3px var(--over)}.field-wrap.outcome-lose{box-shadow:0 0 0 3px var(--lose)}
+.corner{position:absolute;top:8px;font:12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.88);color:var(--ink-2)}.corner-left{left:8px}.corner-right{right:8px;font-weight:600}
+.corner-right.win{color:var(--win)}.corner-right.over{color:var(--over)}.corner-right.lose{color:var(--lose)}.corner-right:empty{display:none}
+.station{display:block;width:100%;height:auto}
+.water{fill:var(--s-wash)}.wave{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}.quay{fill:var(--s-body)}
+.wire{fill:none;stroke:var(--s-darks);stroke-width:2.2;stroke-linecap:round;transition:stroke .2s,opacity .2s}.wire.live{stroke:var(--gold-dark);stroke-width:3}.wire.dead{stroke-dasharray:4 5;opacity:.75}
+.gen rect{fill:#fff;stroke:var(--art-ink);stroke-width:2}.gen .bolt{fill:var(--s-darks)}
+.gen.run rect{fill:var(--s-darks)}.gen.run .bolt{fill:var(--gold)}
+.gen.fail rect{fill:#fff;stroke-dasharray:5 4}.gen.fail .bolt{fill:none;stroke:var(--s-darks);stroke-width:1.4}.gen.fail .cross{stroke:var(--lose);stroke-width:3;stroke-linecap:round}
+.gen.trying rect{animation:try .28s steps(2) infinite}@keyframes try{50%{fill:var(--s-wash)}}
+#wiring .gen-label{font-size:21px}.lamp-no{font:700 17px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--art-ink);text-anchor:middle}
+.gen-label{font:600 16px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--ink-2);text-anchor:middle}
+.lamp .glass{fill:#fff;stroke:var(--s-darks);stroke-width:2}.lamp .post{stroke:var(--s-darks);stroke-width:2}
+.lamp.lit .glass{fill:var(--gold);stroke:var(--art-ink)}.lamp .rays{stroke:var(--gold-dark);stroke-width:2;stroke-linecap:round;opacity:0;transition:opacity .2s}.lamp.lit .rays{opacity:1}
+.lamp.dark .glass{fill:#fff;stroke:var(--s-darks)}.lamp.out .glass{fill:#fff;stroke:var(--lose);stroke-dasharray:3 3}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px;font-size:13px;color:var(--muted);margin:8px 0 0}
+.g-key,.l-key{display:inline-block;margin-left:12px;vertical-align:-2px}.legend i:first-child{margin-left:0}
+.g-key{width:14px;height:12px;border:2px solid var(--art-ink);border-radius:2px}.g-key.run{background:var(--s-darks)}.g-key.fail{background:#fff;border-style:dashed}
+.l-key{width:12px;height:12px;border-radius:50%;border:2px solid var(--s-darks)}.l-key.lit{background:var(--gold);border-color:var(--art-ink)}.l-key.dark{background:#fff}
+
+/* Controls: one column of steppers under each generator, plus an add button */
+.plan{display:flex;flex-wrap:wrap;gap:10px}
+.gen-control{border:1px solid var(--line);border-radius:4px;padding:8px 10px;display:flex;align-items:center;gap:8px;background:#fff}
+.gen-control .name{font-size:14px;font-weight:600;color:var(--body);min-width:6.5em}.gen-control output{font:600 18px ui-monospace,SFMono-Regular,monospace;min-width:1.4em;text-align:center;color:var(--ink)}
+.gen-control button{min-width:44px;padding:6px 0;font-size:20px;line-height:1}
+.add-gen{border-style:dashed}
+.why{font-size:13px;color:var(--muted);margin:10px 0 0;line-height:1.5}.why b{color:var(--body);font-weight:600}
+
+/* The night's settings, drawn (arcade): weather as sky and sea, the need as boats, sparks, price tags, icon rows */
+.moon{fill:#F4E7B8}.moon-cut{fill:var(--art-ground)}.star{fill:#C9D3DD}
+.cloud{fill:#DCE3EA}.cloud.dark{fill:#C5CFD9}
+.wind{fill:none;stroke:#8FA6BC;stroke-width:2;stroke-linecap:round;animation:bp-wind 3s linear infinite}
+.rain{stroke:#7F96AD;stroke-width:1.6;stroke-linecap:round;animation:bp-rain 1s linear infinite}
+.snow{fill:#fff;stroke:#9DB2C6;stroke-width:.8;animation:bp-snow 4s linear infinite}
+@keyframes bp-wind{from{transform:translateX(-30px);opacity:0}30%{opacity:1}to{transform:translateX(60px);opacity:0}}
+@keyframes bp-rain{from{transform:translateY(-10px)}to{transform:translateY(24px)}}
+@keyframes bp-snow{from{transform:translate(0,-8px)}to{transform:translate(10px,20px)}}
+#station.icy .gen rect{stroke:#7FA7C9;stroke-width:3}
+.sparks line{stroke:var(--gold);stroke-width:2.4;stroke-linecap:round;animation:bp-spark .6s steps(2) infinite}
+.sparks.sputter line{stroke-width:1.6;animation-duration:.25s}
+@keyframes bp-spark{50%{opacity:.25}}
+.boat .hull{fill:var(--s-darks)}.boat .sail{fill:#fff;stroke:var(--s-darks);stroke-width:1.5}.boat .boat-light{fill:#fff;stroke:var(--s-darks);stroke-width:1.2}
+.boat.safe .boat-light{fill:var(--gold);stroke:var(--art-ink)}.boat.lost .hull{fill:#8A97A5}
+.tag,.slot rect.tag{fill:var(--gold-wash);stroke:var(--gold-dark);stroke-width:1.4;stroke-dasharray:none}
+.tag-text{font:600 12px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--ink-2);text-anchor:middle}
+.crate-price{font-size:11px}
+.conditions{margin-top:10px;display:grid;gap:6px}
+.cond{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 10px;margin:0;font-size:13px;color:var(--muted)}.cond b{color:var(--body)}
+@media(max-width:560px){.cond{grid-template-columns:1fr}}
+.cond-icons{display:inline-flex;gap:2px}.ci{width:13px;height:13px}
+.ci.gen-on rect{fill:var(--s-darks)}.ci.gen-on path{fill:var(--gold)}
+.ci.gen-off rect{fill:#fff;stroke:var(--s-darks);stroke-width:1.2;stroke-dasharray:2 1.5}.ci.gen-off path{stroke:var(--lose);stroke-width:1.6;stroke-linecap:round}
+.ci.bulb-on circle{fill:var(--gold);stroke:var(--art-ink);stroke-width:1.2}.ci.bulb-off circle{fill:#fff;stroke:var(--s-darks);stroke-width:1.2}
+.cond-prices{margin:0;font-size:13px;color:var(--muted)}.cond-prices b{color:var(--body)}
+
+/* Rewiring by hand (arcade): lamps and spare lamps are drag sources; generators, the new slot and the crate are targets */
+#station .lamp[data-lamp],#station .crate{cursor:grab;touch-action:none}
+#station .gen[data-gen],#station .slot{cursor:pointer}
+#station .lamp.picked .glass{stroke:var(--red);stroke-width:3.5}
+#station .lamp[data-lamp]:focus,#station .gen[data-gen]:focus,#station .slot:focus,#station .crate:focus{outline:none}
+#station .lamp[data-lamp]:focus-visible .glass,#station .gen[data-gen]:focus-visible rect,#station .slot:focus-visible rect,#station .crate:focus-visible rect{stroke:#1472ae;stroke-width:3.5}
+#station .gen.can-drop rect,#station .slot.can-drop rect,#station .crate.can-drop rect{stroke:var(--red);stroke-dasharray:6 4;stroke-width:2.4}
+#station .gen.hot rect,#station .slot.hot rect,#station .crate.hot rect{stroke:var(--red);stroke-dasharray:none;stroke-width:3.5}
+.slot rect{fill:#fff;stroke:var(--s-darks);stroke-width:2;stroke-dasharray:6 5}.slot path{stroke:var(--s-darks);stroke-width:2.4;stroke-linecap:round}
+.crate rect{fill:#E8DCC7;stroke:var(--art-ink);stroke-width:2}.crate .spare{fill:#fff;stroke:var(--s-darks);stroke-width:2}
+.crate.picked rect{stroke:var(--red);stroke-width:3.5}
+.ghost{fill:var(--gold);stroke:var(--art-ink);stroke-width:2;opacity:.85;pointer-events:none}
+.plan-hint{font-size:14px;color:var(--body);margin:0 0 6px}.plan-summary{font-size:13px;color:var(--muted);margin:0}
+
+/* Course lesson (Codex's Four chances flow, rethemed) */
+.lesson{background:#fff;border-radius:6px;padding:22px 22px 26px}
+.lesson h2{font-size:20px;line-height:1.35;margin:0;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.lesson p{margin:0}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.progress{display:flex;gap:26px;padding:0;margin:0 0 18px;list-style:none;color:var(--muted);font-size:13px}
+.progress li{display:flex;gap:8px;align-items:center;border-bottom:2px solid transparent;padding:0 0 10px}
+.progress li[aria-current="step"]{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+.progress li span{font-size:11px;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.experiment{border:1px solid var(--line);border-radius:6px;background:var(--art-ground);padding:18px 18px 12px}
+.experiment-heading{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.experiment h2{font-size:18px}
+.invariant{font-size:12px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:5px 8px;white-space:nowrap}
+.description{font-size:14px;color:var(--muted);margin-top:8px}
+#wiring{margin:10px 0 6px}
+.selected-outcome{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+.prediction h2{margin-bottom:16px;font-size:21px}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+.choices{display:grid;gap:10px}.count-options{grid-template-columns:repeat(4,1fr)}.change-options{grid-template-columns:repeat(3,1fr)}
+.choices label,.mode-options label{position:relative;cursor:pointer;display:block}
+.choices input,.mode-options input{position:absolute;opacity:0;width:1px;height:1px}
+.choices label>span{display:flex;justify-content:center;align-items:baseline;gap:5px;min-height:56px;padding:13px 8px;border:1px solid var(--button-line);border-radius:4px;background:#fff;color:var(--muted)}
+.choices b{color:var(--ink);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.change-options label>span{align-items:center;color:var(--ink-2)}
+.choices input:checked+span,.mode-options input:checked+span{border:2px solid var(--red);padding:12px 7px;color:var(--red)}
+.choices input:checked+span b{color:var(--red)}
+.prediction-action{display:flex;gap:14px;align-items:center;margin-top:16px;flex-wrap:wrap}
+#choice-hint{font-size:13px;color:var(--muted)}
+.result{padding:0 0 14px;border-bottom:1px solid var(--line)}
+#result-title{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+#chance{font-size:34px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--ink)}
+#fraction{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0}
+#prediction-feedback{font-size:13px;color:var(--muted);margin-top:6px}
+.patterns-heading{padding:12px 0 10px;font-size:13px;color:var(--body)}
+.patterns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.pattern{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);border-radius:4px;padding:10px 3px 7px;background:#fff;min-height:62px;min-width:0}
+.pattern.target:not(.impossible){border:2px solid var(--red);padding:9px 2px 6px}
+.pattern[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.pattern.impossible{background:var(--ground);border-style:dashed;cursor:default}
+.pattern.impossible .bits{opacity:.45}
+.bits{display:flex;gap:4px;align-items:center}
+.bit{height:16px;width:16px;border-radius:50%;border:2px solid var(--s-darks);background:#fff}.bit.on{background:var(--gold);border-color:var(--art-ink)}
+.probability{font-size:11px;font-variant-numeric:tabular-nums;line-height:1.2;color:var(--ink-2)}
+.pattern.impossible .probability{color:var(--muted)}
+.discovery{font-size:15px;line-height:1.6;margin:14px 0}
+.finish{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.finish>p{margin-top:8px;color:var(--body);font-size:15px;line-height:1.65}
+.modes{margin-top:16px}.modes legend{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.mode-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode-options label>span{display:flex;align-items:center;justify-content:center;min-height:46px;padding:9px 6px;border:1px solid var(--button-line);border-radius:4px;background:#fff;font-size:14px;text-align:center;color:var(--ink-2)}
+.explore-feedback{padding-top:12px;min-height:3.4em;font-size:15px}
+.closing{display:flex;gap:24px;justify-content:space-between;align-items:center;margin-top:18px;font-size:14px;color:var(--muted)}
+.closing b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:inline-block;margin-bottom:4px}
+.text-button{white-space:nowrap;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 0;min-height:44px;font-size:14px;color:var(--ink);border-radius:0}
+@media(min-width:820px){.workspace{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}.experiment{position:sticky;top:16px}}
+@media(max-width:819px){.prediction{margin-top:20px}.evidence{margin-top:18px}}
+
+@media(max-width:900px){.gamewrap{grid-template-columns:1fr}.gamecontrols{grid-template-columns:1fr}.gamecontrols .actions{margin:0}.gamecontrols .actions button{width:100%}}
+@media(max-width:560px){main{padding:20px 12px 40px}.gamestatus{gap:6px 18px;font-size:16px}.gameprompt{font-size:15px}.gameplay,.gamecontrols,.gamefoot{padding-left:14px;padding-right:14px}.gamebar{padding:10px 12px}
+  .gen-control{flex:1 1 100%}.lesson{padding:16px 12px 20px}.progress{gap:16px;font-size:12px}.choices{gap:7px}.choices label>span{font-size:12px;padding:12px 3px;gap:3px}.choices b{font-size:20px}
+  .mode-options{grid-template-columns:1fr}.bit{width:13px;height:13px;border-width:1.5px}.bits{gap:3px}.closing{align-items:flex-start;flex-direction:column;gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Course pages (course mode) show only the lesson; the arcade shows only the game. */
+body:not(.course) .course-only{display:none}
+body.course .arcade-only{display:none!important}
+body.course main{padding:12px 12px 16px}
+/* Action buttons carry a leading icon, as in the other new games. */
+#run{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.bi{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style></head>
+<body class="gameformat">
+<header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Backup Power</h1></header>
+<main>
+  <!-- Arcade: plan the cheapest wiring that keeps the harbor lit. -->
+  <div class="gamewrap arcade-only">
+    <section class="playcard" aria-label="Game">
+      <div class="gamestatus"><span>Night: <b id="st-night">1</b></span><span>Status: <b id="st-status">Not run yet</b></span><span>Cost: <b id="st-cost">$0</b></span><span>Par: <b id="st-par">?</b></span></div>
+      <p class="gameprompt" id="prompt">Keep at least <strong id="need-brief">2</strong> lamps lit on 9 nights in 10, for as little as possible.</p>
+      <div class="gameplay">
+        <div class="field-wrap" id="field-wrap"><span class="corner corner-left" id="weather">A stormy night</span><span class="corner corner-right" id="outcome-label"></span>
+          <svg id="station" class="station" viewBox="0 0 640 280" role="img" aria-labelledby="station-desc"><desc id="station-desc">The harbor's generators and lamps.</desc><g id="st-sky"></g><g id="st-water"></g><g id="st-boats"></g><g id="st-wires"></g><g id="st-gens"></g><g id="st-lamps"></g></svg>
+        </div>
+        <p class="legend"><i class="g-key run"></i>Generator running <i class="g-key fail"></i>Failed to start <i class="l-key lit"></i>Lamp lit <i class="l-key dark"></i>Lamp dark</p>
+        <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
+      </div>
+      <div class="gamecontrols">
+        <div class="controls">
+          <div class="plan" id="plan" role="group" aria-label="Lamps on each generator"></div>
+          <div class="conditions" id="facts"></div>
+          <p class="why" id="invariant"></p>
+        </div>
+        <div class="actions"><button type="button" id="run" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span>Run the night</span></button></div>
+      </div>
+      <div class="gamefoot">
+        <div class="foot-left"><p><strong>New night</strong> <span>- new weather, a new need and new prices</span></p><div class="foot-buttons"><button id="new-night" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>New night</button></div></div>
+        <div class="foot-right"><button id="reset" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Start over</button></div>
+      </div>
+    </section>
+    <aside class="howto" aria-labelledby="howto-title">
+      <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+      <p><strong>The harbor</strong> needs enough lamps lit tonight for boats to find the entrance. The goal is a plan that keeps it lit on at least 9 nights in 10, for as little as possible.</p>
+      <p><strong>Generators</strong> power the lamps. A generator that fails to start leaves every lamp on it dark. The weather sets how often generators start.</p>
+      <p><strong>Lamps</strong> can also burn out on their own, even on a running generator.</p>
+      <p><strong>Plan the wiring</strong> by dragging lamps: from one generator to another, out of the crate of spare lamps, back into it, or onto the empty slot to start a new generator. You can also press a lamp, then press where it goes. Generators cost more than lamps.</p>
+      <p><strong>Run the night</strong> to watch one night play out and learn whether your plan keeps the harbor lit on at least 9 nights in 10. Par, the cost of the cheapest reliable plan, appears once you find a reliable plan. <strong>New night</strong> brings new weather, a new need and new prices.</p>
+    </aside>
+  </div>
+  <section class="explainer arcade-only" id="takeaway" hidden aria-labelledby="takeaway-title">
+    <h2 id="takeaway-title">Lamps on one generator go dark together</h2>
+    <p>Every lamp is lit on the same share of nights however you wire it. The wiring changes which lamps fail together. Lamps on one generator share its start, so adding lamps to one generator can never make the harbor more reliable than that generator. On a calm night that is fine, and it is the cheapest plan. On a stormy night the harbor needs lamps whose failures don't travel together.</p>
+    <p>Treating each lamp as its own separate chance is only right when nothing links them. That is the idea of independence in Probability &amp; Statistical Data Analysis (6.3710.1x) Unit 2, where systems like this one work only if enough of their parts do.</p>
+    <p class="explainer-note">The verdict does not come from the night shown. Each plan has an exact chance, found by adding up every combination of generators starting and, for each one, the chance that enough bulbs light. Each generator's start and each bulb are separate chances that nothing else affects. The night shown is one simulated night; run it again to see others. The par is the cheapest plan that keeps the harbor lit on at least 90 nights in 100, found over every way to wire up to four generators with up to four lamps each. The exact chance stays hidden: a run says only whether the plan reaches 9 nights in 10, so the game is about reasoning, not reading a number.</p>
+  </section>
+
+  <!-- Course: the Unit 2 opener. Count the patterns, then change only the wiring. -->
+  <section class="lesson course-only" id="lesson" aria-label="Four lamps">
+    <ol class="progress" aria-label="Activity progress">
+      <li id="step-one" aria-current="step"><span>01</span> Count the ways</li>
+      <li id="step-two"><span>02</span> Share a generator</li>
+    </ol>
+    <div class="workspace">
+      <section class="experiment" aria-labelledby="wiring-title">
+        <div class="experiment-heading">
+          <h2 id="wiring-title" tabindex="-1">Four generators</h2>
+          <span class="invariant">Every lamp: lit on <b>half</b> of nights</span>
+        </div>
+        <p id="wiring-description" class="description"></p>
+        <svg id="wiring" class="station" viewBox="0 0 640 250" role="img" aria-labelledby="wiring-svg-title wiring-svg-desc"><title id="wiring-svg-title">Four generators</title><desc id="wiring-svg-desc"></desc><g id="w-water"></g><g id="w-wires"></g><g id="w-gens"></g><g id="w-lamps"></g></svg>
+        <p id="selected-outcome" class="selected-outcome">Predict first. Then look at every possible night.</p>
+      </section>
+      <div>
+        <section id="prediction" class="prediction" aria-labelledby="question" tabindex="-1">
+          <p class="eyebrow" id="prediction-label">Your prediction</p>
+          <h2 id="question">The harbor needs at least two lamps lit. How many of the 16 equally likely patterns leave at least two lit?</h2>
+          <fieldset id="count-choices"><legend class="sr-only">Choose a number of patterns</legend>
+            <div class="choices count-options">
+              <label><input type="radio" name="count" value="6"><span><b>6</b> of 16</span></label>
+              <label><input type="radio" name="count" value="8"><span><b>8</b> of 16</span></label>
+              <label><input type="radio" name="count" value="11"><span><b>11</b> of 16</span></label>
+              <label><input type="radio" name="count" value="12"><span><b>12</b> of 16</span></label>
+            </div>
+          </fieldset>
+          <fieldset id="change-choices" hidden><legend class="sr-only">Predict the change</legend>
+            <div class="choices change-options">
+              <label><input type="radio" name="change" value="lower"><span>Less often</span></label>
+              <label><input type="radio" name="change" value="same"><span>Just as often</span></label>
+              <label><input type="radio" name="change" value="higher"><span>More often</span></label>
+            </div>
+          </fieldset>
+          <div class="prediction-action"><button id="reveal" class="primary" type="button" disabled>Show every night <span aria-hidden="true">→</span></button><span id="choice-hint">Choose a prediction to begin.</span></div>
+        </section>
+        <section id="evidence" class="evidence" aria-labelledby="result-title" hidden>
+          <div id="result" class="result" tabindex="-1">
+            <p class="eyebrow">Chance of at least two lit</p>
+            <h2 id="result-title"><span id="chance">68.75%</span><span id="fraction">11 of 16 equally likely patterns</span></h2>
+            <p id="prediction-feedback"></p>
+          </div>
+          <p id="pattern-explanation" class="patterns-heading"></p>
+          <div id="patterns" class="patterns" role="group" aria-label="Patterns of four lamps and their exact chances"></div>
+          <p id="discovery" class="discovery"></p>
+          <button id="connect" class="primary" type="button">Put all four lamps on one generator <span aria-hidden="true">→</span></button>
+        </section>
+      </div>
+    </div>
+    <section id="finish" class="finish" aria-labelledby="finish-title" hidden>
+      <h2 id="finish-title">What changed is how the lamps fail together</h2>
+      <p>Every lamp was lit on half of nights in both setups. With four generators the lamps go dark separately. With one, they go dark together, and the harbor has two lamps lit less often.</p>
+      <fieldset class="modes"><legend>Try each wiring</legend>
+        <div class="mode-options">
+          <label><input type="radio" name="mode" value="separate"><span>Four generators</span></label>
+          <label><input type="radio" name="mode" value="pairs"><span>Two generators, two lamps each</span></label>
+          <label><input type="radio" name="mode" value="shared" checked><span>One generator</span></label>
+        </div>
+      </fieldset>
+      <p id="explore-feedback" class="explore-feedback" role="status">One generator: 50%.</p>
+      <div class="closing"><p><b>Into the unit</b><br>When can you multiply chances together, and when does the wiring change the calculation?</p><button id="restart" class="text-button" type="button">Start again</button></div>
+    </section>
+  </section>
+  
+  <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+</main>
+<noscript><p>This interactive activity requires JavaScript. With four lamps on four generators that each start half the time, at least two lamps are lit in 11 of 16 equally likely patterns. With all four on one generator, it is 1 in 2. Each lamp is still lit half the time.</p></noscript>
+<script>/* Backup Power: lamps on backup generators, exact chances, answer-first nights. Pure and deterministic. */
+(function(root){
+  'use strict';
+  const MAX_GENERATORS=4,MAX_LAMPS=4,TARGET=.9,LAMP_COST=100,TOLERANCE=1.1;
+  // A plan lists how many lamps hang on each generator, e.g. [2,2] is two generators with two lamps each.
+  // A generator that fails to start leaves all its lamps dark; a lamp on a running generator lights with chance r.
+  function binomialTail(m,r,k){
+    let p=0;
+    for(let j=k;j<=m;j++){let c=1;for(let i=0;i<j;i++)c=c*(m-i)/(i+1);p+=c*r**j*(1-r)**(m-j);}
+    return p;
+  }
+  // Exact chance that at least k lamps are lit: sum over which generators start.
+  function chance(plan,q,r,k){
+    const g=plan.length;let p=0;
+    for(let s=0;s<1<<g;s++){
+      let lamps=0,w=1;
+      for(let i=0;i<g;i++){if(s>>i&1){lamps+=plan[i];w*=q;}else w*=1-q;}
+      p+=w*binomialTail(lamps,r,k);
+    }
+    return p;
+  }
+  // Every lamp has the same chance of being lit whatever the wiring: its generator starts and its bulb lights.
+  const lampChance=(q,r)=>q*r;
+  const cost=(plan,night)=>plan.length*night.generatorCost+plan.reduce((a,b)=>a+b,0)*LAMP_COST;
+  const kind=plan=>plan.length===1?'stack':plan.every(x=>x===1)?'spread':plan.every(x=>x===plan[0])?'even':'mixed';
+  // All plans as sorted lamp counts; order on screen does not change the chance.
+  const PLANS=(()=>{const out=[];const rec=(cur,min)=>{if(cur.length)out.push(cur.slice());if(cur.length===MAX_GENERATORS)return;for(let x=min;x<=MAX_LAMPS;x++){cur.push(x);rec(cur,x);cur.pop();}};rec([],1);return out;})();
+  function evaluate(plan,night){
+    const p=chance(plan,night.q,night.r,night.need),c=cost(plan,night);
+    return {chance:p,cost:c,reliable:p>=TARGET,underPar:c<=night.par*TOLERANCE+1e-9,lamps:plan.reduce((a,b)=>a+b,0),generators:plan.length};
+  }
+  function cheapest(q,r,need,generatorCost){
+    const night={q,r,need,generatorCost};
+    const ok=PLANS.map(plan=>({plan,chance:chance(plan,q,r,need),cost:cost(plan,night)})).filter(x=>x.chance>=TARGET);
+    ok.sort((a,b)=>a.cost-b.cost||b.chance-a.chance);
+    return ok;
+  }
+  // Nights are drawn answer-first: each night is built so its cheapest reliable plan has the kind on the list.
+  // The first night is a storm where stacking cannot work; the second is calm, where stacking is right.
+  const ORDER=['spread','stack','even','mixed','spread','even','stack','mixed'];
+  const GRID={q:[.5,.6,.7,.8,.9,.95],r:[.7,.8,.9,.95],need:[1,2,3],generatorCost:[2,3,4,6]};
+  function weather(q){
+    if(q>=.95)return {name:'A calm night',line:'Generators almost always start.'};
+    if(q>=.9)return {name:'A windy night',line:'Most generators start.'};
+    if(q>=.8)return {name:'A stormy night',line:'Spray gets into some generators.'};
+    if(q>=.7)return {name:'A gale',line:'Many generators fail to start.'};
+    return {name:'An icy storm',line:'Generators often freeze before they start.'};
+  }
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const pick=(r,a)=>a[Math.floor(r()*a.length)];
+  function night(seed,index){
+    const want=ORDER[index%ORDER.length],r=rng(seed*7919+index*104729+1);
+    for(let tries=0;tries<4000;tries++){
+      const q=index===0?pick(r,[.7,.8]):pick(r,GRID.q),lampR=pick(r,GRID.r),need=pick(r,GRID.need),g=pick(r,GRID.generatorCost);
+      const ok=cheapest(q,lampR,need,g*LAMP_COST);
+      if(!ok.length)continue;
+      const best=ok[0];
+      if(kind(best.plan)!==want)continue;
+      // One cheapest plan, so the par names a single answer.
+      if(ok.length>1&&ok[1].cost===best.cost)continue;
+      // The best plan of every other kind must cost more than the par allowance, so near-misses still teach.
+      const rivals=ok.filter(x=>kind(x.plan)!==want);
+      if(rivals.length&&rivals[0].cost<=best.cost*TOLERANCE)continue;
+      // The default plan (one generator, just enough lamps) must not already pass.
+      if(chance([Math.max(need,1)],q,lampR,need)>=TARGET&&want!=='stack')continue;
+      return Object.freeze({index,seed,q,r:lampR,need,generatorCost:g*LAMP_COST,par:best.cost,parPlan:Object.freeze(best.plan.slice()),kind:want,weather:weather(q)});
+    }
+    throw new Error('No night found for seed '+seed+' index '+index);
+  }
+  // One simulated night for the animation. The verdict never comes from it.
+  function simulate(plan,n,random){
+    const generators=plan.map(()=>random()<n.q);
+    const lamps=plan.map((count,i)=>Array.from({length:count},()=>generators[i]&&random()<n.r));
+    const lit=lamps.flat().filter(Boolean).length;
+    return {generators,lamps,lit,kept:lit>=n.need};
+  }
+  // Course mode: four lamps, generators that start half the time, lamps that always light on a running generator.
+  // wiring lists which generator each lamp hangs on.
+  const WIRINGS=Object.freeze({
+    separate:Object.freeze({label:'Four generators',groups:Object.freeze([0,1,2,3])}),
+    shared:Object.freeze({label:'One generator',groups:Object.freeze([0,0,0,0])}),
+    pairs:Object.freeze({label:'Two generators, two lamps each',groups:Object.freeze([0,0,1,1])})
+  });
+  function patterns(name,need=2){
+    const w=WIRINGS[name];
+    if(!w)throw new RangeError('Unknown wiring: '+name);
+    const sources=new Set(w.groups).size,denominator=2**sources;
+    const list=Array.from({length:16},(_,i)=>{const bits=i.toString(2).padStart(4,'0').split('').map(Number);return {bits,key:bits.join(''),count:bits.reduce((a,b)=>a+b,0),ways:0,probability:0};});
+    for(let mask=0;mask<denominator;mask++){
+      const s=Array.from({length:sources},(_,i)=>(mask>>(sources-1-i))&1);
+      list[parseInt(w.groups.map(g=>s[g]).join(''),2)].ways++;
+    }
+    list.forEach(p=>{p.probability=p.ways/denominator;p.target=p.count>=need;});
+    const targetWays=list.filter(p=>p.target).reduce((a,p)=>a+p.ways,0);
+    const marginals=[0,1,2,3].map(l=>list.reduce((a,p)=>a+p.bits[l]*p.probability,0));
+    return {name,groups:w.groups,sources,denominator,patterns:list,targetWays,targetProbability:targetWays/denominator,marginals,need};
+  }
+  const api=Object.freeze({MAX_GENERATORS,MAX_LAMPS,TARGET,LAMP_COST,TOLERANCE,ORDER,GRID,PLANS,chance,lampChance,cost,kind,evaluate,cheapest,night,simulate,rng,weather,WIRINGS,patterns});
+  root.BackupPower=api;
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const M=globalThis.BackupPower,$=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg',all=s=>Array.from(document.querySelectorAll(s));
+  const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  const params=new URLSearchParams(location.search),embed=COURSE||params.get('embed')==='1';
+  document.body.classList.toggle('course',COURSE);document.body.classList.toggle('embedded',embed);
+  const instant=params.get('instant')==='1'||(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const pct=p=>`${Number((100*p).toFixed(2))}%`,money=v=>'$'+v.toLocaleString('en-US'),plural=(n,a,b)=>n===1?a:b;
+  const words=['zero','one','two','three','four','five','six','seven','eight'];
+  function announce(text){$('announcement').textContent=text;}
+  function focus(id){const e=$(id);if(e&&typeof e.focus==='function')e.focus();}
+  function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+  function fit(){try{const f=window.frameElement;if(COURSE&&f)f.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+24)+'px';}catch(e){}}
+
+  /* The station picture, shared by the game and the lesson.
+     plan: lamps per generator. gens[i]: null (not run), 'trying', true (running) or false (failed).
+     lamps[i][j]: null, true (lit) or false (dark). fixed: the lesson keeps four lamp slots and moves the generators. */
+  function drawStation(ids,plan,gens,lamps,opts={}){
+    // The game leaves room at the top for the weather and outcome corner labels; the lesson has none.
+    const W=640,G=plan.length,r=opts.fixed?18:13,top=opts.fixed?0:30,ly=166+top,quay=206+top;
+    const water=$(ids.water),wires=$(ids.wires),gs=$(ids.gens),ls=$(ids.lamps);
+    [water,wires,gs,ls].forEach(g=>{while(g.firstChild)g.removeChild(g.firstChild);});
+    el('rect',{class:'quay',x:0,y:quay,width:W,height:10},water);
+    el('rect',{class:'water',x:0,y:quay+10,width:W,height:40},water);
+    for(let x=30;x<W;x+=110)el('path',{class:'wave',d:`M${x} ${quay+26} q12 -7 24 0 t24 0`},water);
+    let lampX=[],genX=[];
+    // In the arcade the generators use the left 500 units; the right holds the new-generator slot and the crate.
+    const span=opts.arcade?500:W;
+    if(opts.fixed){
+      let k=0;plan.forEach((c,i)=>{const xs=[];for(let j=0;j<c;j++){xs.push(W*(k+.5)/4);k++;}lampX.push(xs);genX.push(xs.reduce((a,b)=>a+b,0)/xs.length);});
+    }else{
+      plan.forEach((c,i)=>{const cx=span*(i+.5)/G,s=Math.min(36,span/G/(c+.4));genX.push(cx);lampX.push(Array.from({length:c},(_,j)=>cx+(j-(c-1)/2)*s));});
+    }
+    let lampNo=0;
+    plan.forEach((c,i)=>{
+      const gx=genX[i],state=gens?gens[i]:null;
+      lampX[i].forEach((x,j)=>{
+        const lit=lamps&&lamps[i]?lamps[i][j]:null;
+        el('path',{class:'wire'+(state===true?' live':state===false?' dead':''),d:`M${gx} ${78+top} C ${gx} ${118+top} ${x} ${118+top} ${x} ${ly-r}`},wires);
+        const g=el('g',{class:'lamp'+(lit===true?' lit':lit===false?(state===true?' out':' dark'):'')},ls);
+        if(opts.arcade){const picked=opts.pick&&opts.pick.type==='lamp'&&opts.pick.i===i&&opts.pick.j===j;
+          Object.entries({'data-lamp':`${i}-${j}`,'data-gen':i,role:'button',tabindex:0,'aria-pressed':String(!!picked),'aria-label':`Lamp ${j+1} on generator ${i+1}`}).forEach(([k,v])=>g.setAttribute(k,v));
+          if(picked)g.classList.add('picked');}
+        el('line',{class:'post',x1:x,y1:ly+r,x2:x,y2:quay},g);
+        const rays=el('g',{class:'rays'},g);
+        for(let a=0;a<8;a++){const t=a*Math.PI/4,c1=Math.cos(t),s1=Math.sin(t);el('line',{x1:x+c1*(r+4),y1:ly+s1*(r+4),x2:x+c1*(r+9),y2:ly+s1*(r+9)},rays);}
+        el('circle',{class:'glass',cx:x,cy:ly,r},g);
+        lampNo++;
+        if(opts.fixed){const t=el('text',{class:'lamp-no',x,y:ly+6},g);t.textContent=String(lampNo);}
+      });
+      const g=el('g',{class:'gen'+(state===true?' run':state===false?' fail':state==='trying'?' trying':'')},gs);
+      if(opts.arcade){Object.entries({'data-gen':i,role:'button',tabindex:0,'aria-label':`Generator ${i+1}, ${c} ${plural(c,'lamp','lamps')}`}).forEach(([k,v])=>g.setAttribute(k,v));
+        if(opts.pick&&c<M.MAX_LAMPS&&!(opts.pick.type==='lamp'&&opts.pick.i===i))g.classList.add('can-drop');}
+      el('rect',{x:gx-30,y:30+top,width:60,height:46,rx:4},g);
+      if(opts.arcade&&(state===true||state==='trying')){
+        // Sparks: a burst around a generator that is starting (sputtering) or running (steady).
+        const sp=el('g',{class:'sparks'+(state==='trying'?' sputter':'')},g);
+        [[-38,8,-46,2],[-38,30,-47,34],[38,8,46,2],[38,30,47,34],[-14,-6,-18,-14],[14,-6,18,-14]].forEach(([x1,y1,x2,y2])=>el('line',{x1:gx+x1,y1:36+top+y1,x2:gx+x2,y2:36+top+y2},sp));
+      }
+      if(state===false){el('path',{class:'cross',d:`M${gx-11} ${42+top} l22 22 M${gx+11} ${42+top} l-22 22`},g);}
+      else el('path',{class:'bolt',d:`M${gx+3} ${36+top} l-13 19 h9 l-4 15 l14 -21 h-9 z`},g);
+      const t=el('text',{class:'gen-label',x:gx,y:22+top},g);t.textContent=opts.fixed?`Generator ${'ABCD'[i]}`:(G>2?`${i+1}`:`Generator ${i+1}`);
+    });
+    if(opts.arcade){
+      // The new-generator slot (while fewer than four run) and the crate of spare lamps on the quay.
+      if(G<M.MAX_GENERATORS){
+        const g=el('g',{class:'slot'+(opts.pick?' can-drop':''),'data-new':'1',role:'button',tabindex:0,'aria-label':'Empty slot for a new generator'},gs);
+        el('rect',{x:540,y:30+top,width:60,height:46,rx:4},g);el('path',{d:`M570 ${41+top}v24M558 ${53+top}h24`},g);
+        const t=el('text',{class:'gen-label',x:570,y:22+top},g);t.textContent='New';
+        if(opts.prices){el('rect',{class:'tag',x:546,y:82+top,width:48,height:18,rx:9},g);const pt=el('text',{class:'tag-text',x:570,y:95+top},g);pt.textContent=money(opts.prices.generator);}
+      }
+      const c=el('g',{class:'crate'+(opts.pick&&opts.pick.type==='lamp'?' can-drop':'')+(opts.pick&&opts.pick.type==='tray'?' picked':''),'data-tray':'1',role:'button',tabindex:0,'aria-pressed':String(!!(opts.pick&&opts.pick.type==='tray')),'aria-label':'Crate of spare lamps'},ls);
+      el('rect',{x:526,y:quay-44,width:88,height:44,rx:3},c);
+      [550,570,590].forEach(x=>{el('circle',{class:'spare',cx:x,cy:quay-28,r:8},c);});
+      const t=el('text',{class:'gen-label',x:570,y:quay-52},c);t.textContent='Spare lamps';
+      if(opts.prices){const pt=el('text',{class:'tag-text crate-price',x:570,y:quay-4},c);pt.textContent=`${money(opts.prices.lamp)} each`;}
+    }
+    if(ids.desc)$(ids.desc).textContent=describe(plan,gens,lamps,opts);
+  }
+  /* The night's settings, drawn: the weather (how often generators start) as sky and sea, and the need as boats.
+     Stormier weather, lower start chance: calm has a moon and still water; windy adds wind; stormy adds rain;
+     a gale adds more of both; an icy storm brings snow and frosted generators. */
+  function weatherLevel(q){return q>=.95?0:q>=.9?1:q>=.8?2:q>=.7?3:4;}
+  function drawSky(night,kept){
+    const sky=$('st-sky'),boats=$('st-boats'),L=weatherLevel(night.q),top=30,quay=206+top;
+    [sky,boats].forEach(g=>{while(g.firstChild)g.removeChild(g.firstChild);});
+    $('station').classList.toggle('icy',L===4);
+    const r=M.rng(night.seed*977+night.index*31+5),rnd=(a,b)=>a+(b-a)*r();
+    if(L===0){el('circle',{class:'moon',cx:470,cy:34,r:13},sky);el('circle',{class:'moon-cut',cx:477,cy:29,r:11},sky);
+      for(let k=0;k<9;k++)el('circle',{class:'star',cx:rnd(20,500),cy:rnd(10,120),r:1.6},sky);}
+    else{for(let k=0;k<L+1;k++)el('ellipse',{class:'cloud'+(L>=3?' dark':''),cx:rnd(40,600),cy:rnd(12,40),rx:rnd(34,58),ry:rnd(9,14)},sky);}
+    const wind=[0,4,5,7,5][L],rain=[0,0,14,26,0][L],snow=L===4?26:0;
+    for(let k=0;k<wind;k++){const x=rnd(0,560),y=rnd(40,180),w=rnd(40,80);el('path',{class:'wind',d:`M${x} ${y} q${w/2} -8 ${w} 0`,style:`animation-delay:-${rnd(0,3).toFixed(2)}s`},sky);}
+    for(let k=0;k<rain;k++){const x=rnd(0,640),y=rnd(0,200);el('line',{class:'rain',x1:x,y1:y,x2:x-6,y2:y+14,style:`animation-delay:-${rnd(0,1).toFixed(2)}s`},sky);}
+    for(let k=0;k<snow;k++)el('circle',{class:'snow',cx:rnd(0,640),cy:rnd(0,210),r:rnd(1.6,2.8),style:`animation-delay:-${rnd(0,4).toFixed(2)}s`},sky);
+    // Rougher water as the weather worsens.
+    const amp=[2,5,7,10,7][L];
+    $('st-water').querySelectorAll('.wave').forEach(w=>{const d=w.getAttribute('d').replace(/q12 -?\d+ 24 0 t24 0/,`q12 -${amp} 24 0 t24 0`);w.setAttribute('d',d);});
+    // One boat per lamp the harbor must keep lit; after a run they show whether they found the way in.
+    for(let k=0;k<night.need;k++){
+      const bx=60+k*110,by=quay+22,g=el('g',{class:'boat'+(kept===true?' safe':kept===false?' lost':'')},boats);
+      el('path',{class:'hull',d:`M${bx-22} ${by} h44 l-8 9 h-28 z`},g);el('path',{class:'sail',d:`M${bx} ${by-2} v-24 l16 22 z`},g);
+      el('circle',{class:'boat-light',cx:bx-14,cy:by-5,r:3.2},g);
+    }
+    return `${night.weather.name}: ${['still air and a clear sky','wind','wind and rain','strong wind and heavy rain','snow and frost'][L]}. ${night.need} ${plural(night.need,'boat waits','boats wait')} for ${plural(night.need,'a lit lamp','lit lamps')}.`;
+  }
+  // The settings the decision depends on, as icon rows out of 20, with the numbers beside them.
+  const outOf=p=>Number.isInteger(Math.round(p*100)/10)?`${Math.round(p*10)} nights in 10`:`${Math.round(p*20)} nights in 20`;
+  function iconRow(p,on,off){const n=Math.round(p*20);return Array.from({length:20},(_,k)=>k<n?on:off).join('');}
+  const GEN_ON='<svg viewBox="0 0 14 14" class="ci gen-on"><rect x="1" y="2" width="12" height="10" rx="2"/><path d="M8 3.5 5 7.5h2.5L6 11l3.5-4.5H7z"/></svg>';
+  const GEN_OFF='<svg viewBox="0 0 14 14" class="ci gen-off"><rect x="1" y="2" width="12" height="10" rx="2"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5"/></svg>';
+  const BULB_ON='<svg viewBox="0 0 14 14" class="ci bulb-on"><circle cx="7" cy="7" r="4.6"/></svg>';
+  const BULB_OFF='<svg viewBox="0 0 14 14" class="ci bulb-off"><circle cx="7" cy="7" r="4.6"/></svg>';
+  function describe(plan,gens,lamps,opts){
+    const parts=plan.map((c,i)=>{
+      const name=opts.fixed?`Generator ${'ABCD'[i]}`:`Generator ${i+1}`,st=gens?gens[i]:null;
+      const lit=lamps&&lamps[i]?lamps[i].filter(x=>x===true).length:null;
+      const state=st===true?'running':st===false?'failed to start':'not yet run';
+      return `${name}, ${state}, ${c} ${plural(c,'lamp','lamps')}${lit===null||st!==true?'':`, ${lit} lit`}.`;
+    });
+    return `${plan.length} ${plural(plan.length,'generator','generators')}. `+parts.join(' ');
+  }
+
+  /* ---------------- Arcade ---------------- */
+  const seed=Math.max(1,Math.floor(Number(params.get('seed'))||1));
+  let index=0,night=M.night(seed,0),plan=[],gens=null,lamps=null,anim=[],running=false,ranOnce=false,random=M.rng(seed*31+7);
+  // The exact chance never shows. A run reports reliable or not, and par appears once a reliable plan is found.
+  let outcome=null,parKnown=false;
+  // Rewiring by hand: drag a lamp (or press it, then press where it goes). pick: null, {type:'lamp',i,j} or {type:'tray'}.
+  let pick=null,drag=null,dragged=false;
+  // Whether the last night shown kept the harbor lit, for the boats.
+  let lastKept=undefined;
+  const defaultPlan=n=>[Math.min(M.MAX_LAMPS,Math.max(1,n.need))];
+  function verdict(e){return e.reliable&&e.underPar?'win':e.reliable?'over':'lose';}
+  function clearOutcome(){outcome=null;gens=null;lamps=null;$('field-wrap').classList.remove('outcome-win','outcome-over','outcome-lose');const o=$('outcome-label');o.textContent='';o.className='corner corner-right';$('feedback-title').textContent='';$('feedback-text').textContent='';}
+  function renderGame(){
+    const e=M.evaluate(plan,night);
+    $('st-night').textContent=index+1;
+    const st=$('st-status');st.textContent=outcome===null?'Not run yet':outcome==='win'?'Reliable, within par':outcome==='over'?'Reliable, over par':'Not reliable';st.className=outcome||'';
+    $('st-cost').textContent=money(e.cost);
+    $('st-par').textContent=parKnown?money(night.par):'?';
+    $('prompt').innerHTML=`Keep at least <strong id="need-brief">${words[night.need]}</strong> ${plural(night.need,'lamp','lamps')} lit on 9 nights in 10, for as little as possible.`;
+    $('weather').textContent=night.weather.name;
+    $('facts').innerHTML=`<p class="cond"><span class="cond-icons" aria-hidden="true">${iconRow(night.q,GEN_ON,GEN_OFF)}</span><span class="cond-text">${night.weather.name}: generators start on <b>${outOf(night.q)}</b></span></p><p class="cond"><span class="cond-icons" aria-hidden="true">${iconRow(night.r,BULB_ON,BULB_OFF)}</span><span class="cond-text">A lamp on a running generator lights on <b>${outOf(night.r)}</b></span></p><p class="cond-prices">Generator <b>${money(night.generatorCost)}</b> · Lamp <b>${money(M.LAMP_COST)}</b></p>`;
+    $('invariant').innerHTML=`However you wire them, each lamp is lit on <b>${pct(M.lampChance(night.q,night.r))}</b> of nights.`;
+    $('plan').innerHTML=`<p class="plan-hint">Drag lamps between generators, out of the spare-lamp crate, back into it, or onto the empty slot to start a generator. You can also press a lamp, then press where it goes.</p><p class="plan-summary">${plan.map((c,i)=>`Generator ${i+1}: ${c} ${plural(c,'lamp','lamps')}`).join(' · ')}</p>`;
+    $('run').disabled=running;
+    drawStation({water:'st-water',wires:'st-wires',gens:'st-gens',lamps:'st-lamps',desc:'station-desc'},plan,gens,lamps,{arcade:true,pick:running?null:pick,prices:{generator:night.generatorCost,lamp:M.LAMP_COST}});
+    const sky=drawSky(night,outcome===null?undefined:lastKept);
+    $('station-desc').textContent=sky+' '+$('station-desc').textContent;
+  }
+  function change(i,d){
+    if(running||(d>0&&plan[i]>=M.MAX_LAMPS)||(d<0&&plan.length===1&&plan[0]===1))return;
+    plan[i]+=d;
+    let msg=`Generator ${i+1}: ${plan[i]} ${plural(plan[i],'lamp','lamps')}.`;
+    if(plan[i]<=0){plan.splice(i,1);msg=`Removed generator ${i+1}.`;}
+    afterChange(msg);
+  }
+  // Apply one rewiring. from: a lamp on a generator or the crate; to: a generator, the new slot or the crate.
+  function move(from,to){
+    if(running)return false;
+    const total=plan.reduce((a,b)=>a+b,0),name=i=>`generator ${i+1}`;
+    if(from.type==='tray'&&to.type==='tray')return false;
+    if(from.type==='lamp'&&to.type==='gen'&&to.i===from.i)return false;
+    if(to.type==='gen'&&plan[to.i]>=M.MAX_LAMPS){announce(`${name(to.i).replace(/^g/,'G')} already has ${M.MAX_LAMPS} lamps.`);return false;}
+    if(to.type==='new'&&plan.length>=M.MAX_GENERATORS){announce('All four generators are in use.');return false;}
+    if(from.type==='lamp'&&to.type==='tray'&&total<=1){announce('The harbor needs at least one lamp.');return false;}
+    let msg='';
+    if(from.type==='lamp')plan[from.i]--;
+    if(to.type==='gen')plan[to.i]++;
+    if(to.type==='new')plan.push(1);
+    if(from.type==='lamp'&&to.type==='gen')msg=`Moved a lamp from ${name(from.i)} to ${name(to.i)}.`;
+    else if(from.type==='lamp'&&to.type==='new')msg='Moved a lamp to a new generator.';
+    else if(from.type==='lamp')msg=`Took a lamp off ${name(from.i)}.`;
+    else if(to.type==='gen')msg=`Added a lamp to ${name(to.i)}.`;
+    else msg='Started a new generator with one lamp.';
+    if(from.type==='lamp'&&plan[from.i]===0)msg+=` ${name(from.i).replace(/^g/,'G')} had no lamps left and was removed.`;
+    plan=plan.filter(c=>c>0);pick=null;
+    afterChange(msg);
+    return true;
+  }
+  const station=$('station');
+  // What a pointer or a press lands on: a generator (or one of its lamps), the new slot, or the crate.
+  function targetOf(node){
+    const t=node&&node.closest?node.closest('[data-gen],[data-new],[data-tray]'):null;
+    if(!t)return null;
+    if(t.hasAttribute('data-tray'))return {type:'tray'};
+    if(t.hasAttribute('data-new'))return {type:'new'};
+    return {type:'gen',i:Number(t.getAttribute('data-gen'))};
+  }
+  function sourceOf(node){
+    const l=node&&node.closest?node.closest('[data-lamp],[data-tray]'):null;
+    if(!l)return null;
+    if(l.hasAttribute('data-tray'))return {type:'tray'};
+    const [i,j]=l.getAttribute('data-lamp').split('-').map(Number);return {type:'lamp',i,j};
+  }
+  const same=(a,b)=>a&&b&&a.type===b.type&&a.i===b.i&&a.j===b.j;
+  function press(node){
+    if(running)return;
+    const src=sourceOf(node),dst=targetOf(node);
+    if(!pick){if(src){pick=src;renderGame();announce(src.type==='tray'?'Picked up a spare lamp. Press a generator or the empty slot.':`Picked up lamp ${src.j+1} on generator ${src.i+1}. Press another generator, the empty slot or the crate.`);}return;}
+    if(src&&same(src,pick)){pick=null;renderGame();announce('Put it back.');return;}
+    if(dst&&move(pick,dst))return;
+    if(src&&!dst){pick=src;renderGame();}
+  }
+  station.addEventListener('click',e=>{if(dragged){dragged=false;return;}press(e.target);});
+  station.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&pick){pick=null;renderGame();announce('Put it back.');return;}
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const t=e.target.closest&&e.target.closest('[data-lamp],[data-gen],[data-new],[data-tray]');if(!t)return;
+    e.preventDefault();const key=t.getAttribute('data-lamp')||t.getAttribute('data-gen')||(t.hasAttribute('data-new')?'new':'tray');
+    press(t);
+    // Keep focus on the same place after the redraw.
+    const back=station.querySelector(`[data-lamp="${key}"]`)||station.querySelector(`[data-gen="${key}"]:not([data-lamp])`)||station.querySelector(key==='new'?'[data-new]':'[data-tray]');if(back&&back.focus)back.focus();
+  });
+  // Dragging: a ghost lamp follows the pointer and the place under it lights up.
+  function svgPoint(e){const m=station.getScreenCTM();if(!m)return {x:0,y:0};const p=station.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(m.inverse());return {x:q.x,y:q.y};}
+  station.addEventListener('pointerdown',e=>{
+    if(running)return;const src=sourceOf(e.target);if(!src)return;
+    drag={src,x:e.clientX,y:e.clientY,id:e.pointerId,ghost:null,hot:null};
+  });
+  station.addEventListener('pointermove',e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    if(!drag.ghost){
+      if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<6)return;
+      pick=drag.src;renderGame();
+      try{station.setPointerCapture(e.pointerId);}catch(err){}
+      drag.ghost=el('circle',{class:'ghost',r:13},station);
+    }
+    const p=svgPoint(e);drag.ghost.setAttribute('cx',p.x);drag.ghost.setAttribute('cy',p.y);
+    drag.ghost.style.display='none';const under=document.elementFromPoint(e.clientX,e.clientY);drag.ghost.style.display='';
+    const hot=under&&under.closest?under.closest('[data-gen],[data-new],[data-tray]'):null;
+    if(drag.hot&&drag.hot!==hot)drag.hot.classList.remove('hot');
+    if(hot)hot.classList.add('hot');drag.hot=hot;
+  });
+  function endDrag(e,drop){
+    if(!drag||e.pointerId!==drag.id)return;
+    const d=drag;drag=null;
+    if(!d.ghost)return;
+    dragged=true;d.ghost.remove();
+    const dst=drop&&d.hot?targetOf(d.hot):null;
+    if(!(dst&&move(d.src,dst))){pick=null;renderGame();}
+  }
+  station.addEventListener('pointerup',e=>endDrag(e,true));
+  station.addEventListener('pointercancel',e=>endDrag(e,false));
+  function afterChange(msg){
+    clearOutcome();renderGame();
+    const e=M.evaluate(plan,night);
+    announce(`${msg} Cost ${money(e.cost)}${parKnown?`, par ${money(night.par)}`:''}.`);
+  }
+  function runNight(){
+    if(running)return;
+    pick=null;
+    const sim=M.simulate(plan,night,random);
+    gens=plan.map(()=>null);lamps=plan.map(c=>Array(c).fill(null));
+    $('field-wrap').classList.remove('outcome-win','outcome-over','outcome-lose');$('outcome-label').textContent='';
+    $('feedback-title').textContent='';$('feedback-text').textContent='Tonight…';
+    if(instant){gens=sim.generators.slice();lamps=sim.lamps.map(a=>a.slice());finish(sim);return;}
+    running=true;renderGame();
+    let t=0;const at=(ms,f)=>{anim.push(setTimeout(f,t+=ms));};
+    plan.forEach((_,i)=>{at(80,()=>{gens[i]='trying';redraw();});at(420,()=>{gens[i]=sim.generators[i];redraw();});});
+    plan.forEach((c,i)=>{for(let j=0;j<c;j++)at(sim.generators[i]?140:40,()=>{lamps[i][j]=sim.lamps[i][j];redraw();});});
+    at(250,()=>{running=false;anim=[];finish(sim);});
+  }
+  function redraw(){drawStation({water:'st-water',wires:'st-wires',gens:'st-gens',lamps:'st-lamps',desc:'station-desc'},plan,gens,lamps,{arcade:true,prices:{generator:night.generatorCost,lamp:M.LAMP_COST}});drawSky(night);}
+  function finish(sim){
+    const e=M.evaluate(plan,night),v=verdict(e);
+    outcome=v;if(e.reliable)parKnown=true;lastKept=sim.kept;
+    renderGame();
+    $('field-wrap').classList.add('outcome-'+v);
+    const o=$('outcome-label');o.className='corner corner-right '+v;
+    o.textContent=v==='win'?'Reliable, within par':v==='over'?'Reliable, over par':'Lit on fewer than 9 nights in 10';
+    const failed=sim.generators.map((ok,i)=>ok?null:i+1).filter(Boolean);
+    const darkFromGens=plan.reduce((a,c,i)=>a+(sim.generators[i]?0:c),0);
+    const burned=sim.lamps.reduce((a,row,i)=>a+(sim.generators[i]?row.filter(x=>!x).length:0),0);
+    let cause='';
+    if(failed.length)cause=`${failed.length===1?`Generator ${failed[0]} failed`:`Generators ${failed.slice(0,-1).join(', ')} and ${failed[failed.length-1]} failed`} to start, taking ${darkFromGens} ${plural(darkFromGens,'lamp','lamps')} dark. `;
+    if(burned)cause+=`${burned} ${plural(burned,'lamp','lamps')} burned out${failed.length?'':' on running generators'}. `;
+    if(!failed.length&&!burned)cause='Every generator started and every lamp lit. ';
+    $('feedback-title').textContent=sim.kept?'The harbor stayed lit.':'The harbor went dark.';
+    $('feedback-text').textContent=`${cause}${sim.lit} of ${plan.reduce((a,b)=>a+b,0)} lit; it needed ${night.need}. ${e.reliable?`This plan keeps the harbor lit on at least 9 nights in 10.${v==='over'?' A cheaper plan also works.':''}`:'This plan keeps the harbor lit on fewer than 9 nights in 10.'}`;
+    if(!ranOnce){ranOnce=true;$('takeaway').hidden=false;}
+    announce(`${$('feedback-title').textContent} ${$('feedback-text').textContent}`);
+  }
+  function setNight(i){anim.forEach(clearTimeout);anim=[];running=false;index=i;parKnown=false;pick=null;night=M.night(seed,index);plan=defaultPlan(night);clearOutcome();renderGame();announce(`Night ${index+1}. ${night.weather.name}. The harbor needs at least ${night.need} ${plural(night.need,'lamp','lamps')} lit.`);}
+  $('run').addEventListener('click',runNight);
+  $('new-night').addEventListener('click',()=>setNight(index+1));
+  $('reset').addEventListener('click',()=>{random=M.rng(seed*31+7);setNight(0);});
+
+  /* ---------------- Course lesson ---------------- */
+  const PLAN_OF={separate:[1,1,1,1],shared:[4],pairs:[2,2]};
+  const L={step:1,mode:'separate',revealed:false,countGuess:null,changeGuess:null,selected:null};
+  const DESC={
+    separate:'Each lamp has its own generator. Each generator starts on half of nights, whatever the others do.',
+    shared:'One generator powers all four lamps. When it starts, all four are lit. When it fails, all four go dark.',
+    pairs:'One generator powers lamps 1 and 2. A second generator, starting on its own, powers lamps 3 and 4.'
+  };
+  const DISCOVERY={
+    separate:'Six patterns have exactly two lamps lit, four have three and one has all four, so 11 of the 16 leave at least two lit.',
+    shared:'Only all dark and all lit can happen now, each on half of nights. At least two are lit only when the one generator starts.',
+    pairs:'At least two lamps are lit whenever either generator starts. That happens in 3 of 4 equally likely cases, more often than with four generators.'
+  };
+  const EXPLORE={
+    separate:'Four generators: 68.75%. 11 of the 16 equally likely patterns leave at least two lit.',
+    shared:'One generator: 50%. Every lamp is still lit on half of nights.',
+    pairs:'Two generators, two lamps each: 75%, higher than the 68.75% with four generators. Sharing a generator does not always make the harbor less reliable.'
+  };
+  function drawLesson(){
+    const d=M.patterns(L.mode),p=L.selected?d.patterns.find(x=>x.key===L.selected):null,planL=PLAN_OF[L.mode];
+    let gensL=null,lampsL=null;
+    if(p){let k=0;lampsL=planL.map(c=>Array.from({length:c},()=>!!p.bits[k++]));gensL=lampsL.map(row=>row[0]);}
+    $('wiring-title').textContent=M.WIRINGS[L.mode].label;$('wiring-svg-title').textContent=M.WIRINGS[L.mode].label;
+    $('wiring-description').textContent=DESC[L.mode];
+    drawStation({water:'w-water',wires:'w-wires',gens:'w-gens',lamps:'w-lamps',desc:'wiring-svg-desc'},planL,gensL,lampsL,{fixed:true});
+    $('selected-outcome').textContent=p?`This pattern: ${p.count} ${plural(p.count,'lamp','lamps')} lit, a ${p.ways} in ${d.denominator} chance.`:'Predict first. Then look at every possible night.';
+    fit();
+  }
+  function choosePattern(key,say=true){
+    const d=M.patterns(L.mode),p=d.patterns.find(x=>x.key===key);
+    if(!p||!p.ways)return;
+    L.selected=key;drawLesson();
+    all('.pattern').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.key===key)));
+    if(say)announce(`Lamps ${p.bits.map(b=>b?'lit':'dark').join(', ')}. ${p.count} lit. Chance ${p.ways} in ${d.denominator}.`);
+  }
+  function renderEvidence(){
+    const d=M.patterns(L.mode),nPossible=d.patterns.filter(p=>p.ways).length;
+    $('chance').textContent=pct(d.targetProbability);
+    $('fraction').textContent=`${d.targetWays} of ${d.denominator} equally likely ${plural(d.denominator,'pattern','patterns')}`;
+    $('pattern-explanation').textContent=L.mode==='separate'?'Each pattern has a 1 in 16 chance. The 11 outlined patterns have at least two lamps lit. Select one to see it on the quay.':`${nPossible} patterns can happen, each with a 1 in ${d.denominator} chance. Dashed patterns cannot happen with this wiring.`;
+    $('patterns').innerHTML=d.patterns.map(p=>`<button type="button" class="pattern${p.target?' target':''}${p.ways?'':' impossible'}" data-key="${p.key}" aria-pressed="false" aria-disabled="${!p.ways}" aria-label="Lamps ${p.bits.map(b=>b?'lit':'dark').join(', ')}. ${p.count} lit. ${p.ways?`Chance ${p.ways} in ${d.denominator}`:'Cannot happen with this wiring'}.${p.target?' At least two lit.':''}"><span class="bits" aria-hidden="true">${p.bits.map(b=>`<span class="bit${b?' on':''}"></span>`).join('')}</span><span class="probability" aria-hidden="true">${p.ways?`${p.ways} in ${d.denominator}`:'cannot happen'}</span></button>`).join('');
+    all('.pattern').forEach(b=>b.addEventListener('click',()=>choosePattern(b.dataset.key)));
+    const first=d.patterns.find(p=>p.ways&&p.target)||d.patterns.find(p=>p.ways);
+    choosePattern(first.key,false);
+    $('discovery').textContent=DISCOVERY[L.mode];
+  }
+  function reveal(){
+    if(L.revealed||(L.step===1?L.countGuess===null:L.changeGuess===null))return;
+    L.revealed=true;$('prediction').hidden=true;$('evidence').hidden=false;renderEvidence();
+    if(L.step===1){
+      $('prediction-feedback').textContent=L.countGuess===11?'Your prediction matches the count.':L.countGuess===6?'You predicted 6 of 16, the patterns with exactly two lit. Three or four lit also leave at least two.':`You predicted ${L.countGuess} of 16. Count the outlined patterns.`;
+      $('connect').hidden=false;
+    }else{
+      $('prediction-feedback').textContent=L.changeGuess==='lower'?'You predicted less often. It drops from 68.75% to 50%.':`You predicted ${L.changeGuess==='same'?'just as often':'more often'}. With one generator it drops from 68.75% to 50%.`;
+      $('connect').hidden=true;$('finish').hidden=false;
+    }
+    announce(`At least two lit: ${$('chance').textContent}. ${$('fraction').textContent}. ${$('discovery').textContent}`);
+    focus('result');fit();
+  }
+  function connect(){
+    if(L.step!==1||!L.revealed)return;
+    Object.assign(L,{step:2,mode:'shared',revealed:false,selected:null});
+    $('step-one').removeAttribute('aria-current');$('step-two').setAttribute('aria-current','step');
+    $('prediction-label').textContent='Each lamp is still lit on half of nights. Only the wiring changes.';
+    $('question').textContent='With all four lamps on one generator, will the harbor have at least two lit less often, just as often, or more often?';
+    $('count-choices').hidden=true;$('change-choices').hidden=false;$('prediction').hidden=false;$('evidence').hidden=true;
+    $('reveal').disabled=true;$('choice-hint').textContent='Before: at least two lit in 11 of 16 patterns, 68.75%.';
+    drawLesson();announce('Now one generator powers all four lamps. Each lamp is still lit on half of nights. Make a new prediction.');focus('wiring-title');
+  }
+  function explore(mode){
+    if(L.step!==2||!L.revealed)return;
+    L.mode=mode;$('prediction-feedback').textContent='Every lamp is still lit on half of nights.';renderEvidence();
+    $('explore-feedback').textContent=EXPLORE[mode];announce(EXPLORE[mode]);fit();
+  }
+  function restartLesson(){
+    Object.assign(L,{step:1,mode:'separate',revealed:false,countGuess:null,changeGuess:null,selected:null});
+    all('input[name="count"],input[name="change"]').forEach(i=>{i.checked=false;});
+    all('input[name="mode"]').forEach(i=>{i.checked=i.value==='shared';});
+    $('step-one').setAttribute('aria-current','step');$('step-two').removeAttribute('aria-current');
+    $('prediction-label').textContent='Your prediction';
+    $('question').textContent='The harbor needs at least two lamps lit. How many of the 16 equally likely patterns leave at least two lit?';
+    $('count-choices').hidden=false;$('change-choices').hidden=true;$('prediction').hidden=false;$('evidence').hidden=true;$('finish').hidden=true;
+    $('reveal').disabled=true;$('choice-hint').textContent='Choose a prediction to begin.';$('explore-feedback').textContent=EXPLORE.shared;
+    drawLesson();announce('Activity restarted. Four lamps on four generators.');focus('prediction');
+  }
+  all('input[name="count"]').forEach(i=>i.addEventListener('change',()=>{L.countGuess=Number(i.value);$('reveal').disabled=false;$('choice-hint').textContent='Your prediction is set.';}));
+  all('input[name="change"]').forEach(i=>i.addEventListener('change',()=>{L.changeGuess=i.value;$('reveal').disabled=false;$('choice-hint').textContent='Your prediction is set.';}));
+  all('input[name="mode"]').forEach(i=>i.addEventListener('change',()=>explore(i.value)));
+  $('reveal').addEventListener('click',reveal);$('connect').addEventListener('click',connect);$('restart').addEventListener('click',restartLesson);
+
+  if(COURSE){drawLesson();if(typeof addEventListener==='function')addEventListener('resize',fit);}
+  else setNight(0);
+})();
+</script>
+</body></html>

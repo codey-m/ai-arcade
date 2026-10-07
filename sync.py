@@ -66,7 +66,8 @@ def card(i, game):
 
 
 def main():
-    games = CONFIG['games']
+    # A game marked "hold": true in games.json stays off the site until it is ready.
+    games = [g for g in CONFIG['games'] if not g.get('hold')]
     assert len({g['slug'] for g in games}) == len(games), 'duplicate slug'
     SITE.mkdir(exist_ok=True)
     for game in games:
