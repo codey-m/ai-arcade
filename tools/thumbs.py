@@ -6,8 +6,10 @@ Each game opens headless at 1280 px with reduced motion. The play area named by
 centred, so every card shows its complete scene in the same framed, wide format. All text is hidden
 first, because course images carry no words or numbers; each card's alt text
 describes the scene instead. Optional "thumb_steps" in games.json plays the game
-into a more telling state first (buttons to press, sliders to set), and
-"thumb_query" opens a particular round (for example "seed=4").
+into a more telling state first (buttons to press, sliders to set, keys to press),
+and "thumb_query" opens a particular round (for example "seed=4"). With
+"thumb_live": {"steps": [...], "after": ms}, the game is then played on in real time
+and caught mid-animation (tools/live.py), for planes in flight or crates in the air.
 Run sync.py first, then this, then sync.py again.
 """
 from pathlib import Path
@@ -16,6 +18,9 @@ import re
 import subprocess
 import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import live  # noqa: E402
 
 HERE = Path(__file__).resolve().parents[1]
 SITE = HERE / 'site'
@@ -32,10 +37,11 @@ body *{{visibility:hidden!important}}{play},{play} *{{visibility:visible!importa
 </style>'''
 
 
-# Runs the optional "thumb_steps" (a selector to click, SVG elements included, or {"set": selector, "value": v} for a slider),
+# Runs the optional "thumb_steps" (a selector to click, SVG elements included, {"set": selector, "value": v} for a slider,
+# or {"key": selector, "press": key, "times": n} for keyboard controls),
 # 400 ms apart, then measures the play area once the result has settled.
 PROBE = '''<script>addEventListener('load',()=>{const steps=%s;let i=0;const next=()=>{if(i<steps.length){const t=steps[i++];
-if(typeof t==='string'){const e=document.querySelector(t);if(e&&e.click)e.click();else if(e)e.dispatchEvent(new MouseEvent('click',{bubbles:true}));}else{const e=document.querySelector(t.set);if(e){e.value=t.value;
+if(typeof t==='string'){const e=document.querySelector(t);if(e&&e.click)e.click();else if(e)e.dispatchEvent(new MouseEvent('click',{bubbles:true}));}else if(t.key){const e=document.querySelector(t.key);for(let i=0;i<(t.times||1);i++)e&&e.dispatchEvent(new KeyboardEvent('keydown',{key:t.press,bubbles:true,cancelable:true}));}else{const e=document.querySelector(t.set);if(e){e.value=t.value;
 e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}}setTimeout(next,400);return;}
 setTimeout(()=>{const e=document.querySelector(%s);const r=e.getBoundingClientRect();
 document.body.setAttribute('data-thumb',[r.left+scrollX,r.top+scrollY,r.width,r.height].map(Math.round).join(','));},2500);};setTimeout(next,800);});</script>'''
@@ -68,25 +74,35 @@ def main(only=()):
         for game in games:
             if only and game['slug'] not in only:
                 continue
-            page = (SITE / f'{game["slug"]}.html').read_text()
-            page = page.replace('</head>', hide(game['play']) + '</head>', 1).replace('</body>', PROBE % (json.dumps(game.get('thumb_steps', [])), json.dumps(game['play'])) + '</body>', 1)
+            page = (SITE / f'{game["slug"]}.html').read_text().replace('</head>', hide(game['play']) + '</head>', 1)
             probe = Path(tmp) / f'{game["slug"]}.html'
-            probe.write_text(page)
             url = probe.as_uri() + ('?' + game['thumb_query'] if game.get('thumb_query') else '')
+            shot = Path(tmp) / f'{game["slug"]}.png'
+            out = SITE / 'thumbs' / f'{game["slug"]}.jpg'
+            if game.get('thumb_live'):
+                probe.write_text(page)
+                live.capture(CHROME, url, game['play'], game.get('thumb_steps', []), game['thumb_live'], str(shot), box, (WIDTH, HEIGHT, SCALE))
+                w, h = map(int, subprocess.run(['sips', '-g', 'pixelWidth', '-g', 'pixelHeight', str(shot)], capture_output=True, text=True).stdout.split()[-3::2])
+                finish(shot, w, h, out)
+                continue
+            probe.write_text(page.replace('</body>', PROBE % (json.dumps(game.get('thumb_steps', [])), json.dumps(game['play'])) + '</body>', 1))
             dom = chrome('--dump-dom', url).stdout
             m = re.search(r'data-thumb="([\d,.-]+)"', dom)
             if not m:
                 print(f'{game["slug"]}: play area {game["play"]} not found; skipped', file=sys.stderr)
                 continue
             x, y, w, h = box(*map(float, m.group(1).split(',')))
-            shot = Path(tmp) / f'{game["slug"]}.png'
             chrome(f'--screenshot={shot}', url)
-            out = SITE / 'thumbs' / f'{game["slug"]}.jpg'
             subprocess.run(['sips', '-c', str(h), str(w), '--cropOffset', str(y), str(x), str(shot), '--out', str(shot)], check=True, capture_output=True)
-            ph, pw = padded(w, h)
-            subprocess.run(['sips', '--padToHeightWidth', str(ph), str(pw), '--padColor', 'FFFFFF', str(shot), '--out', str(shot)], check=True, capture_output=True)
-            subprocess.run(['sips', '--resampleWidth', str(OUT_WIDTH), '-s', 'format', 'jpeg', '-s', 'formatOptions', '82', str(shot), '--out', str(out)], check=True, capture_output=True)
-            print(f'thumbs/{out.name}  ({out.stat().st_size // 1024} KB)')
+            finish(shot, w, h, out)
+
+
+def finish(shot, w, h, out):
+    """Pad the cropped scene to 16:10 on white, centred, and save it as the card's JPEG."""
+    ph, pw = padded(w, h)
+    subprocess.run(['sips', '--padToHeightWidth', str(ph), str(pw), '--padColor', 'FFFFFF', str(shot), '--out', str(shot)], check=True, capture_output=True)
+    subprocess.run(['sips', '--resampleWidth', str(OUT_WIDTH), '-s', 'format', 'jpeg', '-s', 'formatOptions', '82', str(shot), '--out', str(out)], check=True, capture_output=True)
+    print(f'thumbs/{out.name}  ({out.stat().st_size // 1024} KB)')
 
 
 if __name__ == '__main__':

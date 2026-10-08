@@ -130,6 +130,8 @@
       "thumb_steps": [
         "#floors-up",
         "#floors-up",
+        "#floors-up",
+        "#floors-up",
         "#halvings-up",
         "#halvings-up",
         "#halvings-up",
@@ -144,19 +146,24 @@
       "hook": "Crates on a light plank balance at their average spot. Set the support where 9 drops in 10 will hold, then drop 1,000 loads to see.",
       "topic": "Central limit theorem",
       "number": "6.3710.4x",
-      "play": ".stack",
+      "play": "#yard",
       "thumb_steps": [
         "#fly",
         "#next",
         "#fly",
         "#next",
         "#fly",
-        "#next",
-        "#fly"
+        "#next"
       ],
-      "alt": "Two workers on a platform above a long plank on a support, their crates landed in two heaps, above two charts on the same distance scale: single crates land in two separate humps, while the balance points of many drops pile into one narrow bell between them.",
+      "alt": "Two workers on a platform toss crates to either side, mid-delivery: crates in the air, and two heaps building on a long plank that rests on a support.",
       "course": "Probability+SDA",
-      "colour": "#4B7293"
+      "colour": "#4B7293",
+      "thumb_live": {
+        "steps": [
+          "#fly"
+        ],
+        "after": 3200
+      }
     },
     {
       "slug": "photo-finish",
@@ -168,7 +175,19 @@
       "number": "6.7960.2x",
       "colour": "#173EAD",
       "play": "#playarea",
-      "alt": "A contact sheet of concert photos ranked by score, with two gates, and an album below with five of six moments filled."
+      "alt": "A contact sheet of concert photos ranked by score, with two gates, and an album below with all six moments filled.",
+      "thumb_steps": [
+        {
+          "key": "#review-gate",
+          "press": "ArrowLeft",
+          "times": 5
+        },
+        {
+          "key": "#keep-gate",
+          "press": "ArrowLeft",
+          "times": 2
+        }
+      ]
     },
     {
       "slug": "echo-the-dance",
@@ -198,10 +217,15 @@
         {
           "set": "#flights",
           "value": 8
-        },
-        "#rerun"
+        }
       ],
-      "alt": "Paper-plane landings in two indoor lanes, with each lane's average marked."
+      "alt": "Paper planes in flight over two indoor lanes, on their way to land.",
+      "thumb_live": {
+        "steps": [
+          "#rerun"
+        ],
+        "after": 700
+      }
     },
     {
       "slug": "next-note",
