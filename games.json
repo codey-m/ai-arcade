@@ -15,8 +15,7 @@
       ],
       "alt": "Sand squares on a beach, with the squares the detector beeped over outlined, most holding gold coins and a few holding bottle caps.",
       "course": "Probability+SDA",
-      "colour": "#4B7293",
-      "thumb_zoom": "fill"
+      "colour": "#4B7293"
     },
     {
       "slug": "sort-the-recycling",
@@ -69,7 +68,6 @@
         "#add",
         "#send"
       ],
-      "thumb_zoom": true,
       "alt": "A forest map where the mist has lifted to reveal a winding trail, with a blue route bending twice between the depot and the delivery hut, a shaded strip where the route strays furthest, and a small yellow rover at the hut."
     },
     {
@@ -108,6 +106,18 @@
       "alt": "A small robot on a three-dimensional valley, above the charger at the valley floor."
     },
     {
+      "slug": "pairing-bench",
+      "title": "Pairing Bench",
+      "source": "pairing-bench.html",
+      "hook": "Six cups, six saucers, and every piece used once. Swap the saucers so the finished sets come out as close in weight as these pieces allow.",
+      "course": "Probability+SDA",
+      "topic": "Covariance",
+      "number": "6.3710.3x",
+      "colour": "#4B7293",
+      "play": "#bench",
+      "alt": "Six cups on saucers on a wooden workbench, in two rows of three. The pieces differ in size, wall thickness, rim and glaze."
+    },
+    {
       "slug": "lookout-tower",
       "title": "Lookout Tower",
       "source": "lookout-tower.html",
@@ -129,9 +139,9 @@
     },
     {
       "slug": "mean-flights",
-      "title": "Mean Flights",
+      "title": "Tipping Point",
       "source": "mean-flights.html",
-      "hook": "A paper plane's score is its average over several throws. Mark where 9 scores in 10 will land, then fly 1,000 rounds to see.",
+      "hook": "Crates on a light plank balance at their average spot. Set the support where 9 drops in 10 will hold, then drop 1,000 loads to see.",
       "topic": "Central limit theorem",
       "number": "6.3710.4x",
       "play": ".stack",
@@ -144,10 +154,9 @@
         "#next",
         "#fly"
       ],
-      "alt": "Paper-plane landings on a lawn above two charts on the same distance scale: single throws land in two separate humps, while averages of many throws pile into one narrow bell between them.",
+      "alt": "Two workers on a platform above a long plank on a support, their crates landed in two heaps, above two charts on the same distance scale: single crates land in two separate humps, while the balance points of many drops pile into one narrow bell between them.",
       "course": "Probability+SDA",
-      "colour": "#4B7293",
-      "hold": true
+      "colour": "#4B7293"
     },
     {
       "slug": "photo-finish",
@@ -192,7 +201,6 @@
         },
         "#rerun"
       ],
-      "thumb_zoom": true,
       "alt": "Paper-plane landings in two indoor lanes, with each lane's average marked."
     },
     {
@@ -233,7 +241,6 @@
         "#act-0 .gap[data-pair=\"happy cat\"]",
         "#rehearse"
       ],
-      "thumb_zoom": true,
       "alt": "A sad cat hugging a happy ghost on a small stage, a rain cloud above the cat, sparkles above the ghost and a heart between them."
     }
   ]

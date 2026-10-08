@@ -1,10 +1,10 @@
 # AI Arcade
 
-Twelve short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal, plays out as you move things, and explains the idea once you finish.
+Fourteen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal, plays out as you move things, and explains the idea once you finish.
 
 **Play:** https://codey-m.github.io/ai-arcade/
 
-Games appear in play order, not course order: the subjects alternate, each statistics puzzle comes before the game that applies it (Beach Beeps before Photo Finish, Mean Flights before Wonder Fold), and each course's games otherwise keep their course order. Pairing Bench goes in after Downhill Racer when it joins.
+Games appear in play order, not course order: the subjects alternate, each statistics puzzle comes before the game that applies it (Beach Beeps before Photo Finish, Tipping Point before Wonder Fold), and each course's games otherwise keep their course order.
 
 | Game | Course | Idea |
 | --- | --- | --- |
@@ -14,7 +14,9 @@ Games appear in play order, not course order: the subjects alternate, each stati
 | [Rover Route](https://codey-m.github.io/ai-arcade/trace-the-trail.html) | Deep Learning 6.7960.1x | Generalization: fitting measurements without following their noise |
 | [Prize Wheel](https://codey-m.github.io/ai-arcade/prize-wheel.html) | Probability+SDA 6.3710.2x | Distributions with the same average and different chances |
 | [Downhill Racer](https://codey-m.github.io/ai-arcade/guide-the-robot-home.html) | Deep Learning 6.7960.2x | Learning rate, momentum and local minima |
+| [Pairing Bench](https://codey-m.github.io/ai-arcade/pairing-bench.html) | Probability+SDA 6.3710.3x | Covariance: pairing changes the spread of a sum |
 | [Lookout Tower](https://codey-m.github.io/ai-arcade/lookout-tower.html) | Deep Learning 6.7960.3x | Convolution, stride and the receptive field |
+| [Tipping Point](https://codey-m.github.io/ai-arcade/mean-flights.html) | Probability+SDA 6.3710.4x | Sample means and the central limit theorem |
 | [Photo Finish](https://codey-m.github.io/ai-arcade/photo-finish.html) | Deep Learning 6.7960.2x | Accuracy, precision and recall with a rare class |
 | [Echo Dancer](https://codey-m.github.io/ai-arcade/echo-the-dance.html) | Deep Learning 6.7960.4x | Principal component analysis |
 | [Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability+SDA 6.3710.5x | Sample size and the power of a test |
@@ -51,4 +53,4 @@ cd ../../ai-arcade && python3 sync.py && python3 tools/thumbs.py && python3 sync
 git add -A && git commit -m "Update games" && git push
 ```
 
-A game marked `"hold": true` in `games.json` keeps its place in the order but stays off the site (Mean Flights, while it is reworked as Tipping Point). To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Two optional fields shape the thumbnail: `thumb_steps` plays the game into a more telling state first (selectors to click, or `{"set": selector, "value": v}` for a slider), `thumb_zoom` crops a wide play area at its centre instead of padding it (`"fill"` trims a tall one too, so the scene fills the card), and `thumb_query` opens a particular round (for example `seed=4`).
+A game marked `"hold": true` in `games.json` keeps its place in the order but stays off the site (none at the moment). To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Optional fields shape the thumbnail (every scene is shown whole, padded to 16:10 on white): `thumb_steps` plays the game into a more telling state first (selectors to click, or `{"set": selector, "value": v}` for a slider), and `thumb_query` opens a particular round (for example `seed=4`).

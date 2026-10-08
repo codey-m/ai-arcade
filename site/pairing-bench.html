@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pairing Bench · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>:root{color-scheme:light;--ink:#202528;--muted:#62676a;--ground:#f3f4f8;--line:#dedfdc;--red:#750014;--red-dark:#5a0010;--blue:#416879;--blue-light:#a9c4ce;--clay:#a35034;--clay-light:#e2b197;--wood:#e9dcc8;--good:#216044}
+*{box-sizing:border-box}body{margin:0;background:var(--ground);color:var(--ink);font:16px/1.5 "neue-haas-grotesk-text","Helvetica Neue",Helvetica,Arial,sans-serif}button,a,summary{-webkit-tap-highlight-color:transparent}button{font:inherit;cursor:pointer;min-height:44px;padding:10px 16px;background:#fff;border:1px solid #b9c1c5;border-radius:4px;color:var(--ink);touch-action:manipulation}button:disabled{cursor:default;opacity:.46}button:hover:not(:disabled){border-color:var(--ink)}button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex="-1"]:focus-visible{outline:3px solid #1472ae;outline-offset:4px}[tabindex="-1"]:focus:not(:focus-visible){outline:none}.primary{background:var(--red);color:white;border-color:var(--red);font-weight:600}.primary:hover:not(:disabled){background:var(--red-dark);border-color:var(--red-dark)}[hidden]{display:none!important}a{color:var(--red);text-underline-offset:3px}summary{cursor:pointer;min-height:44px;padding:10px 0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.gamebar{background:#fff;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;padding:12px 24px;border-bottom:1px solid #e6e9ee}.gamebar h1{font-size:30px;text-align:center;margin:0;letter-spacing:-.025em}.back{font-size:28px;text-decoration:none;width:44px;height:44px;text-align:center;color:var(--ink)}main{max-width:1240px;margin:auto;padding:26px 24px 48px}body.course main{max-width:1000px}.gamewrap{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}body.course .gamewrap{grid-template-columns:1fr}body.course .howto{display:none}.howto{background:#fff;border-radius:6px;box-shadow:0 2px 10px #15232d0d;padding:24px}.howto h2{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:500;margin:0 0 16px;color:var(--ink)}.howto h2 svg{width:28px;height:20px;flex:none}.howto p{font-size:15px;line-height:1.6;color:var(--muted);margin:0 0 14px}.howto p:last-child{margin-bottom:0}.howto strong{font-weight:700;color:var(--ink)}@media(max-width:900px){.gamewrap{grid-template-columns:1fr}}.playcard{background:#fff;border-radius:6px;box-shadow:0 2px 10px #15232d0d;overflow:hidden}.intro{padding:24px 28px 16px}.eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;font-weight:700;color:var(--blue)}.studio-mark{font-size:22px;line-height:1}.eyebrow #tray-kind{margin-left:auto;letter-spacing:0;text-transform:none;font-weight:500;color:var(--muted);font-size:13px}.intro h2{margin:7px 0 3px;font-size:27px;letter-spacing:-.025em}.intro p{margin:0;color:var(--muted);font-size:15px}
+.bench-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:0 28px 12px;font-size:14px}.bench-top p{margin:0}.bench-top #instruction{color:var(--muted)}#mean-badge{border-left:3px solid var(--blue);padding-left:10px;white-space:nowrap}#mean-badge b{font-variant-numeric:tabular-nums}.bench{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:20px 28px;background:repeating-linear-gradient(2deg,transparent 0,transparent 41px,#bda47c14 42px,transparent 43px),linear-gradient(105deg,#e8dac3,#f0e5d4 55%,#e5d5bc);border-top:1px solid #d7c6aa;border-bottom:1px solid #d7c6aa}.place{position:relative;background:#fffcf5e8;border:1px solid #d6cbb8;border-radius:6px;box-shadow:0 3px 0 #ad947827;min-width:0;padding:10px 12px 0}.place-top{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:12px;color:var(--muted)}.place-no{width:24px;height:24px;display:inline-flex;justify-content:center;align-items:center;background:#e8e1d4;border-radius:50%;font-weight:700;font-size:11px;color:#625a4d}.cup-weight{font-variant-numeric:tabular-nums}.cup-weight b{color:var(--blue);font-size:14px}.dishware{position:relative;width:100%;margin:2px auto 0;padding-top:31.9230769%}.cup-art{position:absolute;top:0;left:0;width:100%;transform:translateY(6.9230769%);z-index:2;pointer-events:none}.cup-art [data-piece]{pointer-events:visiblePainted;cursor:default}.ceramic{display:block;width:100%;height:auto;overflow:visible}.saucer{display:block;position:relative;width:100%;border:0;background:transparent!important;padding:0 0 8px;margin:0;min-height:44px;border-radius:5px;user-select:none;transition:box-shadow .12s,background .12s}.saucer:hover:not([aria-disabled="true"]){box-shadow:inset 0 0 0 1px #bb9078;background:#fcf3e5!important}.saucer[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--red);background:#f8e8df!important}.saucer[aria-disabled="true"]{cursor:default}.saucer-content,.saucer-art{display:block}.saucer-art{width:100%}.saucer:focus-visible{outline-offset:2px}.saucer-label{display:block;font-size:12px;color:#754934}.saucer-label b{font-size:14px;color:var(--clay)}.selected-badge{position:absolute;right:4px;top:2px;z-index:3;background:var(--red);color:white;font-size:10px;padding:1px 5px;border-radius:2px}.set-total{border-top:1px solid #e6ddce;display:flex;justify-content:space-between;align-items:center;margin:3px 0 0;padding:8px 0;font-size:12px;color:var(--muted)}.set-total strong{font-size:16px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}.place.moving{z-index:2}.bench-bottom{padding:9px 28px 0;display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);min-height:30px}#selection-note{color:var(--red);font-weight:600}.controls{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 28px 22px}.secondary-actions{display:flex;gap:8px}.controls button{font-size:14px}.controls .primary{min-width:170px}
+.comparison{border-top:1px solid var(--line);padding:22px 28px;background:#fbfcfc}.comparison-state{margin:0 0 10px;font-size:12px;color:var(--muted);font-weight:600}.comparison.stale .comparison-state{color:#995416}.verdict-head{display:flex;justify-content:space-between;align-items:start;gap:20px}.verdict-head h3{font-size:20px;margin:0 0 5px;letter-spacing:-.015em}.verdict-head p{font-size:14px;color:var(--muted);margin:0;max-width:520px}.comparison.best h3,.comparison.better h3{color:var(--good)}.spread-change{text-align:right;white-space:nowrap;flex-shrink:0;font-size:23px;line-height:1.3;font-variant-numeric:tabular-nums}.spread-change small{font-size:12px;display:block;color:var(--muted)}.spread-change .previous{color:var(--muted);font-size:18px}.measure-note{font-size:12px;color:var(--muted);margin:12px 0 0}.comparison-chart{display:block;width:100%;max-width:680px;height:auto;margin:12px auto 0;overflow:visible}.comparison-chart text{font:12px "Helvetica Neue",Helvetica,Arial,sans-serif;fill:var(--muted)}.chart-key{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;font-size:12px;color:var(--muted);margin:0 0 16px}.chart-key span{display:inline-flex;align-items:center;gap:6px}.chart-key i{display:inline-block}.key-start{width:10px;height:10px;border-radius:50%;border:2px solid #747c80;background:white}.key-now{width:10px;height:10px;background:var(--clay);transform:rotate(45deg)}.key-mean{height:13px;border-left:2px dashed var(--blue)}.comparison details{font-size:14px}.comparison details p{margin:0 0 8px;color:var(--muted)}.takeaway{padding:24px 28px;border-top:1px solid var(--line);background:#f5f8f8}.takeaway h3{font-size:20px;margin:0 0 10px}.takeaway p{font-size:15px;margin:0 0 12px;line-height:1.65}.takeaway p:last-child{margin-bottom:0}.course-complete{font-size:13px;color:var(--muted);padding:16px 28px 0}.footer-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 28px 20px}.footer-actions:has(button:not([hidden])){border-top:1px solid #eef0ef}.footer-actions:has(button:not([hidden])):is(:has(#next-tray:not([hidden]))){margin-top:14px}.footer-actions:has(button:not([hidden])) .optional{font-size:11px;color:var(--muted);margin-left:8px}.footer-actions:not(:has(button:not([hidden]))){display:none}.text-button{border-color:transparent;background:transparent;font-size:13px;color:var(--muted)}.weight-table,.review-about{font-size:13px;color:var(--muted);margin:12px 0 0}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}caption{text-align:left;padding:0 0 10px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th{font-weight:600;color:var(--ink)}.review-about p{margin:5px 0 12px}.embedded .gamebar,.embedded .review-about{display:none}.embedded main{padding:12px}.course .course-complete{display:block}body:not(.course) .course-complete{display:none}
+@media(max-width:700px){main{padding:18px 12px 36px}.intro,.comparison,.takeaway{padding:20px}.bench{padding:16px 20px;gap:10px}.bench-top,.bench-bottom{padding-left:20px;padding-right:20px}.place{padding:8px 8px 0}.cup-weight{font-size:10px}.cup-weight b{font-size:12px}.controls,.footer-actions{padding-left:20px;padding-right:20px}.verdict-head{flex-wrap:wrap}.spread-change{text-align:left}.bench-bottom{flex-direction:column;gap:3px}.course-complete{padding-left:20px;padding-right:20px}}
+@media(max-width:520px){.gamebar h1{font-size:26px}.intro h2{font-size:24px}.bench{grid-template-columns:1fr;padding:16px 22px;gap:14px}.place{padding:10px 18px 0}.cup-weight{font-size:12px}.cup-weight b{font-size:15px}.set-total{padding:9px 0}.bench-top{gap:7px}.controls{flex-direction:column;align-items:stretch}.secondary-actions{display:grid;grid-template-columns:1fr 1fr}.intro .eyebrow{font-size:10px;gap:5px}.eyebrow #tray-kind{font-size:11px}.chart-key{gap:10px;font-size:11px}.footer-actions{flex-wrap:wrap}.comparison-chart text{font-size:14px}.comparison-chart{min-height:150px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head>
+<body>
+<header class="gamebar"><a href="index.html" aria-label="Back to the arcade" class="back">←</a><h1>Pairing Bench</h1><span></span></header>
+<main>
+  <div class="gamewrap">
+  <section class="playcard" aria-labelledby="task-title">
+    <div class="intro">
+      <div class="eyebrow"><span class="studio-mark" aria-hidden="true">◒</span> THE POTTERY STUDIO <span id="tray-kind">Opening tray</span></div>
+      <h2 id="task-title" tabindex="-1">Six cups. Six saucers.</h2>
+      <p>Make the completed sets as close in weight as you can. Every piece must be used once.</p>
+    </div>
+    <div class="bench-top">
+      <p id="instruction">Select two saucers to swap them.</p>
+      <p id="mean-badge">Average set weight: <b>450 g</b></p>
+    </div>
+    <div class="bench" id="bench" aria-label="Six cup and saucer sets"></div>
+    <div class="bench-bottom">
+      <span class="bench-note">All saucers fit all cups. Cups stay in place.</span>
+      <span id="selection-note"></span>
+    </div>
+    <div class="controls">
+      <div class="secondary-actions"><button type="button" id="undo" disabled>↶ Undo</button><button type="button" id="restore" disabled>Restore tray</button></div>
+      <button type="button" class="primary" id="compare" disabled>Compare sets</button>
+    </div>
+    <section class="comparison" id="comparison" hidden aria-labelledby="verdict-title">
+      <p class="comparison-state" id="comparison-state"></p>
+      <div class="verdict-head"><div><h3 id="verdict-title" tabindex="-1"></h3><p id="verdict-text"></p></div><div id="spread-change" class="spread-change"></div></div>
+      <p class="measure-note">Weight spread measures how far the set weights lie from their average.</p>
+      <svg class="comparison-chart" id="chart" viewBox="0 0 680 264" role="img" aria-labelledby="chart-desc"><desc id="chart-desc"></desc><g id="chart-g"></g></svg>
+      <p class="chart-key"><span><i class="key-start"></i>Starting tray</span><span><i class="key-now"></i>This comparison</span><span><i class="key-mean"></i>Average</span></p>
+      <button type="button" id="explain">What changed?</button>
+      <details id="limit-explanation" hidden><summary>Why aren’t all six weights equal?</summary><p>The average is 450 g. The 400 g cup would need a 50 g saucer to make a 450 g set, and there isn’t one. This pairing has the smallest possible spread for these pieces.</p></details>
+    </section>
+    <section class="takeaway" id="takeaway" hidden aria-labelledby="takeaway-title">
+      <h3 id="takeaway-title" tabindex="-1">Same pieces. Different partners.</h3>
+      <p id="payoff"></p>
+      <p>Imagine choosing one completed set at random, with each of the six equally likely. Every cup and every saucer still appears once. Their separate weight distributions stay fixed; changing the partners changes the distribution of their sum.</p>
+      <p>This unit calls the way two quantities vary together <strong>covariance</strong>. It helps determine the spread of their sum. The weight spread shown here is the <strong>standard deviation</strong> of the six possible totals.</p>
+    </section>
+    <div class="course-complete" id="course-complete" hidden>You’ve compared a pairing. Further arranging and the next tray are optional.</div>
+    <div class="footer-actions"><button type="button" id="next-tray" hidden>Try another tray <span class="optional">optional</span></button><button type="button" id="restart" class="text-button" hidden>Start over</button></div>
+  </section>
+  <aside class="howto" id="howto" aria-labelledby="howto-title">
+    <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+    <p><strong>The studio</strong> is setting out six cup-and-saucer sets for display. The goal is sets as close in weight as these pieces allow.</p>
+    <p><strong>Weight</strong> shows in the clay: thicker walls, wider rims and heavier feet weigh more. The number on each piece is exact.</p>
+    <p><strong>Swap saucers</strong> by pressing one and then another, or by dragging one onto another. Cups stay in their places, and every piece is used once.</p>
+    <p><strong>Compare sets</strong> to see this arrangement's totals beside the starting tray's, with its weight spread: how far the set weights lie from their average. <strong>Undo</strong> takes back a swap, and <strong>Restore tray</strong> puts every saucer back.</p>
+  </aside>
+  </div>
+  <details class="weight-table"><summary>Piece weights and totals</summary><div class="table-scroll"><table><caption>Every piece is used once. Weights in grams.</caption><thead><tr><th scope="col">Place</th><th scope="col">Cup</th><th scope="col">Saucer</th><th scope="col">Total</th><th scope="col" id="table-comparison-head" hidden>Compared total</th></tr></thead><tbody id="weight-rows"></tbody></table></div></details>
+  
+  <p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+</main>
+<noscript><p>Enable JavaScript to arrange the cup-and-saucer sets.</p></noscript>
+<script>/* Pairing Bench. Six equiprobable sets; every cup and saucer appears exactly once. */
+(function(root){
+  'use strict';
+  const raw=[
+    {id:'opening',cups:[270,400,210,360,240,320],saucers:[190,130,110,90,230,150]},
+    {id:'practice',cups:[320,260,400,290,370,340],saucers:[160,100,240,180,130,210]},
+    {id:'ties',cups:[240,300,360,240,360,300],saucers:[120,180,240,240,180,120]}
+  ];
+  const sum=xs=>xs.reduce((a,b)=>a+b,0);
+  const initial=t=>t.cups.map((_,i)=>i);
+  function valid(t,order){return order.length===t.cups.length&&new Set(order).size===order.length&&order.every(i=>Number.isInteger(i)&&i>=0&&i<t.saucers.length);}
+  function totals(t,order){if(!valid(t,order))throw new Error('Each saucer must appear exactly once');return t.cups.map((c,i)=>c+t.saucers[order[i]]);}
+  function stats(values){
+    const n=values.length,total=sum(values),q=n*sum(values.map(v=>v*v))-total*total;
+    return Object.freeze({total,mean:total/n,q,variance:q/(n*n),sd:Math.sqrt(q)/n});
+  }
+  function permutations(values){
+    if(!values.length)return [[]];
+    return values.flatMap((value,i)=>permutations(values.filter((_,j)=>j!==i)).map(rest=>[value,...rest]));
+  }
+  const ORDERS=permutations([0,1,2,3,4,5]);
+  const TRAYS=Object.freeze(raw.map(t=>{
+    const baseline=stats(totals(t,initial(t))),bestQ=Math.min(...ORDERS.map(order=>stats(totals(t,order)).q));
+    return Object.freeze({...t,cups:Object.freeze(t.cups),saucers:Object.freeze(t.saucers),baseline,bestQ,
+      axis:Object.freeze([Math.floor((Math.min(...t.cups)+Math.min(...t.saucers))/50)*50-50,Math.ceil((Math.max(...t.cups)+Math.max(...t.saucers))/50)*50+50])});
+  }));
+  function swap(order,a,b){
+    if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a>=order.length||b>=order.length)throw new Error('Invalid place');
+    const next=order.slice();[next[a],next[b]]=[next[b],next[a]];return next;
+  }
+  function judge(t,order){
+    const values=totals(t,order),s=stats(values);
+    return Object.freeze({...s,values:Object.freeze(values),kind:s.q===t.bestQ?'best':s.q<t.baseline.q?'better':s.q===t.baseline.q?'same':'worse'});
+  }
+  root.PairingBench=Object.freeze({TRAYS,sum,initial,valid,totals,stats,swap,judge});
+})(globalThis);
+</script><script>/* Review artwork only. Geometry is mass-driven; finish belongs to the piece. */
+(function(root){
+  'use strict';
+  const PALETTES={
+    oat:{name:'Oat',light:'#f5e7cb',mid:'#d9c39e',dark:'#a58b66',edge:'#77634b',inside:'#f7ecda'},
+    tide:{name:'Tide',light:'#a9c9cc',mid:'#729aab',dark:'#426878',edge:'#365666',inside:'#d6e3de'},
+    sage:{name:'Sage',light:'#c7d2b5',mid:'#9cac89',dark:'#687959',edge:'#506146',inside:'#e1e6d4'},
+    neutral:{name:'Unglazed study',light:'#e9dfcc',mid:'#cbbca3',dark:'#a08e75',edge:'#796951',inside:'#eee5d6'}
+  };
+  const finishes=[
+    {cups:['tide','oat','sage','sage','oat','tide'],saucers:['oat','tide','oat','sage','tide','sage']},
+    {cups:['oat','sage','tide','tide','oat','sage'],saucers:['sage','oat','tide','oat','sage','tide']}
+  ];
+  const details=[
+    {cups:['plain','band','fleck','plain','fleck','band'],saucers:['fleck','plain','band','plain','fleck','band']},
+    {cups:['fleck','plain','band','plain','band','fleck'],saucers:['plain','fleck','plain','band','band','fleck']}
+  ];
+  const handleStyles=[
+    ['oval','square','arch','round','petite','swept'],
+    ['round','swept','oval','petite','square','arch']
+  ];
+  const HANDLES={
+    oval:{name:'oval loop',upper:.23,lower:.59,reach:27,lift:6,drop:6,width:1},
+    square:{name:'softly squared handle',upper:.24,lower:.61,reach:28,lift:2,drop:3,width:1.02},
+    arch:{name:'high arched handle',upper:.14,lower:.64,reach:22,lift:8,drop:7,width:.84},
+    round:{name:'round loop',upper:.29,lower:.57,reach:25,lift:7,drop:7,width:1.08},
+    petite:{name:'compact ear handle',upper:.27,lower:.57,reach:19,lift:3,drop:4,width:.86},
+    swept:{name:'swept handle',upper:.19,lower:.60,reach:31,lift:9,drop:5,width:.92}
+  };
+  const r=n=>Math.round(n*100)/100;
+  function pieces(tray,index){
+    const make=(kind,weight,i)=>Object.freeze({kind,weight,id:`${kind==='cup'?'C':'S'}${i+1}`,key:`${tray.id}-${kind}-${i}`,glaze:finishes[index][kind+'s'][i],detail:details[index][kind+'s'][i],...(kind==='cup'?{handleStyle:handleStyles[index][i]}:{})});
+    return {cups:tray.cups.map((w,i)=>make('cup',w,i)),saucers:tray.saucers.map((w,i)=>make('saucer',w,i))};
+  }
+  function profile(p){
+    if(p.kind==='cup'){
+      const q=(p.weight-210)/190;
+      return {q,width:r(46+q*13),height:r(66+q*13),wall:r(2.5+q*4),handle:r(5.2+q*6.5),foot:r(3+q*6),
+        name:q<.2?'Fine flared cup':q<.5?'Tapered cup':q<.75?'Rounded cup':'Full-bodied cup',
+        note:`${q<.2?'Thin lip and a small body':q<.5?'Upright walls and a raised base':q<.75?'Fuller bowl and a thicker lip':'Broad body, thick lip and substantial base'}; ${HANDLES[p.handleStyle].name}.`};
+    }
+    const q=(p.weight-90)/150;
+    return {q,width:r(72+q*23),depth:r(18+q*9),edge:r(2.5+q*8.5),foot:r(2+q*6),
+      name:q<.2?'Fine flat saucer':q<.5?'Soft-rimmed saucer':q<.8?'Raised-rim saucer':'Serving saucer',
+      note:q<.2?'Narrow diameter, fine edge, low foot.':q<.5?'Wider shelf with a softly lifted rim.':q<.8?'Broad rim, thicker edge, visible foot ring.':'Broad, upturned rim around a recessed center; low foot underneath.'};
+  }
+  function defs(id,c){return `<defs>
+    <linearGradient id="${id}-body" x1="0" x2="1"><stop stop-color="${c.dark}"/><stop offset=".22" stop-color="${c.mid}"/><stop offset=".43" stop-color="${c.light}"/><stop offset=".73" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.dark}"/></linearGradient>
+    <linearGradient id="${id}-top" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="${c.light}"/><stop offset="1" stop-color="${c.mid}"/></linearGradient>
+    <linearGradient id="${id}-inside" x1="0" y1="0" x2="0" y2="1"><stop stop-color="${c.dark}"/><stop offset=".4" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.inside}"/></linearGradient>
+  </defs>`;}
+  function handleShape(p,s,wall){
+    const style=HANDLES[p.handleStyle],upper=wall(style.upper),lower=wall(style.lower);
+    const reach=upper.x+style.reach,span=lower.y-upper.y,mid=upper.y+span*.48;
+    const start=[upper.x-7,upper.y],end=[lower.x-8,lower.y];
+    let curves;
+    if(p.handleStyle==='square'){
+      const shoulder=[reach-3,upper.y+5],heel=[reach-5,lower.y+3];
+      curves=[
+        [start,[upper.x+9,upper.y-3],[reach-5,upper.y-4],shoulder],
+        [shoulder,[reach+1,upper.y+13],[reach+1,lower.y-3],heel],
+        [heel,[lower.x+18,lower.y+8],[lower.x+4,lower.y+5],end]
+      ];
+    }else if(p.handleStyle==='swept'){
+      const shoulder=[reach-3,upper.y+5],heel=[lower.x+13,lower.y+5];
+      curves=[
+        [start,[upper.x+12,upper.y-12],[reach-8,upper.y-9],shoulder],
+        [shoulder,[reach+8,upper.y+19],[reach-1,lower.y+9],heel],
+        [heel,[lower.x+7,lower.y+5],[lower.x+2,lower.y+1],end]
+      ];
+    }else{
+      const outer=[reach,mid];
+      curves=[
+        [start,[upper.x+9,upper.y-style.lift],[reach,upper.y-style.lift],outer],
+        [outer,[reach,lower.y+style.drop],[lower.x+12,lower.y+style.drop],end]
+      ];
+    }
+    // Offset the curved centerline to form a slender ceramic strap. Both roots
+    // narrow into the body; the lower root turns upward, well above the foot.
+    const left=[],right=[],shine=[];
+    curves.forEach((curve,segment)=>{
+      for(let i=segment?1:0;i<=28;i++){
+        const t=i/28,u=1-t,[a,b,c,d]=curve;
+        const px=u*u*u*a[0]+3*u*u*t*b[0]+3*u*t*t*c[0]+t*t*t*d[0];
+        const py=u*u*u*a[1]+3*u*u*t*b[1]+3*u*t*t*c[1]+t*t*t*d[1];
+        const dx=3*u*u*(b[0]-a[0])+6*u*t*(c[0]-b[0])+3*t*t*(d[0]-c[0]);
+        const dy=3*u*u*(b[1]-a[1])+6*u*t*(c[1]-b[1])+3*t*t*(d[1]-c[1]);
+        const length=Math.hypot(dx,dy),progress=(segment+t)/curves.length;
+        const half=(3.9+s.q*2.6)*style.width/2*(.88+.12*Math.sin(Math.PI*progress));
+        const nx=-dy/length,ny=dx/length;
+        left.push([r(px+nx*half),r(py+ny*half)]);
+        right.push([r(px-nx*half),r(py-ny*half)]);
+        if(progress>.16&&progress<.46)shine.push([r(px-nx*half*.35),r(py-ny*half*.35)]);
+      }
+    });
+    const path=points=>points.map((a,i)=>`${i?'L':'M'}${a[0]} ${a[1]}`).join(' ');
+    return {path:path([...left,...right.reverse()])+' Z',shine:path(shine),upper,lower,reach};
+  }
+  function cup(p,id,neutral){
+    const s=profile(p),c=PALETTES[neutral?'neutral':p.glaze],x=120,y=139-s.height,w=s.width,b=139-s.foot;
+    const outline=`M${x-w} ${y} C${x-w+1} ${y+26},${x-w+4+s.q*9} ${b-4},${x-29} ${b} Q${x} ${b+8},${x+29} ${b} C${x+w-4-s.q*9} ${b-4},${x+w-1} ${y+26},${x+w} ${y} Z`;
+    // Follow the actual curved wall at both joins, including the narrower lower body.
+    const wall=t=>{const u=1-t;return {x:r(u*u*u*(x+w)+3*u*u*t*(x+w-1)+3*u*t*t*(x+w-4-s.q*9)+t*t*t*(x+29)),y:r(u*u*u*y+3*u*u*t*(y+26)+3*u*t*t*(b-4)+t*t*t*b)};};
+    const handle=handleShape(p,s,wall);
+    let ornament='';
+    if(!neutral&&p.detail==='band')ornament=`<path d="M${x-w+3} ${y+25} Q${x} ${y+46} ${x+w-3} ${y+25}" fill="none" stroke="${c.inside}" stroke-width="3" opacity=".7"/>`;
+    if(!neutral&&p.detail==='fleck')ornament=Array.from({length:23},(_,i)=>{const px=x-w+6+((i*31+7)%(2*w-12)),py=y+17+((i*19+3)%(s.height-25));return `<circle cx="${r(px)}" cy="${r(py)}" r="${i%3===0?1.1:.65}" fill="${c.edge}" opacity=".4"/>`;}).join('');
+    return `<g data-piece="${p.key}">${defs(id,c)}<defs><clipPath id="${id}-clip"><path d="${outline}"/></clipPath>
+      <linearGradient id="${id}-handle" gradientUnits="userSpaceOnUse" x1="${handle.lower.x-3}" y1="0" x2="${handle.reach+3}" y2="0"><stop stop-color="${c.dark}"/><stop offset=".4" stop-color="${c.mid}"/><stop offset=".72" stop-color="${c.light}"/><stop offset="1" stop-color="${c.mid}"/></linearGradient>
+      <mask id="${id}-joined-edge" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="210"><rect width="260" height="210" fill="white"/><path d="${handle.path}" fill="black" stroke="black" stroke-width="1"/></mask>
+    </defs>
+      <path d="${handle.path}" fill="url(#${id}-handle)" stroke="${c.edge}" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="${handle.shine}" fill="none" stroke="${c.inside}" stroke-opacity=".55" stroke-width="${r(.8+s.q*.45)}" stroke-linecap="round"/>
+      <path d="M92 ${b-1} L92 144 Q120 154 148 144 L148 ${b-1} Z" fill="#ac8f6e" stroke="#867257" stroke-width="1.2"/>
+      <path d="M94 143 Q120 151 146 143" fill="none" stroke="#d2ba94" stroke-width="2"/>
+      <path d="${outline}" fill="url(#${id}-body)"/>
+      <path d="${outline}" fill="none" stroke="${c.edge}" stroke-width="1.4" mask="url(#${id}-joined-edge)"/>
+      <g clip-path="url(#${id}-clip)">${ornament}</g>
+      <path d="M${x-w+13} ${y+24} Q${x-w+15} ${b-13} ${x-26} ${b-6}" fill="none" stroke="${c.inside}" stroke-opacity=".38" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="${x}" cy="${y}" rx="${w}" ry="14" fill="url(#${id}-top)" stroke="${c.edge}" stroke-width="1.3"/>
+      <ellipse cx="${x}" cy="${y+.5}" rx="${w-s.wall}" ry="${14-s.wall*.75}" fill="url(#${id}-inside)" stroke="${c.dark}" stroke-width="1"/>
+      <path d="M${x-w+9} ${y-6} Q${x-9} ${y-16} ${x+24} ${y-10}" fill="none" stroke="${c.inside}" stroke-width="1.8" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+  function saucer(p,id,neutral){
+    const s=profile(p),c=PALETTES[neutral?'neutral':p.glaze],x=120,y=151,w=s.width,d=s.depth,e=s.edge;
+    if(s.q>=.8)return servingSaucer(p,id,neutral);
+    const foot=30+s.q*13,fy=y+d+e-4;
+    let ornament='';
+    if(!neutral&&p.detail==='band')ornament=`<ellipse cx="${x}" cy="${y}" rx="${w-8}" ry="${d-3.5}" fill="none" stroke="${c.inside}" stroke-width="2" opacity=".72"/>`;
+    if(!neutral&&p.detail==='fleck')ornament=Array.from({length:30},(_,i)=>{const a=i*2.399,rr=.58+(i%5)*.074;return `<circle cx="${r(x+Math.cos(a)*w*rr)}" cy="${r(y+Math.sin(a)*d*rr)}" r="${i%3===0?.95:.6}" fill="${c.edge}" opacity=".4"/>`;}).join('');
+    return `<g data-piece="${p.key}">${defs(id,c)}
+      <ellipse cx="${x+3}" cy="${fy+s.foot+5}" rx="${w-7}" ry="6" fill="#61503d" opacity=".1"/>
+      <path d="M${x-foot} ${fy-3} L${x-foot} ${fy+s.foot} Q${x} ${fy+s.foot+8} ${x+foot} ${fy+s.foot} L${x+foot} ${fy-3} Z" fill="#ad9271" stroke="#867257" stroke-width="1.1"/>
+      <path d="M${x-foot+3} ${fy+s.foot} Q${x} ${fy+s.foot+5} ${x+foot-3} ${fy+s.foot}" fill="none" stroke="#d5bd98" stroke-width="1.5"/>
+      <path d="M${x-w} ${y} C${x-w+3} ${y+d+e},${x+w-3} ${y+d+e},${x+w} ${y} L${x+w-3} ${y+e+4} C${x+w-11} ${y+d+e+10},${x-w+11} ${y+d+e+10},${x-w+3} ${y+e+4} Z" fill="url(#${id}-body)" stroke="${c.edge}" stroke-width="1.3"/>
+      <ellipse cx="${x}" cy="${y}" rx="${w}" ry="${d}" fill="url(#${id}-top)" stroke="${c.edge}" stroke-width="1.4"/>
+      <ellipse cx="${x}" cy="${y+1}" rx="${w-5-s.q*7}" ry="${d-3-s.q*4}" fill="none" stroke="${c.dark}" stroke-width="${r(1+s.q*.8)}" opacity=".7"/>
+      ${ornament}
+      <ellipse cx="${x}" cy="${y+1}" rx="33" ry="9" fill="${c.mid}" stroke="${c.dark}" stroke-width="1.3"/>
+      <ellipse cx="${x}" cy="${y+2}" rx="29" ry="6.5" fill="${c.light}" opacity=".6"/>
+      <path d="M${x-w+16} ${y-5} Q${x-w*.42} ${y-d+2} ${x+5} ${y-d+3}" fill="none" stroke="${c.inside}" stroke-width="${r(1.8+s.q)}" opacity=".65" stroke-linecap="round"/>
+    </g>`;
+  }
+  function servingSaucer(p,id,neutral){
+    const s=profile(p),c=PALETTES[neutral?'neutral':p.glaze],x=120,w=s.width,y=141,d=s.depth;
+    const flecks=!neutral&&p.detail==='fleck'?Array.from({length:28},(_,i)=>{const a=i*2.399,rr=.58+(i%5)*.07;return `<circle cx="${r(x+Math.cos(a)*(w-8)*rr)}" cy="${r(y+3+Math.sin(a)*(d-5)*rr)}" r="${i%3===0?.95:.6}" fill="${c.edge}" opacity=".38"/>`;}).join(''):'';
+    return `<g data-piece="${p.key}">${defs(id,c)}<defs>
+      <radialGradient id="${id}-bowl" cx=".48" cy=".72" r=".75"><stop stop-color="${c.light}"/><stop offset=".55" stop-color="${c.mid}"/><stop offset="1" stop-color="${c.dark}"/></radialGradient></defs>
+      <ellipse cx="123" cy="180" rx="${w-12}" ry="5" fill="#61503d" opacity=".1"/>
+      <path d="M83 168 L83 175 Q120 183 157 175 L157 168 Z" fill="#ad9271" stroke="#867257" stroke-width="1.1"/>
+      <path d="M87 175 Q120 181 153 175" fill="none" stroke="#d5bd98" stroke-width="1.5"/>
+      <path d="M${x-w} ${y} C${x-w+5} 169,82 178,120 178 C158 178,${x+w-5} 169,${x+w} ${y} Z" fill="url(#${id}-body)" stroke="${c.edge}" stroke-width="1.4"/>
+      <ellipse cx="${x}" cy="${y}" rx="${w}" ry="${d}" fill="url(#${id}-top)" stroke="${c.edge}" stroke-width="1.4"/>
+      <ellipse cx="${x}" cy="${y+1}" rx="${w-6}" ry="${d-4}" fill="url(#${id}-bowl)" stroke="${c.dark}" stroke-width="1.3"/>
+      ${flecks}
+      <path d="M${x-w+13} ${y+6} Q120 ${y+d+5} ${x+w-13} ${y+6}" fill="none" stroke="${c.light}" stroke-width="3" opacity=".6"/>
+      <ellipse cx="120" cy="152" rx="33" ry="9" fill="${c.mid}" stroke="${c.dark}" stroke-width="1.3"/>
+      <ellipse cx="120" cy="153" rx="29" ry="6.5" fill="${c.light}" opacity=".6"/>
+      <path d="M${x-w+13} ${y-5} Q${x-w*.42} ${y-d} ${x+7} ${y-d+2}" fill="none" stroke="${c.inside}" stroke-width="3" opacity=".75" stroke-linecap="round"/>
+      ${!neutral&&p.detail==='band'?`<ellipse cx="120" cy="${y}" rx="${w-2.5}" ry="${d-1.5}" fill="none" stroke="${c.inside}" stroke-width="1.5" opacity=".7"/>`:''}
+    </g>`;
+  }
+  function svg(c,s,id,neutral=false){
+    const view=c&&s?'0 30 260 180':c?'0 30 260 130':'0 113 260 90';
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="ceramic" viewBox="${view}" aria-hidden="true" focusable="false">${s?saucer(s,id+'-s',neutral):''}${c&&s?'<ellipse cx="120" cy="152" rx="29" ry="7" fill="#61503d" opacity=".12"/>':''}${c?`<g${s?' transform="translate(0 9)"':''}>${cup(c,id+'-c',neutral)}</g>`:''}</svg>`;
+  }
+  root.PairingCatalogArt=Object.freeze({PALETTES,pieces,profile,svg});
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const M=globalThis.PairingBench,A=globalThis.PairingCatalogArt,$=id=>document.getElementById(id),params=new URLSearchParams(location.search);
+  const COURSE=document.documentElement.dataset.mode==='course'||params.get('mode')==='course';
+  const instant=params.get('instant')==='1'||(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  document.body.classList.toggle('course',COURSE);document.body.classList.toggle('embedded',COURSE||params.get('embed')==='1');
+  const fmt=v=>Number(v.toFixed(1)).toString();
+  let trayIndex=0,t=M.TRAYS[0],pieces=A.pieces(t,0),order=M.initial(t),selected=null,history=[],comparison=null;
+  let completed=false,solved=false,busy=false,dragged=null,suppressClickUntil=0;
+  // The payoff states the winning rule, so the arcade opens it only once the tray is solved.
+  const explainable=()=>COURSE||solved;
+  const same=(a,b)=>a.every((v,i)=>v===b[i]);
+  const stale=()=>comparison&&!same(order,comparison.order);
+  function announce(message){$('announcement').textContent=message;}
+  function fit(){try{if(COURSE&&window.frameElement)window.frameElement.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+24)+'px';}catch(e){}}
+  function focus(id){$(id).focus();}
+
+  function mount(){
+    $('bench').innerHTML=t.cups.map((_,i)=>`<article class="place" id="place-${i}" aria-label="Place ${i+1}">
+      <div class="place-top"><span class="place-no" aria-hidden="true">0${i+1}</span><span class="cup-weight" id="cup-${i}"></span></div>
+      <div class="dishware">
+        <div class="cup-art" id="cup-art-${i}" aria-hidden="true"></div>
+        <button type="button" class="saucer" id="saucer-${i}" aria-pressed="false"><span class="saucer-content" id="saucer-content-${i}"><span class="saucer-art" id="saucer-art-${i}"></span><span class="saucer-label" id="saucer-label-${i}"></span></span><span class="selected-badge" id="selected-${i}" hidden>Selected</span></button>
+      </div>
+      <div class="set-total"><span>Set ${i+1} total</span><strong id="total-${i}"></strong></div></article>`).join('');
+    $('weight-rows').innerHTML=t.cups.map((_,i)=>`<tr><th scope="row">${i+1}</th><td id="table-cup-${i}"></td><td id="table-saucer-${i}"></td><td id="table-total-${i}"></td><td id="table-compared-${i}" hidden></td></tr>`).join('');
+    t.cups.forEach((_,i)=>{
+      const button=$(`saucer-${i}`);
+      button.addEventListener('click',()=>{if(Date.now()<suppressClickUntil)return;select(i);});
+      button.addEventListener('dragstart',e=>{
+        if(busy){e.preventDefault();return;}
+        dragged=i;selected=i;render();
+        if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',`saucer-${i}`);}
+      });
+      button.addEventListener('dragover',e=>{if(dragged!==null&&!busy){e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='move';}});
+      button.addEventListener('drop',e=>{
+        if(dragged===null||busy)return;e.preventDefault();const from=dragged;dragged=null;suppressClickUntil=Date.now()+250;
+        if(from!==i)exchange(from,i);else{selected=null;render();}
+      });
+      button.addEventListener('dragend',()=>{dragged=null;selected=null;suppressClickUntil=Date.now()+250;render();});
+    });
+  }
+  function render(){
+    const values=M.totals(t,order),isStale=stale();
+    $('tray-kind').textContent=trayIndex===0?'Opening tray':'Optional practice';
+    $('mean-badge').innerHTML=`Average set weight: <b>${t.baseline.mean} g</b>`;
+    $('instruction').textContent=selected===null?'Select two saucers to swap them.':'Now select a second saucer to exchange them.';
+    $('selection-note').textContent=selected===null?'':`S${order[selected]+1} selected · Esc to cancel`;
+    values.forEach((total,i)=>{
+      const id=order[i],weight=t.saucers[id],button=$(`saucer-${i}`);
+      const cupImage=$(`cup-art-${i}`),saucerImage=$(`saucer-art-${i}`);
+      if(cupImage.dataset.piece!==pieces.cups[i].key){
+        cupImage.innerHTML=A.svg(pieces.cups[i],null,`bench-cup-${i}`);cupImage.dataset.piece=pieces.cups[i].key;
+      }
+      if(saucerImage.dataset.piece!==pieces.saucers[id].key){
+        saucerImage.innerHTML=A.svg(null,pieces.saucers[id],`bench-saucer-${i}`);saucerImage.dataset.piece=pieces.saucers[id].key;
+      }
+      $(`cup-${i}`).innerHTML=`Cup C${i+1} · <b>${t.cups[i]} g</b>`;
+      $(`saucer-label-${i}`).innerHTML=`Saucer S${id+1} · <b>${weight} g</b>`;
+      $(`total-${i}`).textContent=`${total} g`;
+      button.setAttribute('aria-disabled',String(busy));
+      button.setAttribute('draggable',String(!busy));
+      button.setAttribute('aria-pressed',String(selected===i));
+      button.setAttribute('aria-label',`Saucer S${id+1}, ${weight} grams, place ${i+1}${selected!==null&&selected!==i?`. Swap with selected saucer S${order[selected]+1}`:''}`);
+      $(`selected-${i}`).hidden=selected!==i;
+      $(`table-cup-${i}`).textContent=`C${i+1}: ${t.cups[i]}`;
+      $(`table-saucer-${i}`).textContent=`S${id+1}: ${weight}`;
+      $(`table-total-${i}`).textContent=total;
+      $(`table-compared-${i}`).hidden=!comparison;
+      $(`table-compared-${i}`).textContent=comparison?comparison.result.values[i]:'';
+    });
+    $('table-comparison-head').hidden=!comparison;
+    $('undo').disabled=busy||!history.length;
+    $('restore').disabled=busy||(!history.length&&!comparison&&selected===null);
+    $('compare').disabled=busy||!history.length||(comparison&&!isStale);
+    $('explain').hidden=!explainable();$('explain').disabled=busy||!!isStale;
+    $('comparison').hidden=!comparison;
+    $('comparison').classList.toggle('stale',!!isStale);
+    $('comparison-state').textContent=isStale?'Previous comparison · Compare sets again to update.':'Starting tray → This arrangement';
+    $('next-tray').hidden=!completed;$('next-tray').disabled=busy;
+    $('next-tray').innerHTML=trayIndex===0?'Try another tray <span class="optional">optional</span>':'Back to the opening tray';
+    $('restart').hidden=!history.length&&!comparison&&!completed;$('restart').disabled=busy;
+    $('course-complete').hidden=!completed;
+    fit();
+  }
+  function select(i){
+    if(busy)return;
+    if(selected===null){selected=i;render();announce(`Saucer S${order[i]+1} selected. Select a second saucer to swap, or press Escape to cancel.`);}
+    else if(selected===i){selected=null;render();announce('Selection cancelled.');}
+    else exchange(selected,i);
+  }
+  function invalidate(){selected=null;$('takeaway').hidden=true;}
+  function exchange(a,b){
+    if(busy||a===b)return;
+    const first=order[a],second=order[b];
+    const contentA=$(`saucer-content-${a}`),contentB=$(`saucer-content-${b}`);
+    const animate=!instant&&typeof contentA.animate==='function';
+    const ra=animate?contentA.getBoundingClientRect():null,rb=animate?contentB.getBoundingClientRect():null;
+    history.push(order.slice());order=M.swap(order,a,b);invalidate();busy=animate;render();focus(`saucer-${b}`);
+    const values=M.totals(t,order);
+    announce(`Swapped saucers S${first+1} and S${second+1}. Place ${a+1} now totals ${values[a]} grams; place ${b+1}, ${values[b]} grams.`);
+    if(animate){
+      $(`place-${a}`).classList.add('moving');$(`place-${b}`).classList.add('moving');
+      const options={duration:240,easing:'cubic-bezier(.2,.7,.2,1)'};
+      const movement=(dx,dy)=>[{transform:`translate(${dx}px,${dy}px)`,opacity:.75},{transform:'translate(0,0)',opacity:1}];
+      const animations=[contentA.animate(movement(rb.x-ra.x,rb.y-ra.y),options),contentB.animate(movement(ra.x-rb.x,ra.y-rb.y),options)];
+      Promise.allSettled(animations.map(animation=>animation.finished)).then(()=>{busy=false;$(`place-${a}`).classList.remove('moving');$(`place-${b}`).classList.remove('moving');render();});
+    }
+  }
+  function svg(tag,attrs,text){const el=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const k in attrs)el.setAttribute(k,attrs[k]);if(text!==undefined)el.textContent=text;$('chart-g').appendChild(el);return el;}
+  function drawChart(result){
+    const chart=$('chart'),measured=typeof chart.getBoundingClientRect==='function'?chart.getBoundingClientRect().width:680;
+    const width=Math.max(260,Math.min(680,measured||680)),left=width<440?48:70,right=width-30;
+    chart.setAttribute('viewBox',`0 0 ${width} 264`);
+    $('chart-g').innerHTML='';const [lo,hi]=t.axis,x=v=>left+(v-lo)/(hi-lo)*(right-left),y=i=>47+i*29;
+    svg('line',{x1:x(t.baseline.mean),x2:x(t.baseline.mean),y1:24,y2:217,stroke:'#416879','stroke-width':2,'stroke-dasharray':'4 4'});
+    svg('text',{x:x(t.baseline.mean),y:15,'text-anchor':'middle'},`Average ${t.baseline.mean} g`);
+    const base=M.totals(t,M.initial(t));
+    result.values.forEach((v,i)=>{
+      svg('text',{x:8,y:y(i)+4},`Set ${i+1}`);
+      svg('line',{x1:left,x2:right,y1:y(i),y2:y(i),stroke:'#e3e7e7'});
+      svg('line',{x1:x(base[i]),x2:x(v),y1:y(i),y2:y(i),stroke:'#bcbbb5','stroke-width':2});
+      svg('circle',{cx:x(base[i]),cy:y(i),r:5,fill:'#fff',stroke:'#747c80','stroke-width':2});
+      const cx=x(v),cy=y(i);svg('path',{d:`M${cx} ${cy-6}l6 6-6 6-6-6Z`,fill:'#a35034',stroke:'#753c28','stroke-width':1});
+    });
+    svg('line',{x1:left,x2:right,y1:217,y2:217,stroke:'#bcc5c6'});
+    for(let value=lo;value<=hi;value+=width<440?100:50){svg('line',{x1:x(value),x2:x(value),y1:217,y2:222,stroke:'#8c9699'});svg('text',{x:x(value),y:238,'text-anchor':'middle'},value);}
+    svg('text',{x:right,y:258,'text-anchor':'end'},'Total weight (g)');
+    $('chart-desc').textContent=`Six sets, all on a fixed ${lo} to ${hi} gram scale. Starting totals: ${base.join(', ')}. Compared totals: ${result.values.join(', ')}. Both average ${t.baseline.mean} grams. Hollow circles show the start; filled diamonds show this comparison. Exact values are also in the Piece weights and totals table.`;
+  }
+  function compare(){
+    if(busy||!history.length||(comparison&&!stale()))return;
+    selected=null;const result=M.judge(t,order);comparison={order:order.slice(),result};completed=true;
+    if(result.kind==='best')solved=true;
+    for(const kind of ['best','better','same','worse'])$('comparison').classList.toggle(kind,result.kind===kind);
+    $('verdict-title').textContent={best:'As even as these pieces allow.',better:'More even.',same:'Same spread.',worse:'Further apart.'}[result.kind];
+    const copy={best:t.bestQ===0?'Every completed set now has the same weight.':'These pieces cannot make six equal-weight sets.',better:'The set weights are closer together than on the starting tray.',same:'These totals have the same spread as the starting tray.',worse:'The set weights are more spread out than on the starting tray.'};
+    $('verdict-text').textContent=`The average is still ${result.mean} g. ${copy[result.kind]}`;
+    $('spread-change').innerHTML=`<small>Weight spread</small><span class="previous">${fmt(t.baseline.sd)}</span> → <b>${fmt(result.sd)} g</b>`;
+    $('limit-explanation').hidden=!(trayIndex===0&&result.kind==='best');$('limit-explanation').removeAttribute('open');
+    $('takeaway').hidden=true;render();drawChart(result);fit();focus('verdict-title');
+    if(typeof $('comparison').scrollIntoView==='function')$('comparison').scrollIntoView({block:'start',behavior:instant?'auto':'smooth'});
+    announce(`${$('verdict-title').textContent} ${$('verdict-text').textContent} Weight spread: ${fmt(result.sd)} grams, compared with ${fmt(t.baseline.sd)} at the start.`);
+  }
+  function explain(){
+    if(!comparison||stale()||busy||!explainable())return;
+    const result=comparison.result;
+    const observed=result.q<t.baseline.q?'Your arrangement reduced the spread.':result.q>t.baseline.q?'Your arrangement increased the spread.':'Your arrangement kept the same spread.';
+    $('payoff').textContent=`${observed} You kept every cup and every saucer, and the average set stayed at ${t.baseline.mean} g. Pairing heavier cups with lighter saucers can make the totals more consistent.`;
+    $('takeaway').hidden=false;fit();focus('takeaway-title');
+  }
+  function resetTray(nextIndex,full=false){
+    if(busy)return;
+    if(nextIndex!==trayIndex||full)solved=false;
+    trayIndex=nextIndex;t=M.TRAYS[trayIndex];pieces=A.pieces(t,trayIndex);order=M.initial(t);selected=null;history=[];comparison=null;dragged=null;
+    if(full)completed=false;
+    $('takeaway').hidden=true;$('comparison').className='comparison';$('chart-desc').textContent='';$('chart-g').innerHTML='';
+    render();focus(full?'task-title':'saucer-0');
+    announce(full?'Starting over. The opening tray is ready to arrange.':`${trayIndex===0?'Opening tray':'Optional tray'} restored. The original pieces are back in their starting places.`);
+  }
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&selected!==null&&!busy){selected=null;dragged=null;render();announce('Selection cancelled.');}});
+  $('compare').addEventListener('click',compare);
+  $('explain').addEventListener('click',explain);
+  $('undo').addEventListener('click',()=>{if(busy||!history.length)return;order=history.pop();invalidate();render();announce('Last swap undone.');});
+  $('restore').addEventListener('click',()=>resetTray(trayIndex));
+  $('restart').addEventListener('click',()=>resetTray(0,true));
+  $('next-tray').addEventListener('click',()=>{if(completed)resetTray(1-trayIndex);});
+  document.querySelectorAll('details').forEach(details=>details.addEventListener('toggle',fit));
+  mount();render();
+  if(typeof addEventListener==='function')addEventListener('resize',()=>{if(comparison)drawChart(comparison.result);fit();});
+  if(typeof ResizeObserver==='function')new ResizeObserver(fit).observe(document.querySelector('main'));
+})();
+</script>
+</body></html>
