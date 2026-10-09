@@ -8,6 +8,16 @@
 @media(max-width:700px){main{padding:18px 12px 36px}.intro,.comparison,.takeaway{padding:20px}.bench{padding:16px 20px;gap:10px}.bench-top,.bench-bottom{padding-left:20px;padding-right:20px}.place{padding:8px 8px 0}.cup-weight{font-size:10px}.cup-weight b{font-size:12px}.controls,.footer-actions{padding-left:20px;padding-right:20px}.verdict-head{flex-wrap:wrap}.spread-change{text-align:left}.bench-bottom{flex-direction:column;gap:3px}.course-complete{padding-left:20px;padding-right:20px}}
 @media(max-width:520px){.gamebar h1{font-size:26px}.intro h2{font-size:24px}.bench{grid-template-columns:1fr;padding:16px 22px;gap:14px}.place{padding:10px 18px 0}.cup-weight{font-size:12px}.cup-weight b{font-size:15px}.set-total{padding:9px 0}.bench-top{gap:7px}.controls{flex-direction:column;align-items:stretch}.secondary-actions{display:grid;grid-template-columns:1fr 1fr}.intro .eyebrow{font-size:10px;gap:5px}.eyebrow #tray-kind{font-size:11px}.chart-key{gap:10px;font-size:11px}.footer-actions{flex-wrap:wrap}.comparison-chart text{font-size:14px}.comparison-chart{min-height:150px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* The explainer is a drop-down. Arcade: closed under the game from the start, whatever the round, so the page always
+   carries it. Course: no summary row; it stays in the play card and opens with What changed?, as before. */
+details.explainer>summary{display:flex;align-items:center;gap:12px;min-height:44px;padding:16px 24px;cursor:pointer;list-style:none;font-size:17px;font-weight:600;line-height:1.3}
+details.explainer>summary::-webkit-details-marker{display:none}
+details.explainer>summary::before{content:"";flex:none;width:7px;height:7px;margin:0 3px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+details.explainer[open]>summary::before{transform:rotate(45deg)}
+body:not(.course) details.explainer{padding:0;margin-top:28px;border-top:0;background:#fff;border-radius:6px;box-shadow:0 2px 10px #15232d0d}
+body:not(.course) details.explainer[hidden]{display:block!important}
+body:not(.course) .explainer-body{padding:4px 24px 24px}
+body.course details.explainer>summary{display:none}
 </style></head>
 <body>
 <header class="gamebar"><a href="index.html" aria-label="Back to the arcade" class="back">←</a><h1>Pairing Bench</h1><span></span></header>
@@ -41,12 +51,6 @@
       <button type="button" id="explain">What changed?</button>
       <details id="limit-explanation" hidden><summary>Why aren’t all six weights equal?</summary><p>The average is 450 g. The 400 g cup would need a 50 g saucer to make a 450 g set, and there isn’t one. This pairing has the smallest possible spread for these pieces.</p></details>
     </section>
-    <section class="takeaway" id="takeaway" hidden aria-labelledby="takeaway-title">
-      <h3 id="takeaway-title" tabindex="-1">Same pieces. Different partners.</h3>
-      <p id="payoff"></p>
-      <p>Imagine choosing one completed set at random, with each of the six equally likely. Every cup and every saucer still appears once. Their separate weight distributions stay fixed; changing the partners changes the distribution of their sum.</p>
-      <p>This unit calls the way two quantities vary together <strong>covariance</strong>. It helps determine the spread of their sum. The weight spread shown here is the <strong>standard deviation</strong> of the six possible totals.</p>
-    </section>
     <div class="course-complete" id="course-complete" hidden>You’ve compared a pairing. Further arranging and the next tray are optional.</div>
     <div class="footer-actions"><button type="button" id="next-tray" hidden>Try another tray <span class="optional">optional</span></button><button type="button" id="restart" class="text-button" hidden>Start over</button></div>
   </section>
@@ -58,6 +62,12 @@
     <p><strong>Compare sets</strong> to see this arrangement's totals beside the starting tray's, with its weight spread: how far the set weights lie from their average. <strong>Undo</strong> takes back a swap, and <strong>Restore tray</strong> puts every saucer back.</p>
   </aside>
   </div>
+  <details class="explainer takeaway" id="takeaway"><summary>The idea behind the game</summary><div class="explainer-body">
+    <h3 id="takeaway-title" tabindex="-1">Same pieces. Different partners.</h3>
+    <p id="payoff">You keep every cup and every saucer, so their separate weights and the average set weight never change. Pairing heavier cups with lighter saucers can make the totals more consistent.</p>
+    <p>Imagine choosing one completed set at random, with each of the six equally likely. Every cup and every saucer still appears once. Their separate weight distributions stay fixed; changing the partners changes the distribution of their sum.</p>
+    <p>This unit calls the way two quantities vary together <strong>covariance</strong>. It helps determine the spread of their sum. The weight spread shown here is the <strong>standard deviation</strong> of the six possible totals.</p>
+  </div></details>
   <details class="weight-table"><summary>Piece weights and totals</summary><div class="table-scroll"><table><caption>Every piece is used once. Weights in grams.</caption><thead><tr><th scope="col">Place</th><th scope="col">Cup</th><th scope="col">Saucer</th><th scope="col">Total</th><th scope="col" id="table-comparison-head" hidden>Compared total</th></tr></thead><tbody id="weight-rows"></tbody></table></div></details>
   
   <p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -274,11 +284,12 @@
   const COURSE=document.documentElement.dataset.mode==='course'||params.get('mode')==='course';
   const instant=params.get('instant')==='1'||(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   document.body.classList.toggle('course',COURSE);document.body.classList.toggle('embedded',COURSE||params.get('embed')==='1');
+  // Arcade: the explainer is a closed drop-down under the game from the start. Course: it sits in the play card and opens
+  // with What changed? after a comparison, as before.
+  if(COURSE){const ex=$('takeaway');$('course-complete').before(ex);ex.open=true;ex.hidden=true;}
   const fmt=v=>Number(v.toFixed(1)).toString();
   let trayIndex=0,t=M.TRAYS[0],pieces=A.pieces(t,0),order=M.initial(t),selected=null,history=[],comparison=null;
-  let completed=false,solved=false,busy=false,dragged=null,suppressClickUntil=0;
-  // The payoff states the winning rule, so the arcade opens it only once the tray is solved.
-  const explainable=()=>COURSE||solved;
+  let completed=false,busy=false,dragged=null,suppressClickUntil=0;
   const same=(a,b)=>a.every((v,i)=>v===b[i]);
   const stale=()=>comparison&&!same(order,comparison.order);
   function announce(message){$('announcement').textContent=message;}
@@ -343,7 +354,7 @@
     $('undo').disabled=busy||!history.length;
     $('restore').disabled=busy||(!history.length&&!comparison&&selected===null);
     $('compare').disabled=busy||!history.length||(comparison&&!isStale);
-    $('explain').hidden=!explainable();$('explain').disabled=busy||!!isStale;
+    $('explain').hidden=!COURSE;$('explain').disabled=busy||!!isStale;
     $('comparison').hidden=!comparison;
     $('comparison').classList.toggle('stale',!!isStale);
     $('comparison-state').textContent=isStale?'Previous comparison · Compare sets again to update.':'Starting tray → This arrangement';
@@ -401,7 +412,6 @@
   function compare(){
     if(busy||!history.length||(comparison&&!stale()))return;
     selected=null;const result=M.judge(t,order);comparison={order:order.slice(),result};completed=true;
-    if(result.kind==='best')solved=true;
     for(const kind of ['best','better','same','worse'])$('comparison').classList.toggle(kind,result.kind===kind);
     $('verdict-title').textContent={best:'As even as these pieces allow.',better:'More even.',same:'Same spread.',worse:'Further apart.'}[result.kind];
     const copy={best:t.bestQ===0?'Every completed set now has the same weight.':'These pieces cannot make six equal-weight sets.',better:'The set weights are closer together than on the starting tray.',same:'These totals have the same spread as the starting tray.',worse:'The set weights are more spread out than on the starting tray.'};
@@ -413,7 +423,7 @@
     announce(`${$('verdict-title').textContent} ${$('verdict-text').textContent} Weight spread: ${fmt(result.sd)} grams, compared with ${fmt(t.baseline.sd)} at the start.`);
   }
   function explain(){
-    if(!comparison||stale()||busy||!explainable())return;
+    if(!COURSE||!comparison||stale()||busy)return;
     const result=comparison.result;
     const observed=result.q<t.baseline.q?'Your arrangement reduced the spread.':result.q>t.baseline.q?'Your arrangement increased the spread.':'Your arrangement kept the same spread.';
     $('payoff').textContent=`${observed} You kept every cup and every saucer, and the average set stayed at ${t.baseline.mean} g. Pairing heavier cups with lighter saucers can make the totals more consistent.`;
@@ -421,7 +431,6 @@
   }
   function resetTray(nextIndex,full=false){
     if(busy)return;
-    if(nextIndex!==trayIndex||full)solved=false;
     trayIndex=nextIndex;t=M.TRAYS[trayIndex];pieces=A.pieces(t,trayIndex);order=M.initial(t);selected=null;history=[];comparison=null;dragged=null;
     if(full)completed=false;
     $('takeaway').hidden=true;$('comparison').className='comparison';$('chart-desc').textContent='';$('chart-g').innerHTML='';

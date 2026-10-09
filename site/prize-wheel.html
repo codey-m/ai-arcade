@@ -98,6 +98,17 @@ body.course main{padding:12px 12px 16px}
 
 .rounding{font-size:12px}
 .course-end{margin:0;padding:0 24px 22px;text-align:center;font-size:14px;color:var(--muted)}
+
+/* The explainer is a drop-down. Arcade: closed under the game from the start, whatever the round, so the page always
+   carries it. Course: no summary row; it stays hidden until play and then opens, as before. */
+details.explainer>summary{display:flex;align-items:center;gap:12px;min-height:44px;padding:16px 24px;cursor:pointer;list-style:none;font-size:17px;font-weight:600;line-height:1.3}
+details.explainer>summary::-webkit-details-marker{display:none}
+details.explainer>summary::before{content:"";flex:none;width:7px;height:7px;margin:0 3px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+details.explainer[open]>summary::before{transform:rotate(45deg)}
+body:not(.course) details.explainer{padding:0}
+body:not(.course) details.explainer[hidden]{display:block!important}
+body:not(.course) .explainer-body{padding:4px 24px 24px}
+body.course details.explainer>summary{display:none}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Prize Wheel</h1></header>
@@ -148,12 +159,12 @@ body.course main{padding:12px 12px 16px}
       <p><strong>Best possible</strong> is the most sectors any wheel could win in this round. Change the wheel, then spin. The verdict judges its chance of winning, even when that one spin loses.</p>
     </aside>
   </div>
-  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
-    <h2 id="takeaway-title"></h2>
-    <p id="takeaway-1"></p>
-    <p id="takeaway-2"></p>
+  <details class="explainer" id="takeaway"><summary>The idea behind the game</summary><div class="explainer-body">
+    <h2 id="takeaway-title">Same average, different chances</h2>
+    <p id="takeaway-1">The average prize stays fixed, but the chance of reaching the bar changes. A bigger top prize can leave fewer sectors reaching the bar. A wheel that works well for one bar can work poorly for another.</p>
+    <p id="takeaway-2">The average is the expected value of a spin. This unit studies the full distribution of possible prizes and how to summarize its spread with variance. Neither the average alone nor one lucky spin tells you the chance of winning.</p>
     <p class="explainer-note arcade-only">Every sector is equally likely. The winning chance is counted exactly; a random spin illustrates that chance and never decides the verdict. New rounds change the average, the bar and the starting wheel while keeping the same two controls.</p>
-  </section>
+  </div></details>
   
   <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 </main>
@@ -223,6 +234,8 @@ body.course main{padding:12px 12px 16px}
   'use strict';
   const M=globalThis.PrizeWheel,$=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
   const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  // Course: the explainer stays hidden until play and then opens, as before. Arcade: a closed drop-down under the game from the start.
+  if(COURSE){const ex=document.getElementById('takeaway');ex.open=true;ex.hidden=true;}
   const params=new URLSearchParams(location.search),embed=COURSE||params.get('embed')==='1';
   document.body.classList.toggle('course',COURSE);document.body.classList.toggle('embedded',embed);
   const instant=params.get('instant')==='1'||(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -346,11 +359,9 @@ body.course main{padding:12px 12px 16px}
     announce(`${o.textContent}. ${$('feedback-title').textContent} ${$('feedback-text').textContent}`);
     fit();
   }
-  function explainer(){
-    $('takeaway').hidden=false;$('takeaway-title').textContent='Same average, different chances';
-    $('takeaway-1').textContent='The average prize stays fixed, but the chance of reaching the bar changes. A bigger top prize can leave fewer sectors reaching the bar. A wheel that works well for one bar can work poorly for another.';
-    $('takeaway-2').textContent='The average is the expected value of a spin. This unit studies the full distribution of possible prizes and how to summarize its spread with variance. Neither the average alone nor one lucky spin tells you the chance of winning.';
-  }
+  // The explainer's text is in the page; this only reveals it (course mode).
+  function explainer(){$('takeaway').hidden=false;}
+
   function next(){if(spinning)return;index++;load();announce(`${COURSE?'Optional practice':'Round'} ${COURSE?index-1:index+1}. ${promptText()}`);$('prompt').focus();}
   $('spin-btn').addEventListener('click',spin);
   $('new-round').addEventListener('click',next);

@@ -105,6 +105,16 @@ body.course main{padding:12px 12px 16px}
 .key.miss-area{background:repeating-linear-gradient(45deg,var(--gold-dark) 0 1.5px,transparent 1.5px 4px);opacity:.8}
 .ztest{font-variant-numeric:tabular-nums}
 
+/* The explainer is a drop-down. Arcade: closed under the game from the start, whatever the round, so the page always
+   carries it. Course: no summary row; it stays hidden until play and then opens, as before. */
+details.explainer>summary{display:flex;align-items:center;gap:12px;min-height:44px;padding:16px 24px;cursor:pointer;list-style:none;font-size:17px;font-weight:600;line-height:1.3}
+details.explainer>summary::-webkit-details-marker{display:none}
+details.explainer>summary::before{content:"";flex:none;width:7px;height:7px;margin:0 3px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+details.explainer[open]>summary::before{transform:rotate(45deg)}
+body:not(.course) details.explainer{padding:0}
+body:not(.course) details.explainer[hidden]{display:block!important}
+body:not(.course) .explainer-body{padding:4px 24px 24px}
+body.course details.explainer>summary{display:none}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Wonder Fold</h1></header>
@@ -158,7 +168,7 @@ body.course main{padding:12px 12px 16px}
       <p><strong>Run the test</strong> to watch one test play out. Switch to <strong>does nothing</strong> to see how often luck fools the test.</p>
     </aside>
   </div>
-  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+  <details class="explainer" id="takeaway"><summary>The idea behind the game</summary><div class="explainer-body">
     <h2 id="takeaway-title">Removing noise buys evidence faster than adding flights</h2>
     <p id="takeaway-text" hidden></p>
     <p>The chance a test catches a real effect is called its power. For this one-sided test it depends on the gain divided by how much the average difference varies, which is the spread of one comparison divided by the square root of the number of flight pairs. The false-alarm rate stays at <span class="alpha-n">5</span> in 100 the whole time: a better plan raises the power without making the test easier to fool.</p>
@@ -167,7 +177,7 @@ body.course main{padding:12px 12px 16px}
     <p class="arcade-only">The two bells and the line are the picture from Probability &amp; Statistical Data Analysis (6.3710.5x) Lec. 6, where power and the trade between false alarms and misses are introduced. Throwing a standard plane and a wonder fold back to back makes each flight pair a paired comparison (Lec. 3): whatever the pair shares, such as your arm on that throw or the breeze at that moment, affects both planes alike.</p>
     <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: sample size, false alarms and the power of a test.</p>
     <p class="explainer-note">The verdict does not come from the animated test. Each plan has an exact chance of catching the gain, from a one-sided z-test on the average difference between the two folds, with the spread of each cause known. The margin is set so that a fold that does nothing is backed <span class="alpha-n">5</span> times in 100. The field draws one simulated test with the same noise; run it again to see others. The verdict waits for the last flight pair: stopping as soon as a test looked good would raise the false-alarm rate. Causes of variation are independent, so their variances (spreads squared) add. Times are minutes of the afternoon: a setup time plus the time for each flight pair. The quickest possible test is found over every choice of wind, measuring and number of flights, and any reliable test within 10% of it counts. The chance shown is rounded down, so a test shown at 80 of 100 is reliable.</p>
-  </section>
+  </div></details>
   
 </main>
 <noscript><p>This interactive activity requires JavaScript.</p></noscript>
@@ -273,6 +283,8 @@ body.course main{padding:12px 12px 16px}
   // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
   // original widget's α choice and the lecture's terms (H₀, H₁, Type I and II errors, z-test readout). The arcade never sees it.
   const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  // Course: the explainer stays hidden until play and then opens, as before. Arcade: a closed drop-down under the game from the start.
+  if(COURSE){const ex=document.getElementById('takeaway');ex.open=true;ex.hidden=true;}
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
   const raf=typeof globalThis.requestAnimationFrame==='function'?globalThis.requestAnimationFrame.bind(globalThis):null;

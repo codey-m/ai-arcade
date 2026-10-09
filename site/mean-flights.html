@@ -134,6 +134,17 @@ body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:1
 /* After a round: pick any drop on the chart to watch it in the yard. */
 #scores.picking{cursor:pointer}#scores:focus-visible{outline:3px solid #1472ae;outline-offset:-3px}
 .pick-hint{font-size:13px;color:var(--muted);margin:0 12px 10px}
+
+/* The explainer is a drop-down. Arcade: closed under the game from the start, whatever the round, so the page always
+   carries it. Course: no summary row; it stays hidden until play and then opens, as before. */
+details.explainer>summary{display:flex;align-items:center;gap:12px;min-height:44px;padding:16px 24px;cursor:pointer;list-style:none;font-size:17px;font-weight:600;line-height:1.3}
+details.explainer>summary::-webkit-details-marker{display:none}
+details.explainer>summary::before{content:"";flex:none;width:7px;height:7px;margin:0 3px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+details.explainer[open]>summary::before{transform:rotate(45deg)}
+body:not(.course) details.explainer{padding:0}
+body:not(.course) details.explainer[hidden]{display:block!important}
+body:not(.course) .explainer-body{padding:4px 24px 24px}
+body.course details.explainer>summary{display:none}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Tipping Point</h1></header>
@@ -212,14 +223,14 @@ body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:1
       <p><strong>Drop 1,000 loads.</strong> You see the first one fall. You’re on target if your support holds 9 drops in 10 of this loading and is not much wider than it needs to be. The 1,000 drops show how one batch went; click the chart to watch any of them in the yard.</p>
     </aside>
   </div>
-  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+  <details class="explainer" id="takeaway"><summary>The idea behind the game</summary><div class="explainer-body">
     <h2 id="takeaway-title">Balance points settle into a bell</h2>
     <p>Equal crates on a light plank balance at their average position. With two crews loading, a single crate lands near 3 m or near 10 m and almost never in between. A drop of many crates balances in between, near 6.5 m, and the balance points of many drops form a bell there. The same happens for every loading, whatever single crates look like. The bell also narrows as crates are added, but slowly. The spread shrinks with the square root of the number of crates, so four times as many crates only halves it.</p>
     <p class="course-only">This is the central limit theorem. The crate positions are i.i.d. draws X₁, …, Xₙ with mean μ and standard deviation σ, and a drop’s balance point is their sample mean. For large n the sample mean is approximately normal with mean μ and standard error σ/√n, whatever the distribution of a single crate, so about 90% of sample means land within μ ± 1.645 σ/√n. The crane drop is a uniform distribution, the push-off an exponential distribution shifted by 1.5 m, and the two crews a bimodal mixture of two normals.</p>
     <p class="arcade-only">The bell is the central limit theorem, from Probability &amp; Statistical Data Analysis (6.3710.4x) Lec. 2, The central limit theorem.</p>
     <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: sample means, standard error and the central limit theorem.</p>
     <p class="explainer-note">Each round is one batch of 1,000 simulated drops, with no redrawing to favor an outcome. The yard plays a drop in two parts. First the loader delivers it: each crate follows a scripted path under the yard’s 9.81 m/s² gravity to its own spot, played faster for big loads, with the plank held level. Then the plank is let go and a rigid-body simulation takes over, with nothing scripted after that. The plank weighs 2% of its load, so a load balances close to its crates’ average position. The yard hangs crates in columns one crate wide, so the first drop’s balance point on the chart is the one in the yard. A support is on target if it holds at least 9 drops in 10 of the loading, measured on a fixed reference run of 20,000 drops, and is at most a quarter wider than the narrowest support that does, or 0.2 m wider for very narrow ones. One batch can still hold fewer than 900 on a support that is on target, or more on one that is not; the verdict says so when it happens.</p>
-  </section>
+  </div></details>
   
 </main>
 <noscript><p>This interactive activity requires JavaScript.</p></noscript>
@@ -404,6 +415,8 @@ body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:1
   // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
   // lecture's terms (μ, σ, σ/√n, sample means) and the original widget's readout: theoretical SE against observed SD.
   const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  // Course: the explainer stays hidden until play and then opens, as before. Arcade: a closed drop-down under the game from the start.
+  if(COURSE){const ex=document.getElementById('takeaway');ex.open=true;ex.hidden=true;}
   // Two versions of the push-off loading, built side by side for Cody to choose (2026-10-08): "throw", a worker facing the
   // pile who throws each crate back over their shoulder, and "belt", a conveyor that brings crates to the edge, where a
   // worker pushes each one off. build.py writes the belt version as mean-flights-belt.html; ?push=belt previews it.

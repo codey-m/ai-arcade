@@ -113,6 +113,17 @@ body.course main{padding:12px 12px 16px}
 body.game-only .freeplay{display:none}
 body.free-only .playcard,body.free-only .howto,body.free-only .explainer,body.free-only .review-about{display:none}
 body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:12px}
+
+/* The explainer is a drop-down. Arcade: closed under the game from the start, whatever the round, so the page always
+   carries it. Course: no summary row; it stays hidden until play and then opens, as before. */
+details.explainer>summary{display:flex;align-items:center;gap:12px;min-height:44px;padding:16px 24px;cursor:pointer;list-style:none;font-size:17px;font-weight:600;line-height:1.3}
+details.explainer>summary::-webkit-details-marker{display:none}
+details.explainer>summary::before{content:"";flex:none;width:7px;height:7px;margin:0 3px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+details.explainer[open]>summary::before{transform:rotate(45deg)}
+body:not(.course) details.explainer{padding:0}
+body:not(.course) details.explainer[hidden]{display:block!important}
+body:not(.course) .explainer-body{padding:4px 24px 24px}
+body.course details.explainer>summary{display:none}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Beach Beeps</h1></header>
@@ -208,14 +219,14 @@ body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:1
       <p><strong>A day</strong> is five spots. Make the call that pays at every one.</p>
     </aside>
   </div>
-  <section class="explainer" id="takeaway" hidden aria-labelledby="takeaway-title">
+  <details class="explainer" id="takeaway"><summary>The idea behind the game</summary><div class="explainer-body">
     <h2 id="takeaway-title">A beep means more where coins are common</h2>
     <p>The detector is just as good at every spot on the same ground, but a beep means different things in different places. In the dunes only 2 squares in 100 hide a coin, so the 98 empty squares make most of the beeps, even if each one sets it off only now and then. Under the pier, 30 squares hide a coin, and real beeps outnumber false ones. How common coins are to begin with, the base rate, decides what a beep is worth.</p>
     <p class="course-only">In this lecture's terms a coin is the condition D and a beep is a positive test. The place sets the base rate P(D). The ground sets the sensitivity P(+ | D) and the false-positive rate P(+ | not D), which is 1 minus the specificity. The share of beeps that are coins is P(D | +), from Bayes' rule: P(D | +) = P(+ | D)P(D) / [P(+ | D)P(D) + P(+ | not D)P(not D)]. Digging has a positive expected return when P(D | +) is above 3/10, the cost of a dig over the value of a coin.</p>
     <p class="arcade-only">The calculation is Bayes' rule, from Probability &amp; Statistical Data Analysis (6.3710.1x) Lec. 2, Conditioning and Bayes' rule.</p>
     <p class="explainer-link">Explore in Probability &amp; Statistical Data Analysis: conditioning, Bayes' rule and the base rate.</p>
     <p class="explainer-note">Each beach is one random sweep with independent coin locations and detector outcomes. No outcomes are discarded. The verdict judges your choice using the rates; the points report what happened on this beach. The percentage comes from Bayes' rule, not from the coins found on a particular sweep.</p>
-  </section>
+  </div></details>
   
 </main>
 <noscript><p>This interactive activity requires JavaScript.</p></noscript>
@@ -280,6 +291,8 @@ body.free-only .gamewrap{grid-template-columns:1fr}body.free-only main{padding:1
   // Course pages run the course version: wire_course.py sets data-mode="course" (?mode=course previews it). It adds the
   // lecture's terms (P(D), sensitivity, false-positive rate, P(D | +)) and the Bayes calculation after every spot.
   const COURSE=document.documentElement.dataset.mode==='course'||new URLSearchParams(location.search).get('mode')==='course';
+  // Course: the explainer stays hidden until play and then opens, as before. Arcade: a closed drop-down under the game from the start.
+  if(COURSE){const ex=document.getElementById('takeaway');ex.open=true;ex.hidden=true;}
   const reduced=()=>globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches??false;
   const raf=typeof globalThis.requestAnimationFrame==='function'?globalThis.requestAnimationFrame.bind(globalThis):null;
   const now=()=>globalThis.performance?.now?.()??Date.now();
