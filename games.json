@@ -106,6 +106,26 @@
       "alt": "A small robot on a three-dimensional valley, above the charger at the valley floor."
     },
     {
+      "slug": "robot-theatre",
+      "title": "Robot Theatre",
+      "source": "widget-separate-by-hand.html",
+      "hook": "Write the play's twist, then watch the director stage Act 1 all over again. It counts words and ignores their order.",
+      "course": "CV+NLP",
+      "topic": "Word order",
+      "number": "6.4600.1x",
+      "colour": "#111827",
+      "play": ".bigstage",
+      "thumb_query": "seed=4",
+      "thumb_steps": [
+        "#act-1 button.word[data-k=\"1\"]",
+        "#act-1 button.word[data-k=\"5\"]",
+        "#rehearse",
+        "#act-0 .gap[data-pair=\"happy cat\"]",
+        "#rehearse"
+      ],
+      "alt": "A sad cat hugging a happy ghost on a small stage, a rain cloud above the cat, sparkles above the ghost and a heart between them."
+    },
+    {
       "slug": "pairing-bench",
       "title": "Pairing Bench",
       "source": "pairing-bench.html",
@@ -190,6 +210,24 @@
       ]
     },
     {
+      "slug": "crossfade",
+      "title": "Crossfade",
+      "source": "crossfade.html",
+      "hook": "A camera and a costume bell follow Pip's somersault and ribbon routine. Decide which readings to trust so their shared spotlight keeps up.",
+      "course": "CV+NLP",
+      "topic": "Multimodal fusion",
+      "number": "6.4600.5x",
+      "colour": "#632EBE",
+      "play": "#stage",
+      "thumb_steps": [
+        {
+          "set": "#scrub",
+          "value": 255
+        }
+      ],
+      "alt": "A lilac creature sweeping a pink ribbon in broad loops on a theatre stage, with camera and microphone position markers beside a wandering spotlight."
+    },
+    {
       "slug": "echo-the-dance",
       "title": "Echo Dancer",
       "source": "echo-the-dance.html",
@@ -248,24 +286,20 @@
       "alt": "A piano roll of a tune rising and falling across an octave, above a line divided into the chances of each next note, with a marker showing where this note's luck fell."
     },
     {
-      "slug": "robot-theatre",
-      "title": "Robot Theatre",
-      "source": "widget-separate-by-hand.html",
-      "hook": "Write the play's twist, then watch the director stage Act 1 all over again. It counts words and ignores their order.",
+      "slug": "stunt-school",
+      "title": "Stunt School",
+      "source": "stunt-school.html",
+      "hook": "Choose what earns encouragement as Pip learns to bounce a ball through a hoop. Will her practice prepare her for the show?",
       "course": "CV+NLP",
-      "topic": "Word order",
-      "number": "6.4600.1x",
-      "colour": "#111827",
-      "play": ".bigstage",
-      "thumb_query": "seed=4",
+      "topic": "Reinforcement learning",
+      "number": "6.4600.5x",
+      "colour": "#632EBE",
+      "play": "#stage",
       "thumb_steps": [
-        "#act-1 button.word[data-k=\"1\"]",
-        "#act-1 button.word[data-k=\"5\"]",
-        "#rehearse",
-        "#act-0 .gap[data-pair=\"happy cat\"]",
-        "#rehearse"
+        "input[name=reward][value=close]",
+        "#practice"
       ],
-      "alt": "A sad cat hugging a happy ghost on a small stage, a rain cloud above the cat, sparkles above the ghost and a heart between them."
+      "alt": "A lilac creature throwing an orange ball toward a hoop, with a dotted trajectory and marks where the ball bounced."
     }
   ]
 }
