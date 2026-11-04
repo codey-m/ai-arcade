@@ -11,6 +11,7 @@ and "thumb_query" opens a particular round (for example "seed=4"). With
 "thumb_live": {"steps": [...], "after": ms}, the game is then played on in real time
 and caught mid-animation (tools/live.py), for planes in flight or crates in the air.
 Run sync.py first, then this, then sync.py again.
+An optional "thumb_asset" names a text-free SVG in the pilots folder instead of a game capture.
 """
 from pathlib import Path
 import json
@@ -18,6 +19,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import live  # noqa: E402
@@ -67,12 +69,57 @@ def padded(w, h):
     return (round(max(h, w / ASPECT)), round(max(w, h * ASPECT)))
 
 
+def asset_markup(asset, pilots):
+    """Read a self-contained, text-free 16:10 SVG from the configured pilots root."""
+    pilots = Path(pilots).resolve()
+    source = (pilots / asset).resolve()
+    assert source.is_relative_to(pilots) and source.suffix.lower() == '.svg', 'thumbnail asset must be an SVG inside pilots'
+    text = source.read_text()
+    tree = ET.fromstring(text)
+    assert tree.tag.rsplit('}', 1)[-1] == 'svg', 'thumbnail asset must have an SVG root'
+    forbidden = {'text', 'tspan', 'foreignObject', 'script', 'image', 'style', 'a'}
+    assert not ''.join(tree.itertext()).strip(), 'thumbnail asset must contain no text'
+    for element in tree.iter():
+        assert element.tag.rsplit('}', 1)[-1] not in forbidden, 'thumbnail asset has a forbidden element'
+        for name, value in element.attrib.items():
+            name = name.rsplit('}', 1)[-1].lower()
+            assert not name.startswith('on') and name != 'style', 'thumbnail asset cannot contain handlers or CSS'
+            if name == 'href':
+                assert value.startswith('#'), 'thumbnail asset cannot load external resources'
+            for target in re.findall(r'url\((.*?)\)', value, re.I):
+                assert target.strip(' \"\'').startswith('#'), 'thumbnail asset cannot load external resources'
+    view = list(map(float, tree.attrib.get('viewBox', '').split()))
+    assert len(view) == 4 and view[2] > 0 and view[3] > 0 and abs(view[2] / view[3] - ASPECT) < 1e-9, 'thumbnail asset must have a 16:10 viewBox'
+    return re.sub(r'^\s*<\?xml[^>]*\?>', '', text)
+
+
+def asset_page(markup, width=WIDTH):
+    height = round(width / ASPECT)
+    return f'<!doctype html><meta charset="utf-8"><style>html,body{{margin:0;width:{width}px;height:{height}px;background:white}}svg{{display:block;width:100%;height:100%}}</style>{markup}'
+
+
+def render_asset(markup, probe, shot, out):
+    """Render the approved SVG at the same output size/quality as scene thumbnails."""
+    height = round(WIDTH / ASPECT)
+    probe.write_text(asset_page(markup))
+    result = chrome(f'--window-size={WIDTH},{height}', f'--screenshot={shot}', probe.as_uri())
+    assert result.returncode == 0, 'Chrome could not render the thumbnail asset'
+    finish(shot, WIDTH * SCALE, height * SCALE, out)
+
+
 def main(only=()):
-    games = [g for g in json.loads((HERE / 'games.json').read_text())['games'] if not g.get('hold')]
+    config = json.loads((HERE / 'games.json').read_text())
+    games = [g for g in config['games'] if not g.get('hold')]
+    pilots = (HERE / config['pilots']).resolve()
     (SITE / 'thumbs').mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         for game in games:
             if only and game['slug'] not in only:
+                continue
+            if game.get('thumb_asset'):
+                probe = Path(tmp) / f'{game["slug"]}.html'
+                shot = Path(tmp) / f'{game["slug"]}.png'
+                render_asset(asset_markup(game['thumb_asset'], pilots), probe, shot, SITE / 'thumbs' / f'{game["slug"]}.jpg')
                 continue
             page = (SITE / f'{game["slug"]}.html').read_text().replace('</head>', hide(game['play']) + '</head>', 1)
             probe = Path(tmp) / f'{game["slug"]}.html'

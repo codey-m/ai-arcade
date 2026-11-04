@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111d1b"><title>Transfer Desk · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E"><style>:root{color-scheme:dark;--page:#0c1110;--screen:#111f1c;--ink:#e2ecdc;--muted:#a8baad;--green:#c4e3a2;--amber:#f1cd8c;--error:#ffc59c;--line:#536553;--focus:#f2d69e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.6 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+button,input{font:inherit}button,summary{cursor:pointer}button{touch-action:manipulation}button,a,summary{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,#record-lines:focus-visible{outline:3px solid var(--focus);outline-offset:4px}
+[tabindex="-1"]:focus-visible{outline:2px dashed var(--focus);outline-offset:5px}
+a{color:var(--ink);text-underline-offset:4px}h1,h2,h3,p{margin:0}[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.pagebar{max-width:1040px;margin:auto;padding:16px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;font-size:12px}
+.pagebar a{text-decoration:none}.pagebar button{color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 12px;min-height:44px;font-size:12px}
+main{max-width:1040px;margin:auto;padding:10px 28px 40px}
+.masthead{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;margin-bottom:18px}
+h1{font-size:30px;line-height:1.2;font-weight:500;letter-spacing:-.055em}.title-period{color:var(--green)}.masthead p{font-size:12px;color:var(--muted)}
+.terminal{background:var(--screen);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.terminal-bar{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:10px 24px;background:#1a2b23;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+.terminal-bar>span:first-child{color:var(--green)}
+.cursor{display:inline-block;width:6px;height:11px;background:var(--green);margin-right:9px;vertical-align:-1px;animation:blink 1.6s steps(1,end) infinite}
+@keyframes blink{0%,55%{opacity:1}56%,100%{opacity:0}}
+.account-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px 24px;padding:16px 24px;background:#10201a;border-bottom:1px solid var(--line)}
+.account-context{grid-column:1/-1;color:var(--muted);font-size:12px;margin-bottom:2px}.account-label{display:block;color:var(--muted);font-size:12px}
+.balance{display:block;color:var(--amber);font-size:29px;line-height:1.35;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.balance.pending{color:var(--ink);font-size:22px;padding-top:5px}
+.account-foot{grid-column:1/-1;font-size:11px;color:var(--muted);margin-top:3px}.account-note{display:none}
+.is-testing .account-strip{display:flex;flex-wrap:wrap;gap:3px 20px;padding:11px 24px;font-size:12px;align-items:baseline}
+.is-testing .account-context{margin:0;color:var(--muted)}.is-testing .account-strip>div{display:flex;gap:6px;align-items:baseline}
+.is-testing .account-label,.is-testing .balance{display:inline;font-size:12px;line-height:1.6;letter-spacing:0;padding:0}.is-testing .account-foot{display:none}
+.is-testing .account-note{display:block;flex-basis:100%;font-size:11px;color:var(--muted)}
+.screen{padding:24px}h2{font-size:24px;font-weight:500;line-height:1.3;letter-spacing:-.035em;margin-bottom:18px}h3{font-size:18px;font-weight:500;line-height:1.4;letter-spacing:-.02em}
+.milestone{display:flex;flex-direction:column;gap:16px}.speaker{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px}.speaker .name{color:var(--green);font-size:12px;padding-top:3px}.speaker.customer .name{color:var(--amber)}.speaker .words{font-size:17px;max-width:700px}.speaker.assistant .words{color:var(--muted);font-size:14px}
+.quiet{color:var(--muted);font-size:13px}.callout{padding:12px 14px;border-left:3px solid var(--amber);background:#1d2d21;font-size:14px;line-height:1.6}
+.callout.problem{border-color:var(--error);color:var(--error);background:#312b1e}.callout.success{border-color:var(--green);color:var(--green);background:#1a2b1e}
+details>summary{min-height:44px;display:list-item;padding:10px 4px;cursor:pointer}
+.evidence{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin:16px 0 20px;align-items:start}
+.evidence>details{border:1px solid var(--line);border-radius:3px;min-width:0;background:#0e1915}
+.evidence>details>summary{padding:10px 14px;font-size:13px;color:var(--ink)}.evidence>details[open]{grid-column:1/-1}
+.evidence-body{padding:2px 14px 14px;font-size:13px;display:flex;flex-direction:column;gap:14px}.ticket-row{padding-bottom:12px;border-bottom:1px solid var(--line)}.row-top{display:flex;justify-content:space-between;gap:14px;color:var(--amber);margin-bottom:5px}
+.record-table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.record-table caption{text-align:left;font-size:12px;color:var(--muted);margin-bottom:10px}
+.record-table th{text-align:left;font-size:11px;font-weight:400;color:var(--muted);border-bottom:1px solid var(--line);padding:0 9px 8px 0}.record-table td{padding:10px 9px 10px 0;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.record-table td:last-child{padding-right:0}.record-table .money{color:var(--amber);white-space:nowrap}.receipt-state{color:var(--muted)}
+.assistant-proposal{font-size:13px;color:var(--muted)}.assistant-proposal>span:first-child{color:var(--green);margin-right:8px}
+.rule-picker{padding:0;margin:0;border:0;min-width:0}.rule-picker legend{padding:0;margin-bottom:10px;font-size:13px;color:var(--muted)}
+.rule-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.policy-card{display:flex;flex-direction:column;gap:10px;padding:14px 12px;border:1px solid #71846a;border-radius:4px;background:#15231a;cursor:pointer;min-width:0}
+.policy-card:hover{background:#1c3020}.policy-card.selected{border:2px solid var(--amber);padding:13px 11px;background:#243020}
+.policy-card:focus-within{outline:2px solid var(--focus);outline-offset:3px}.rule-choice{display:flex;gap:8px;align-items:baseline;font-size:14px;line-height:1.5}
+.rule-choice input{accent-color:var(--amber);width:17px;height:17px;margin:0;flex:none;align-self:flex-start;transform:translateY(3px)}.key{color:var(--green);font-size:12px}.rule-label{min-width:0}
+.rule-history{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:auto}.tested .rule-history{color:var(--ink)}.proposal-tag{align-self:flex-start;color:var(--green);font-size:11px;line-height:1.5}
+.selection-status{font-size:12px;color:var(--muted);min-height:1.6em}
+.actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:2px}
+.actions button{min-height:46px;border:1px solid #71846a;border-radius:3px;padding:11px 17px;background:#17271d;color:var(--ink);font-size:14px;line-height:1.4}
+.actions button:hover{background:#253627;border-color:var(--green)}
+.actions button.primary{background:var(--amber);border-color:var(--amber);color:#17200f;font-weight:600}.actions button.primary:hover{background:#ffe0aa;border-color:#ffe0aa}
+.test-output{margin-top:6px;border-top:1px solid var(--line);padding-top:20px;display:flex;flex-direction:column;gap:14px}.tested-rule{font-size:12px;color:var(--muted)}.result-context{font-size:12px;color:var(--amber)}.result-context:empty{display:none}
+.copy-heading{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;background:#34402b;border:1px solid #8f9569;color:#f0dfad;font-size:12px}
+.copy-heading span:last-child{font-size:11px}.replay-balance{display:flex;gap:24px;padding-bottom:12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}.replay-balance b{display:block;font-size:23px;font-weight:400;color:var(--amber);font-variant-numeric:tabular-nums}
+.queue-list{list-style:none;padding:0;margin:0}.queue-list li{display:grid;grid-template-columns:45px 60px minmax(0,1fr);gap:10px;padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline;font-size:13px}
+.q-id{color:var(--amber)}.q-state{color:var(--muted)}.q-state em{display:block;font-style:normal;color:var(--ink)}.moved .q-state{color:var(--green)}.stopped .q-state{color:var(--amber)}.broken .q-state{color:var(--error)}.active{border-left:2px solid var(--amber);padding-left:10px!important}
+.replay-record summary{font-size:12px;color:var(--muted)}.replay-record .record-table{margin:8px 0}
+.policy-setting{display:flex;flex-direction:column;gap:7px;padding:14px 16px;background:#0e1915;border:1px solid var(--line)}.setting-label{font-size:12px;color:var(--muted)}.setting-value{color:var(--amber);font-size:16px}
+#installed-summary{display:flex;flex-direction:column;gap:16px}
+.settlement-lines{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}.settlement-lines li{display:flex;gap:14px;font-size:14px}.tick{color:var(--green)}.settlement-note{display:block;font-size:12px;color:var(--muted)}#reconciliation-output{display:flex;flex-direction:column;gap:14px}
+.under-terminal{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding-top:14px;font-size:12px;color:var(--muted)}.support-panels{flex:1;min-width:0}.support-panels details p{max-width:750px;margin:7px 0 14px;font-size:13px}.support-panels summary span{margin-left:8px}
+.under-terminal>button{color:var(--muted);background:transparent;border:0;text-decoration:underline;text-underline-offset:4px;padding:10px 0;min-height:44px;font-size:12px}
+#record-lines{margin:0;padding:8px 12px 0 20px;max-height:260px;overflow:auto;overscroll-behavior:contain;font-size:12px}#record-lines li{padding-bottom:7px}
+.explainer{margin-top:16px;border-top:1px solid var(--line);padding-top:8px}.explainer summary{color:var(--muted);font-size:13px}.explainer>div{padding:13px 0 0;max-width:750px;display:flex;flex-direction:column;gap:13px}.explainer h2{font-size:19px;margin:0}.explainer p{font-size:13px;color:var(--muted);line-height:1.8}.no-script{margin-top:20px}
+.embedded .pagebar{display:none}.course main{padding-top:16px}.course .explainer summary{display:none}
+.case-title{font-size:12px;color:var(--muted);margin-bottom:8px}.payment-period{display:block;font-size:11px;color:var(--muted);line-height:1.5}.monthly .queue-list li{grid-template-columns:125px 60px minmax(0,1fr)}
+#request-list{display:flex;flex-direction:column;gap:14px}body:not(.course) .course-only{display:none}.course .arcade-only{display:none}
+@media(max-width:720px){.rule-cards{grid-template-columns:1fr}.policy-card{gap:5px;padding:11px 12px}.policy-card.selected{padding:10px 11px}.rule-history,.proposal-tag{margin-left:53px}.rule-history{margin-top:2px}.masthead{flex-wrap:wrap}.speaker{grid-template-columns:1fr;gap:4px}.speaker .name{padding:0}.is-testing .account-strip{gap:3px 14px}.is-testing .account-context{flex-basis:100%}}
+@media(max-width:520px){main{padding:10px 12px 30px}.pagebar{padding:12px 16px}.masthead{gap:7px;margin-bottom:14px}h1{font-size:27px}.masthead p{font-size:11px}.terminal-bar{padding:10px 14px;font-size:11px}.screen{padding:19px 14px}h2{font-size:21px}.account-strip{padding:14px;gap:5px 12px}.balance{font-size:25px}.balance.pending{font-size:17px;padding-top:6px}.account-label{font-size:11px}.is-testing .account-strip{padding:10px 14px}.is-testing .balance,.is-testing .account-label{font-size:11px}.evidence{gap:8px;margin:14px 0 18px}.evidence>details>summary{padding:10px 11px}.evidence-body{padding-left:11px;padding-right:11px}.copy-heading{font-size:11px}.copy-heading span:last-child{max-width:110px;text-align:right;font-size:10px}.replay-balance{gap:17px;font-size:11px}.replay-balance b{font-size:20px}.queue-list li{grid-template-columns:32px 43px minmax(0,1fr);gap:7px;font-size:12px}.actions button{font-size:13px;padding:11px 14px}.record-table{font-size:11px}.record-table th{font-size:10px}.record-table td{padding-right:7px}.under-terminal{gap:10px}.under-terminal>button{font-size:11px;max-width:100px;text-align:right}.rule-choice{font-size:13px}.callout{font-size:13px}.setting-value{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(max-width:520px){.monthly .queue-list li{grid-template-columns:90px 43px minmax(0,1fr)}}
+.part-picker{border:0;padding:0;margin:0;min-width:0}.part-picker legend{font-size:13px;color:var(--muted);margin-bottom:10px}.full-panel{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,1.65fr);gap:18px}.full-panel .rule-cards{grid-template-columns:1fr}.part-card{display:flex;flex-direction:column;gap:5px;border:1px solid #71846a;padding:10px 12px;margin-bottom:7px;border-radius:4px;cursor:pointer}.part-heading{display:flex;gap:9px;align-items:baseline}.part-heading input{accent-color:var(--amber)}.part-name{font-size:13px}.part-setting,.part-state{font-size:11px;color:var(--muted);margin-left:25px}.part-card.selected{border:2px solid var(--amber);padding:9px 11px;background:#243020}.part-card:focus-within{outline:2px solid var(--focus);outline-offset:3px}.negative{color:var(--error)}
+#shift-copy-balances{flex-wrap:wrap}#shift-copy-balances>span{flex:1 1 140px}#shift-copy-balances>span>span{display:block}#replay-list{list-style:none;padding:0;margin:10px 0}#replay-list button{display:flex;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--line);background:#0e1915;color:var(--ink);font-size:12px;text-align:left}#replay-list button[aria-pressed="true"]{border:2px solid var(--amber)}.replay-status{color:var(--amber);white-space:nowrap}#tested-desk summary{font-size:12px;color:var(--muted)}#tested-settings,#final-desk{font-size:12px;margin:8px 0}#tested-settings dt,#final-desk dt{font-weight:700;color:var(--green);margin-top:8px}#tested-settings dd,#final-desk dd{margin:3px 0 10px}#shift-summary{border-top:1px solid var(--line);padding-top:16px}#shift-summary-lines{font-size:13px;padding-left:20px}#shift-accounts .balance{font-size:24px}#shift-accounts{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.is-testing #shift-accounts .balance{font-size:12px}
+@media(max-width:720px){.full-panel{grid-template-columns:1fr}#part-cards{display:grid;grid-template-columns:1fr 1fr;gap:7px}.part-card{margin:0;padding:9px}.part-card.selected{padding:8px}.part-setting,.part-state{margin-left:0}#shift-accounts{grid-template-columns:1fr 1fr}}
+</style></head>
+<body>
+<header class="pagebar"><a class="arcade-link" href="index.html"><span aria-hidden="true">←</span> AI Arcade</a><button id="motion-toggle" type="button" aria-pressed="false">Fast playback: off</button></header>
+<main>
+  <div class="masthead"><h1>Transfer Desk<span class="title-period" aria-hidden="true">.</span></h1><p id="case-hook">Find out why Ana was charged twice.</p></div>
+  <section class="terminal" id="terminal" aria-label="Transfer Desk terminal">
+    <div class="terminal-bar"><span><span class="cursor" aria-hidden="true"></span><span id="incident-state">Case open</span></span><span id="test-count">No tests run</span></div>
+    <section class="account-strip" id="legacy-accounts" aria-label="Actual account balances">
+      <p class="account-context">Live account</p>
+      <div><span class="account-label">Savings</span><span class="balance" id="live-savings">$700</span></div>
+      <div><span class="account-label">Checking</span><span class="balance" id="live-checking">$800</span></div>
+      <div><span class="account-label">Pending</span><span class="balance pending" id="live-pending">1 ticket</span></div>
+      <p class="account-foot">Combined <span id="live-total">$1,500</span></p>
+      <p class="account-note">Tests leave this account untouched.</p>
+    </section>
+    <section class="account-strip" id="shift-accounts" aria-label="Current incident account balances" hidden></section>
+    <div class="screen">
+      <p class="case-title" id="case-title"></p>
+      <h2 id="view-heading" tabindex="-1">Ana is waiting.</h2>
+      <div id="opening-view" class="milestone">
+        <div class="speaker customer"><span class="name">Ana</span><p class="words" id="opening-message"></p></div>
+        <div class="speaker assistant"><span class="name">Assistant</span><p class="words" id="assistant-message"></p></div>
+        <p class="quiet" id="opening-need"></p>
+      </div>
+
+      <div class="evidence" aria-label="Incident evidence">
+        <details id="request-file"><summary>Requests</summary><div class="evidence-body">
+          <div id="request-list"></div>
+          <p class="quiet" id="request-note">041 was delivered again after its confirmation was lost. The separate ticket 042 is still pending.</p>
+        </div></details>
+        <details id="receipts-file"><summary>Receipts</summary><div class="evidence-body">
+          <table class="record-table"><caption>Protected bank record / actual executions</caption><thead><tr><th scope="col">Receipt</th><th scope="col" id="payment-column">Ticket</th><th scope="col">Amount</th><th scope="col">Record</th></tr></thead><tbody id="receipt-rows"></tbody></table>
+          <p class="quiet" id="receipt-note"></p>
+        </div></details>
+      </div>
+
+      <section id="bench-view" class="milestone" aria-label="Test bench" hidden>
+        <p class="assistant-proposal" id="assistant-proposal"><span>Assistant</span> <span id="proposal-text"></span></p>
+        <div id="desk-panel">
+          <fieldset class="part-picker" id="part-picker" hidden><legend>Desk part</legend><div id="part-cards"></div></fieldset>
+          <fieldset class="rule-picker"><legend id="setting-legend">Repeat rule for the test copy</legend><div class="rule-cards" id="rule-cards"></div></fieldset>
+        </div>
+        <p class="selection-status" id="selection-status">No rule selected.</p>
+        <div class="actions" aria-label="Test actions"><button id="cmd-skip-replay" class="primary" type="button" hidden>Finish replay now</button><button id="cmd-run" class="primary" type="button">Run the test</button><button id="cmd-install" class="primary" type="button" hidden>Install verified rule</button></div>
+        <section class="test-output" id="test-output" aria-label="Last test result" hidden>
+          <div id="shift-results" hidden><h3>Shift replay</h3><ol id="replay-list" aria-label="Incidents replayed in this test"></ol><details id="tested-desk"><summary>Desk used in this test</summary><dl id="tested-settings"></dl></details></div>
+          <p class="tested-rule" id="tested-rule"></p><h3 id="result-heading" tabindex="-1"></h3><p class="result-context" id="result-context"></p>
+          <div class="copy-heading"><span>Isolated incident copy</span><span>No live money moves</span></div>
+          <div class="replay-balance" id="legacy-copy-balances" aria-label="Balances in the isolated copy"><span>Savings <b id="copy-savings"></b></span><span>Checking <b id="copy-checking"></b></span><span>Combined <b id="copy-total"></b></span></div>
+          <div class="replay-balance" id="shift-copy-balances" aria-label="Balances in the selected incident replay" hidden></div>
+          <ol class="queue-list" id="queue" aria-label="Arrivals in this test"></ol><p id="test-feedback" class="callout"></p>
+          <details id="replay-record" class="replay-record"><summary>Test balance record</summary><table class="record-table"><caption>Savings / checking at each arrival</caption><thead><tr><th scope="col">Arrival</th><th scope="col" id="snapshot-payment-column">Ticket</th><th scope="col">Before</th><th scope="col">After</th></tr></thead><tbody id="snapshot-rows"></tbody></table></details>
+        </section>
+      </section>
+
+      <section id="installed-view" class="milestone" aria-label="Installed rule" hidden>
+        <div id="installed-summary">
+        <div class="policy-setting"><span class="setting-label">Installed at the live desk</span><span id="installed-rule" class="setting-value"></span></div>
+        <p class="quiet">Installing the rule leaves the recorded transfers unchanged.</p>
+        <p class="callout" id="installed-callout"></p>
+        </div>
+        <div class="actions"><button id="cmd-reconcile" class="primary" type="button">Reconcile recorded transfers</button><button id="cmd-skip-settlement" class="primary" type="button" hidden>Finish reconciliation now</button></div>
+        <div id="reconciliation-output" hidden><ol class="settlement-lines" id="settlement-lines"></ol><p class="quiet">These entries update the actual account shown above.</p></div>
+      </section>
+      <section id="closed-view" class="milestone" aria-label="Incident resolved" hidden>
+        <ol class="settlement-lines" id="closed-lines"></ol>
+        <div class="speaker customer"><span class="name">Ana</span><p class="words" id="closing-reply"></p></div>
+        <p class="quiet" id="closing-note"></p>
+        <div id="declined-requests" hidden></div>
+        <section id="shift-summary" hidden aria-labelledby="shift-summary-title"><h3 id="shift-summary-title">Night shift complete</h3><ol id="shift-summary-lines"></ol><h3>The installed desk</h3><dl id="final-desk"></dl></section>
+        <div class="actions"><button id="cmd-restart" type="button">Retry this case</button><button id="cmd-newcase" class="primary" type="button">New case</button></div>
+      </section>
+      <div class="actions" id="opening-actions"><button id="cmd-bench" class="primary" type="button">Open the test bench</button></div>
+    </div>
+  </section>
+  <div class="under-terminal"><div class="support-panels"><details id="play-help"><summary>How to play</summary><p>Inspect the requests and receipts, choose a repeat rule, then run the incident in a test copy. A passing test lets you install the rule before reconciling the live account. Reading and changing a selection cost no tests, and there is no timer.</p><p>On the test bench, keys 1-3 select a rule. Tab moves between controls; Enter or Space activates the focused control. Playback can be skipped.</p></details><details id="shift-record"><summary>Shift record <span id="record-count">1 entry</span></summary><ol id="record-lines" tabindex="0" aria-label="Chronological shift record"></ol></details></div><button id="restart" type="button">Restart this incident</button></div>
+  <details class="explainer" id="takeaway"><summary>The idea behind the game</summary><div class="course-only" id="course-explanation"><h2>Why the repeat rule matters</h2><p>The desk has to distinguish a repeated delivery from another payment. A customer’s name or a standing-order reference can belong to several requests. The rule has to preserve the boundary of the payment the customer actually asked for.</p><p>The assistant’s confirmation cannot establish which transfers belong in the account. Protected receipts record the executions. Installing a repair changes future decisions; reconciling the account corrects extra executions or completes requests that are still pending.</p><p class="course-only">Ana made two requests, and the app delivered one of them twice. The repeat rule protected her money while still letting her next request through. A separate reversal corrected the extra debit.</p><p>In an AI system, a requirement needs a mechanism that enforces the right distinction. These incidents model one small desk and the requests shown on it.</p></div><div class="arcade-only" id="arcade-explanation"><h2>What the desk has to guarantee</h2><p>A retry can arrive after a confirmation is lost, while a standing instruction can generate a fresh payment next month. The repeat check must tell those situations apart and admit each legitimate payment.</p><p>The desk also has to check the money available when a request arrives, confirm who may spend it, and make the debit and credit together. It can count a payment as done only after that move succeeds. Each part enforces a different requirement.</p><p>Protected receipts supply evidence of what actually happened. Installing a repair changes future decisions; reconciliation corrects the recorded damage. Replaying earlier incidents checks that a new repair preserves what already worked.</p><p>In an AI system, a stated requirement needs a mechanism that enforces it and tests that expose failures. These incidents model the requests and accounts shown on this desk.</p></div></details>
+  <noscript><p class="no-script">This game needs JavaScript. The desk needs to carry out each requested payment once, including legitimate payments that reuse a reference.</p></noscript>
+  <p id="announcement" class="sr-only" role="status" aria-atomic="true"></p>
+</main>
+<script>// Transfer Desk: a debugging puzzle. The bank's desk has four installed parts, and one of them is faulty for this
+// case's tickets. The player replaces one part with one of its alternatives; several alternatives are plausible but
+// still let a particular failure through, or block legitimate business. Pure and deterministic.
+(function(root){
+  'use strict';
+
+  const RULES = [
+    {id: 'through', name: 'Allowed tickets go through', text: 'Every ticket from an account’s owner, for money that is there, is carried out.'},
+    {id: 'owner', name: 'Owner only', text: 'Money leaves an account only when its owner asked.'},
+    {id: 'overdraft', name: 'No overdrafts', text: 'No account drops below $0.'},
+    {id: 'once', name: 'Once per ticket', text: 'A ticket that arrives twice is carried out once.'},
+    {id: 'total', name: 'Nothing lost', text: 'The bank’s total stays the same.'},
+  ];
+
+  // The desk's parts, in the order a ticket meets them, and the alternatives each can be replaced with.
+  const PARTS = [
+    {id: 'owner', name: 'Owner check', options: [
+      {id: 'customer', text: 'The person asking banks here'},
+      {id: 'from', text: 'The person asking owns the account the money leaves'},
+      {id: 'to', text: 'The person asking owns the account the money goes to'}]},
+    {id: 'funds', name: 'Money check', options: [
+      {id: 'start', text: 'That account held enough at the start of the day'},
+      {id: 'now', text: 'That account holds enough when this ticket arrives'},
+      {id: 'any', text: 'The person asking holds enough across all their accounts'}]},
+    {id: 'repeat', name: 'Repeat check', options: [
+      {id: 'perday', text: 'One transfer per person per day'},
+      {id: 'last', text: 'Not identical to the ticket just before'},
+      {id: 'seen', text: 'This ticket number has not come in before'},
+      {id: 'done', text: 'This ticket number has not already been carried out'}]},
+    {id: 'move', name: 'Moving the money', options: [
+      {id: 'outin', text: 'Take it out, then pay it in'},
+      {id: 'together', text: 'Take out and pay in as one step; if the line drops, nothing moves'}]},
+  ];
+  const GOOD = {owner: 'from', funds: 'now', repeat: 'done', move: 'together'};
+
+  // Seven faults. Each case installs the good desk except for one faulty part, with a queue that exposes the fault
+  // and the tempting alternatives. Amounts are multiples of 10; shift varies them between cases.
+  const TYPES = ['start', 'customer', 'last', 'outin', 'seen', 'any', 'to'];
+  const FAULT = {start: ['funds', 'start'], any: ['funds', 'any'], customer: ['owner', 'customer'], to: ['owner', 'to'],
+                 last: ['repeat', 'last'], seen: ['repeat', 'seen'], outin: ['move', 'outin']};
+  const STORY = {
+    start: 'Rent is due, and @A is moving money around.', any: '@A is short in savings today.',
+    customer: 'A quiet afternoon at the desk.', to: '@A is paying @B back.',
+    last: 'The phone signal is weak today.', outin: 'The line to the other bank keeps dropping.',
+    seen: 'Bad signal and a flaky line, both at once.',
+  };
+  const NAMES = [['Ana', 'Ben'], ['Mei', 'Tom'], ['Sara', 'Leo'], ['Priya', 'Jon'], ['Rosa', 'Sam']];
+
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  function makeCase(type, seed, number) {
+    const r = rng(seed * 7919 + TYPES.indexOf(type) * 104729 + 17);
+    const [A, B] = NAMES[Math.floor(r() * NAMES.length)];
+    const k = 1 + Math.floor(r() * 3);                       // scales every amount by 1, 2 or 3
+    const $ = v => v * k;
+    const acc = {as: {owner: A, label: `${A}’s savings`}, ac: {owner: A, label: `${A}’s checking`}, bc: {owner: B, label: `${B}’s checking`}};
+    const base = 100 * (number || 1);
+    let start, q;                                            // q: [by, from, to, amount, flags]
+    switch (type) {
+      case 'start': start = {as: $(500), ac: $(100), bc: $(300)};
+        q = [[A, 'as', 'ac', $(300)], [A, 'as', 'ac', $(250)], [A, 'ac', 'bc', $(50)]]; break;
+      case 'any': start = {as: $(100), ac: $(600), bc: $(500)};
+        q = [[B, 'bc', 'as', $(400)], [A, 'as', 'ac', $(450)], [A, 'as', 'bc', $(300)], [A, 'ac', 'bc', $(20)]]; break;
+      case 'customer': start = {as: $(600), ac: $(100), bc: $(300)};
+        q = [[A, 'as', 'ac', $(100)], [B, 'as', 'bc', $(250)], [A, 'ac', 'bc', $(50)]]; break;
+      case 'to': start = {as: $(600), ac: $(200), bc: $(100)};
+        q = [[A, 'ac', 'bc', $(80)], [B, 'as', 'bc', $(200)], [A, 'as', 'ac', $(100)]]; break;
+      case 'last': start = {as: $(400), ac: $(100), bc: $(500)};
+        q = [[B, 'bc', 'ac', $(50), {lost: true, t: 1}], [A, 'as', 'ac', $(100)], [B, 'bc', 'ac', $(50), {again: true, t: 1}], [B, 'bc', 'ac', $(50)]]; break;
+      case 'outin': start = {as: $(400), ac: $(500), bc: $(200)};
+        q = [[A, 'as', 'ac', $(100)], [A, 'ac', 'bc', $(150), {drop: true, t: 2}], [A, 'ac', 'bc', $(150), {again: true, t: 2}]]; break;
+      default: start = {as: $(400), ac: $(500), bc: $(500)};   // seen
+        q = [[B, 'bc', 'ac', $(60), {lost: true, t: 1}], [A, 'ac', 'bc', $(120), {drop: true, t: 2}], [B, 'bc', 'ac', $(60), {again: true, t: 1}],
+             [A, 'ac', 'bc', $(120), {again: true, t: 2}], [A, 'as', 'ac', $(40)]];
+    }
+    // Flagged tickets keep their given number (a resend shares it); the others take the next free number.
+    const used = new Set(q.filter(x => x[4] && x[4].t).map(x => x[4].t));
+    let n = 1;
+    const arrivals = q.map(([by, from, to, amount, f = {}]) => {
+      let id = f.t;
+      if (!id) { while (used.has(n)) n++; id = n; used.add(n); }
+      return {t: base + id, by, from, to, amount, again: !!f.again, drop: !!f.drop, lost: !!f.lost};
+    });
+    const installed = {...GOOD, [FAULT[type][0]]: FAULT[type][1]};
+    return {type, seed, number: number || 1, A, B, acc, start, arrivals, installed, story: STORY[type].replace('@A', A).replace('@B', B)};
+  }
+
+  const total = b => b.as + b.ac + b.bc;
+
+  // Run the queue through a desk. With stop, the run ends at the first broken rule.
+  function simulate(c, desk, oracle, stop) {
+    const bal = {...c.start}, seen = new Set(), done = {}, doneBy = {}, steps = [];
+    const startTotal = total(bal);
+    let broken = null;
+    for (let i = 0; i < c.arrivals.length; i++) {
+      const a = c.arrivals[i], s = {...a, i, before: {...bal}, gate: null, moved: 'none'}, prev = c.arrivals[i - 1];
+      if (desk.owner === 'from' && c.acc[a.from].owner !== a.by) s.gate = 'owner';
+      if (desk.owner === 'to' && c.acc[a.to].owner !== a.by) s.gate = 'owner';
+      if (!s.gate && desk.funds === 'start' && c.start[a.from] < a.amount) s.gate = 'funds';
+      if (!s.gate && desk.funds === 'now' && bal[a.from] < a.amount) s.gate = 'funds';
+      if (!s.gate && desk.funds === 'any' && Object.keys(bal).filter(id => c.acc[id].owner === a.by).reduce((x, id) => x + bal[id], 0) < a.amount) s.gate = 'funds';
+      if (!s.gate && desk.repeat === 'perday' && doneBy[a.by]) s.gate = 'repeat';
+      if (!s.gate && desk.repeat === 'last' && prev && prev.by === a.by && prev.from === a.from && prev.to === a.to && prev.amount === a.amount) s.gate = 'repeat';
+      if (!s.gate && desk.repeat === 'seen' && seen.has(a.t)) s.gate = 'repeat';
+      if (!s.gate && desk.repeat === 'done' && done[a.t]) s.gate = 'repeat';
+      seen.add(a.t);
+      if (!s.gate) {
+        if (a.drop && desk.move === 'outin') { bal[a.from] -= a.amount; s.moved = 'out'; }
+        else if (!a.drop) { bal[a.from] -= a.amount; bal[a.to] += a.amount; s.moved = 'both'; done[a.t] = (done[a.t] || 0) + 1; doneBy[a.by] = true; }
+      }
+      s.after = {...bal};
+      const why = [];
+      if (s.moved !== 'none' && c.acc[a.from].owner !== a.by) why.push('owner');
+      if (Math.min(bal.as, bal.ac, bal.bc) < 0) why.push('overdraft');
+      if ((done[a.t] || 0) > 1) why.push('once');
+      if (total(bal) !== startTotal) why.push('total');
+      if (oracle && oracle.completes[i] && !done[a.t]) why.push('through');
+      s.broke = why;
+      steps.push(s);
+      if (why.length && !broken) { broken = {rule: why[0], step: i}; if (stop) break; }
+    }
+    return {steps, end: bal, broken, solved: !broken && steps.length === c.arrivals.length, startTotal, endTotal: total(bal),
+            completes: steps.map(s => s.moved === 'both')};
+  }
+  const oracleOf = c => simulate(c, GOOD, null, false);
+  const deskWith = (c, repair) => repair ? {...c.installed, [repair.part]: repair.option} : {...c.installed};
+  const run = (c, repair) => simulate(c, deskWith(c, repair), oracleOf(c), true);
+
+  // Every repair the player can make: one part, any option other than the installed one.
+  function repairs(c) {
+    const out = [];
+    for (const P of PARTS) for (const o of P.options) if (o.id !== c.installed[P.id]) out.push({part: P.id, option: o.id});
+    return out;
+  }
+  const winners = c => repairs(c).filter(rp => run(c, rp).solved);
+
+  const GATE = {owner: 'stopped by the owner check', funds: 'stopped by the money check', repeat: 'stopped by the repeat check'};
+  // One sentence about the first broken rule: the state, never the fix.
+  function describe(c, res) {
+    if (!res.broken) return '';
+    const s = res.steps[res.broken.step], lbl = id => c.acc[id].label;
+    switch (res.broken.rule) {
+      case 'overdraft': return `Ticket ${s.t} took $${s.amount} from ${lbl(s.from)}, which held $${s.before[s.from]}. It went to −$${-s.after[s.from]}.`;
+      case 'owner': return `Ticket ${s.t} came from ${s.by} and took $${s.amount} out of ${lbl(s.from)}.`;
+      case 'once': return `Ticket ${s.t} arrived again and moved $${s.amount} a second time.`;
+      case 'total': return `When the line dropped on ticket ${s.t}, $${s.amount} left ${lbl(s.from)} and arrived nowhere.`;
+      default: return `Ticket ${s.t} came from ${s.by}, for money that was in ${lbl(s.from)}, and was ${s.gate ? GATE[s.gate] : 'never carried out'}.`;
+    }
+  }
+
+  function caseAt(index, seed) {
+    if (index < TYPES.length) return makeCase(TYPES[index], seed, index + 1);
+    const r = rng(seed * 31 + index * 977), prev = caseAt(index - 1, seed).type;
+    let type = TYPES[Math.floor(r() * TYPES.length)];
+    if (type === prev) type = TYPES[(TYPES.indexOf(type) + 1) % TYPES.length];
+    return makeCase(type, seed + index * 13, index + 1);
+  }
+
+  root.TransferDesk = {RULES, PARTS, GOOD, TYPES, FAULT, rng, makeCase, caseAt, simulate, oracleOf, run, repairs, winners, describe, total};
+})(globalThis);
+</script><script>(function(root){
+  'use strict';
+  const freeze=x=>{if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
+  const account={as:{owner:'Ana',label:'Ana’s savings'},ac:{owner:'Ana',label:'Ana’s checking'},bc:{owner:'Bank',label:'Clearing'}};
+  const request=(id,t,amount,quote,period=null)=>({id,t,amount,quote,period,by:'Ana',from:'as',to:'ac'});
+  const arrival=(payment,again=false,lost=false)=>({payment,again,lost});
+  const receipt=(id,payment,t,amount,period=null)=>({id,payment,ticket:t,amount,period,from:'as',to:'ac',kind:'transfer'});
+  root.TransferDeskCases=freeze([
+    {id:1,key:'second-debit',title:'The second debit',acc:account,start:{as:1500,ac:0,bc:0},installedPolicy:'delivery',
+     requests:[request('041','041',400,'Please move $400 from savings to checking. My rent goes out tonight.'),request('042','042',50,'A separate $50 from savings to checking, please.')],
+     arrivals:[arrival('041',false,true),arrival('041',true),arrival('042')],
+     initialLedger:[receipt('T701','041','041',400),receipt('T702','041','041',400)],
+     policies:[
+       {id:'delivery',key:'delivery',label:'A new transfer for every delivery'},
+       {id:'customer',key:'customer-day',label:'One completed transfer per customer per day'},
+       {id:'ticket',key:'ticket',label:'One completed transfer per ticket number'}],
+     suggestion:'customer',proposal:'One possibility is one completed transfer per customer per day.',
+     settlement:[{id:'R703',kind:'reversal',reverses:'T702'},{id:'T704',kind:'pending',payment:'042'}],
+     expectedEnd:{as:1050,ac:450,bc:0},
+     fiction:{hook:'Find out why Ana was charged twice.',opening:'I asked for $400. Why has $800 left my savings?',assistant:'Your transfer is complete.',
+       need:'Ana needs the rent money in checking. Another ticket is waiting at the desk.',
+       requestNote:'041 was delivered again after its confirmation was lost. The separate ticket 042 is still pending.',
+       receiptNote:'The confirmation was lost after T701. The app sent ticket 041 again, and the desk executed it again.',
+       installed:'Both $400 executions are still in the account. T702 has not been reversed, and ticket 042 is still waiting.',
+       closed:'Ana’s requests are complete, and the extra debit has been reversed.',
+       reply:'That’s right. The $400 was for rent; the other $50 was a separate transfer.',
+       completeRequests:'041 was delivered twice. The extra execution has been reversed, and the separate ticket 042 is complete.',
+       completeReceipts:'The original receipts remain. R703 reverses the extra execution; T704 carries out ticket 042.'}},
+    {id:2,key:'next-month',title:'The next month’s payment',acc:account,start:{as:1500,ac:0,bc:0},installedPolicy:'reference',
+     requests:[
+       request('rent-2027-01','R1',400,'Move $400 to checking for January’s rent under standing order R1.','2027-01'),
+       request('rent-2027-02','R1',400,'Move $400 for February’s rent under the same standing order R1.','2027-02'),
+       request('topup-2027-02','R2',50,'A separate $50 to checking under R2 for February, please.','2027-02')],
+     arrivals:[arrival('rent-2027-01',false,true),arrival('rent-2027-01',true),arrival('rent-2027-02'),arrival('topup-2027-02')],
+     initialLedger:[receipt('T801','rent-2027-01','R1',400,'2027-01')],
+     policies:[
+       {id:'reference',key:'reference',label:'One completed payment per reference'},
+       {id:'reference-month',key:'reference-month',label:'One completed payment per reference and month'},
+       {id:'customer-month',key:'customer-month',label:'One completed payment per customer and month'}],
+     suggestion:'customer-month',proposal:'One possibility is one completed payment per customer per month.',
+     settlement:[{id:'T802',kind:'pending',payment:'rent-2027-02'},{id:'T803',kind:'pending',payment:'topup-2027-02'}],
+     expectedEnd:{as:650,ac:850,bc:0},
+     fiction:{hook:'Find out why Ana’s February payment was blocked.',opening:'January’s rent transfer went through. Why won’t the same standing order run for February?',assistant:'That reference has already been paid.',
+       need:'February’s rent money has not reached checking. Ana also has a separate February transfer waiting.',
+       requestNote:'R1 is a standing order used each month. Its January confirmation was lost and resent. The February R1 and R2 payments are still pending.',
+       receiptNote:'T801 records the January R1 payment. There is no completed February payment in the protected record.',
+       installed:'January’s payment is still the only execution in the account. The February payments under R1 and R2 are still waiting.',
+       closed:'January’s payment stayed unchanged. Both February payments are now complete.',
+       reply:'That’s right. R1 was for February’s rent this time, and R2 was a separate payment that month.',
+       completeRequests:'January’s retry moved no money. The February payments under R1 and R2 are complete.',
+       completeReceipts:'T801 still records January. T802 records February’s R1 payment, and T803 records its separate R2 payment.'}}
+  ]);
+})(globalThis);
+</script><script>(function(root){
+  'use strict';
+  const Core=root.TransferDesk,Cases=root.TransferDeskCases;
+  if(!Core||!Cases)throw new Error('The bank core and authored cases must load first.');
+  const copyLedger=l=>l.map(e=>({...e}));
+  function forCase(id){
+    const source=Cases.find(c=>c.id===id);if(!source)throw new Error('Unknown incident.');
+    const requests=source.requests,request=id=>{const r=requests.find(r=>r.id===id);if(!r)throw new Error('Unknown payment.');return r;};
+    const CASE=Object.freeze({...source,arrivals:Object.freeze(source.arrivals.map(a=>Object.freeze({...request(a.payment),...a}))) });
+    const POLICIES=CASE.policies,INITIAL_LEDGER=CASE.initialLedger;
+    const policy=id=>{const p=POLICIES.find(p=>p.id===id);if(!p)throw new Error('Unknown repeat rule.');return p;};
+    const check=s=>{if(s.caseId!==CASE.id)throw new Error('State belongs to another incident.');};
+    function balances(ledger){
+      const b={...CASE.start},ids=new Set();
+      for(const e of ledger){
+        if(ids.has(e.id)||!Number.isInteger(e.amount)||e.amount<=0||!(e.from in b)||!(e.to in b))throw new Error('Invalid protected record.');
+        ids.add(e.id);b[e.from]-=e.amount;b[e.to]+=e.amount;
+      }
+      if(Core.total(b)!==Core.total(CASE.start))throw new Error('The ledger lost money.');return b;
+    }
+    function completions(ledger){
+      const counts=new Map(requests.map(r=>[r.id,0])),reversed=new Set();
+      for(const e of ledger){
+        if(e.kind==='transfer'){
+          const r=request(e.payment);
+          if(e.amount!==r.amount||e.from!==r.from||e.to!==r.to)throw new Error('A receipt does not match its payment.');
+          counts.set(r.id,counts.get(r.id)+1);
+        }else if(e.kind==='reversal'){
+          const original=ledger.find(x=>x.id===e.reverses&&x.kind==='transfer');
+          if(!original||reversed.has(e.reverses)||e.amount!==original.amount||e.from!==original.to||e.to!==original.from)throw new Error('Invalid reversal.');
+          reversed.add(e.reverses);counts.set(original.payment,counts.get(original.payment)-1);
+        }else throw new Error('Unknown receipt kind.');
+      }return counts;
+    }
+    const pending=ledger=>[...completions(ledger).values()].filter(n=>n===0).length;
+    const create=()=>({caseId:CASE.id,policy:null,verifiedPolicy:null,installedPolicy:CASE.installedPolicy,tests:0,ledger:copyLedger(INITIAL_LEDGER),settled:false});
+    function select(state,id){
+      check(state);policy(id);if(state.settled)throw new Error('This incident is closed.');
+      if(state.installedPolicy!==CASE.installedPolicy)throw new Error('The verified rule is already installed.');
+      return {...state,policy:id,verifiedPolicy:state.policy===id?state.verifiedPolicy:null};
+    }
+    function rememberedKey(p,a,i){
+      switch(p.key){
+        case 'delivery':return String(i);
+        case 'customer-day':return a.by+'|today';
+        case 'ticket':return a.t;
+        case 'reference':return a.t;
+        case 'reference-month':return a.t+'|'+a.period;
+        case 'customer-month':return a.by+'|'+a.period;
+        default:throw new Error('Unknown memory key.');
+      }
+    }
+    // Candidate keys govern the desk. Completion counts use the authored payment identity independently.
+    function replay(id){
+      const p=policy(id),bal={...CASE.start},remembered=new Set(),completed=new Map(),steps=[];
+      let broken=null;
+      for(const [i,a] of CASE.arrivals.entries()){
+        const s={...a,i,before:{...bal},gate:null,moved:'none'},key=rememberedKey(p,a,i);
+        if(remembered.has(key))s.gate='repeat';
+        else if(CASE.acc[a.from].owner!==a.by)s.gate='owner';
+        else if(bal[a.from]<a.amount)s.gate='funds';
+        else{bal[a.from]-=a.amount;bal[a.to]+=a.amount;s.moved='both';remembered.add(key);completed.set(a.payment,(completed.get(a.payment)||0)+1);}
+        s.after={...bal};const why=[];
+        if((completed.get(a.payment)||0)>1)why.push('once');
+        if(Core.total(bal)!==Core.total(CASE.start))why.push('total');
+        if(Math.min(...Object.values(bal))<0)why.push('overdraft');
+        if(!completed.get(a.payment))why.push('through');
+        s.broke=why;steps.push(s);if(why.length){broken={rule:why[0],step:i};break;}
+      }
+      return {steps,end:bal,broken,solved:!broken&&steps.length===CASE.arrivals.length,startTotal:Core.total(CASE.start),endTotal:Core.total(bal),completes:steps.map(s=>s.moved==='both')};
+    }
+    function test(state){
+      check(state);if(state.settled)throw new Error('This incident is closed.');
+      if(state.installedPolicy!==CASE.installedPolicy)throw new Error('The verified rule is already installed.');
+      const result=replay(state.policy);return {state:{...state,tests:state.tests+1,verifiedPolicy:result.solved?state.policy:null},result};
+    }
+    function install(state){
+      check(state);if(state.settled)return state;
+      if(!state.policy||state.verifiedPolicy!==state.policy||!replay(state.policy).solved)throw new Error('A passing replay of this rule is required.');
+      return state.installedPolicy===state.policy?state:{...state,installedPolicy:state.policy};
+    }
+    function reconcile(state){
+      check(state);if(state.settled)return {state,stages:[]};
+      if(state.installedPolicy===CASE.installedPolicy||!state.policy||state.installedPolicy!==state.policy)throw new Error('The verified repeat rule must be installed before reconciliation.');
+      if(state.verifiedPolicy!==state.policy||!replay(state.policy).solved)throw new Error('A passing replay of this rule is required.');
+      let ledger=copyLedger(state.ledger);const stages=[];balances(ledger);completions(ledger);
+      for(const plan of CASE.settlement){
+        let entry;
+        if(plan.kind==='reversal'){
+          if(ledger.some(e=>e.reverses===plan.reverses))continue;
+          const original=ledger.find(e=>e.id===plan.reverses&&e.kind==='transfer');if(!original)throw new Error('The duplicate receipt is missing.');
+          entry={...original,id:plan.id,from:original.to,to:original.from,kind:'reversal',reverses:original.id};
+        }else{
+          if(completions(ledger).get(plan.payment)>0)continue;
+          const r=request(plan.payment),b=balances(ledger);if(b[r.from]<r.amount||CASE.acc[r.from].owner!==r.by)throw new Error('The pending payment is not allowed.');
+          entry={id:plan.id,payment:r.id,ticket:r.t,period:r.period,from:r.from,to:r.to,amount:r.amount,kind:'transfer'};
+        }
+        ledger=ledger.concat(entry);stages.push({kind:plan.kind,entry,ledger:copyLedger(ledger),balances:balances(ledger)});
+      }
+      const end=balances(ledger);
+      if(Object.keys(CASE.expectedEnd).some(k=>end[k]!==CASE.expectedEnd[k])||[...completions(ledger).values()].some(n=>n!==1))throw new Error('The account is not reconciled.');
+      return {state:{...state,ledger,settled:true},stages};
+    }
+    const periodText=period=>period?({'2027-01':'January 2027','2027-02':'February 2027'}[period]||period):'';
+    const paymentLabel=a=>a.period?`${a.t}, ${periodText(a.period)}`:`ticket ${a.t}`;
+    function describe(result){
+      if(result.solved)return CASE.id===1?'Both requests completed, and the repeated delivery moved no money.':'January’s retry moved no money. Both February payments completed.';
+      const s=result.steps[result.broken.step];
+      return result.broken.rule==='once'?`${CASE.id===1?'Ticket '+s.t:paymentLabel(s)} moved $${s.amount} a second time even though it was the same request.`:`${CASE.id===1?'Ticket '+s.t:paymentLabel(s)} is a separate request for $${s.amount}. It has not been carried out.`;
+    }
+    const stageTitle=s=>s.kind==='reversal'?`${s.entry.reverses} reversed.`:`${CASE.id===1?'Ticket '+s.entry.ticket:paymentLabel({t:s.entry.ticket,period:s.entry.period})} completed.`;
+    const stageDetail=s=>s.kind==='reversal'?`$${s.entry.amount} restored to Ana’s savings.`:`$${s.entry.amount} moved to checking.`;
+    return {CASE,POLICIES,INITIAL_LEDGER,request,policy,balances,completions,pending,create,select,replay,test,install,reconcile,describe,periodText,paymentLabel,stageTitle,stageDetail};
+  }
+  root.TransferDeskEpisode=Object.assign(forCase(1),{CASES:Cases,forCase});
+})(globalThis);
+</script><script>(function(root){
+  'use strict';
+  const freeze=x=>{if(x&&typeof x==='object'){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
+  const first=root.TransferDeskCases.map(c=>{
+    const acc={...c.acc,cl:{owner:'Bank',label:'Clearing'}};delete acc.bc;
+    const start={...c.start,cl:0};delete start.bc;const expectedEnd={...c.expectedEnd,cl:0};delete expectedEnd.bc;
+    return {...c,acc,start,expectedEnd,actor:'Ana',requests:c.requests.map(r=>({...r,allowed:true,day:r.period==='2027-02'?'d2':'d1',month:r.period||'2027-01'})),declined:[]};
+  });
+  const a=(owner,label)=>({owner,label});
+  const req=(id,by,from,to,amount,allowed,quote,month)=>({id,t:id,by,from,to,amount,allowed,quote,day:'d1',month,period:null});
+  const entry=(id,payment,from,to,amount,kind='transfer')=>({id,payment,ticket:payment,from,to,amount,kind,period:null});
+  root.TransferDeskShiftCases=freeze(first.concat([
+    {id:3,key:'money-spent',title:'Money already spent',actor:'Ben',
+     acc:{bs:a('Ben','Ben’s savings'),bk:a('Ben','Ben’s checking'),bd:a('Ben','Ben’s card account'),cl:a('Bank','Clearing')},start:{bs:500,bk:0,bd:0,cl:0},
+     requests:[req('B1','Ben','bs','bk',400,true,'Move $400 from my savings to my checking.', '2027-03'),req('B2','Ben','bs','bd',300,false,'Move $300 from my savings to my card account.', '2027-03')],
+     arrivals:[{payment:'B1'},{payment:'B2'}],initialLedger:[entry('T901','B1','bs','bk',400),entry('T902','B2','bs','bd',300)],
+     settlement:[{id:'R903',kind:'reversal',reverses:'T902'}],expectedEnd:{bs:100,bk:400,bd:0,cl:0},declined:[{payment:'B2',reason:'Ben’s savings held $100 when B2 arrived, short of its $300.'}],
+     fiction:{hook:'Find out why Ben’s savings went below zero.',opening:'I moved $400 to checking this morning. Why is my savings account $200 overdrawn?',assistant:'Both transfers are complete.',need:'Ben’s incident file includes a later request for his card account.',requestNote:'B1 arrived before B2. Ben owns all three accounts.',receiptNote:'Both requests executed. B2 took $300 from savings after B1 had moved $400.',installed:'The recorded B2 execution is still in the account. Installing the desk does not reverse it.',closed:'The extra $300 was restored to savings. B2 was declined for funds; B1 stands.',reply:'My savings are back to $100. The $400 in checking is right.',completeRequests:'B1 stands. B2 was declined for insufficient funds.',completeReceipts:'T901 remains. R903 reverses T902.'}},
+    {id:4,key:'permission',title:'Another customer’s account',actor:'Ben',
+     acc:{as:a('Ana','Ana’s savings'),ac:a('Ana','Ana’s checking'),bs:a('Ben','Ben’s savings'),bk:a('Ben','Ben’s checking'),cl:a('Bank','Clearing')},start:{as:300,ac:200,bs:500,bk:0,cl:0},
+     requests:[req('A1','Ana','ac','bk',100,true,'Pay Ben $100 from my checking.', '2027-04'),req('A2','Ana','bs','ac',200,false,'Move $200 from Ben’s savings to my checking.', '2027-04')],
+     arrivals:[{payment:'A1'},{payment:'A2'}],initialLedger:[entry('T1001','A1','ac','bk',100),entry('T1002','A2','bs','ac',200)],
+     settlement:[{id:'R1003',kind:'reversal',reverses:'T1002'}],expectedEnd:{as:300,ac:100,bs:500,bk:100,cl:0},declined:[{payment:'A2',reason:'Ana did not own the savings account named in A2.'}],
+     fiction:{hook:'Find out why Ben’s savings paid Ana.',opening:'$200 left my savings tonight, and I never asked to move it.',assistant:'The request came from a bank customer.',need:'Ana asked for both transfers. The account record shows who owns each source.',requestNote:'Ana owns her savings and checking. Ben owns his savings and checking.',receiptNote:'T1001 paid Ben from Ana’s checking. T1002 took money from Ben’s savings at Ana’s request.',installed:'A2’s $200 execution is still in the account. A1’s separate $100 payment also remains.',closed:'A2 was reversed. Ben’s savings are restored, and Ana’s legitimate payment to him stands.',reply:'The $200 is back in savings. Ana’s separate $100 payment reached my checking.',completeRequests:'A1 stands. A2 was declined because Ana did not own its source account.',completeReceipts:'T1001 remains. R1003 reverses T1002.'}},
+    {id:5,key:'dropped-line',title:'The dropped line',actor:'Ana',
+     acc:{as:a('Ana','Ana’s savings'),rs:a('Rosa','Rosa’s account'),cl:a('Bank','Clearing')},start:{as:1000,rs:0,cl:0},
+     requests:[req('P1','Ana','as','rs',300,true,'Pay Rosa $300 from my savings.', '2027-05')],
+     arrivals:[{payment:'P1',drop:true},{payment:'P1',again:true}],initialLedger:[entry('T1101','P1','as','cl',300,'held')],
+     settlement:[{id:'T1102',kind:'release',payment:'P1',releases:'T1101'}],expectedEnd:{as:700,rs:300,cl:0},declined:[],
+     fiction:{hook:'Find out where Ana’s payment to Rosa stopped.',opening:'My $300 left savings an hour ago. Rosa says it never arrived, and the app says my retry was a repeat.',assistant:'P1 has already been handled.',need:'The line dropped during the first attempt. Ana sent the same request again.',requestNote:'The first arrival lost the line after the debit. The next arrival is the same P1, not another payment.',receiptNote:'T1101 moved $300 from Ana’s savings into clearing. Rosa has received nothing.',installed:'The $300 is still held in clearing. Installing the desk does not deliver it to Rosa.',closed:'The $300 held in clearing reached Rosa. Ana’s savings were not debited again.',reply:'Rosa has the $300 now, and my savings stayed at $700.',completeRequests:'P1 is complete. Its retry caused no additional debit.',completeReceipts:'T1101 records the original debit to clearing. T1102 delivered those funds to Rosa.'}}
+  ]));
+})(globalThis);
+</script><script>(function(root){
+  'use strict';
+  const CASES=root.TransferDeskShiftCases,clone=x=>JSON.parse(JSON.stringify(x));
+  const PARTS=[
+    {id:'repeat',label:'Repeat check',options:[['delivery','A new transfer for every delivery'],['customer-day','One completed transfer per customer per day'],['ref','One completed transfer per ticket or reference'],['customer-month','One completed payment per customer and month'],['ref-month','One completed payment per reference and month']]},
+    {id:'record',label:'When a request counts as done',options:[['arrival','When it arrives'],['completion','When its money has moved']]},
+    {id:'funds',label:'Money check',options:[['start','The account held enough at the start of the day'],['now','The account holds enough when this request arrives'],['all','The customer holds enough across all their accounts']]},
+    {id:'owner',label:'Permission',options:[['customer','The person asking banks here'],['from','The person asking owns the account the money leaves'],['to','The person asking owns the account the money goes to']]},
+    {id:'move',label:'Moving the money',options:[['outin','Take it out, then pay it in'],['atomic','Take it out and pay it in as one step']]}
+  ];
+  const NAIVE={repeat:'delivery',record:'arrival',funds:'start',owner:'customer',move:'outin'};
+  const FIX=[{repeat:'ref'},{repeat:'ref-month'},{funds:'now'},{owner:'from'},{record:'completion',move:'atomic'}];
+  const signature=d=>PARTS.map(p=>p.id+'='+d[p.id]).join('|');
+  const part=id=>{const p=PARTS.find(p=>p.id===id);if(!p)throw Error('Unknown desk part.');return p;};
+  function validate(d){for(const p of PARTS)if(!p.options.some(([value])=>value===d[p.id]))throw Error('Unknown desk setting.');}
+  const preset=id=>Object.assign({},NAIVE,...FIX.slice(0,id-1));
+  const periodText=p=>({'2027-01':'January 2027','2027-02':'February 2027'}[p]||p||'');
+  const paymentLabel=r=>r.period?r.t+', '+periodText(r.period):'ticket '+r.t;
+  const capitalized=t=>t[0].toUpperCase()+t.slice(1);
+  const request=(c,id)=>{const r=c.requests.find(r=>r.id===id);if(!r)throw Error('Unknown payment.');return r;};
+  function memoryKey(r,i,repeat){switch(repeat){case'delivery':return '#'+i;case'customer-day':return r.by+'|'+r.day;case'ref':return r.t;case'customer-month':return r.by+'|'+r.month;case'ref-month':return r.t+'|'+r.month;default:throw Error('Unknown repeat setting.');}}
+  // Full queues support independent verification; the visible replay ends at its first failed requirement.
+  function replay(c,desk){
+    validate(desk);const bal={...c.start},seen=new Set(),done=new Map(),steps=[];
+    for(const [i,arrival] of c.arrivals.entries()){
+      const r=request(c,arrival.payment),s={...r,...arrival,i,before:{...bal},gate:null,moved:'none',broke:[]},key=memoryKey(r,i,desk.repeat);
+      if(seen.has(key))s.gate='repeat';
+      else{
+        if(desk.record==='arrival')seen.add(key);
+        const owner=desk.owner==='customer'||c.acc[desk.owner==='from'?r.from:r.to].owner===r.by;
+        const funds=desk.funds==='start'?c.start[r.from]:desk.funds==='now'?bal[r.from]:Object.keys(bal).filter(k=>c.acc[k].owner===r.by).reduce((n,k)=>n+bal[k],0);
+        if(!owner)s.gate='owner';else if(funds<r.amount)s.gate='funds';
+        else if(arrival.drop){s.gate='drop';if(desk.move==='outin'){bal[r.from]-=r.amount;bal.cl+=r.amount;s.moved='out';}}
+        else{bal[r.from]-=r.amount;bal[r.to]+=r.amount;s.moved='both';done.set(r.id,(done.get(r.id)||0)+1);if(desk.record==='completion')seen.add(key);}
+      }
+      s.after={...bal};
+      if(s.moved==='both'&&c.acc[r.from].owner!==r.by)s.broke.push('owner');
+      if(Object.values(bal).some(n=>n<0))s.broke.push('overdraft');
+      if((done.get(r.id)||0)>1&&r.allowed)s.broke.push('once');
+      if((done.get(r.id)||0)>0&&!r.allowed)s.broke.push('declined');
+      steps.push(s);
+    }
+    const kinds=new Set();for(const s of steps)for(const k of s.broke)kinds.add(k);
+    for(const r of c.requests)if(r.allowed&&!done.get(r.id)){
+      kinds.add('through');const last=steps.filter(s=>s.payment===r.id).at(-1);if(last)last.broke.push('through');
+    }
+    if(bal.cl!==0){kinds.add('stuck');steps.at(-1).broke.push('stuck');}
+    const index=steps.findIndex(s=>s.broke.length),visible=index<0?steps:steps.slice(0,index+1);
+    return {caseId:c.id,desk:{...desk},steps:visible,allSteps:steps,fullEnd:{...bal},end:visible.length?visible.at(-1).after:{...c.start},broke:[...kinds],broken:index<0?null:{step:index,rule:steps[index].broke[0]},solved:kinds.size===0};
+  }
+  function suite(id,desk){const replays=CASES.slice(0,id).map(c=>replay(c,desk));return {desk:{...desk},replays,current:replays.at(-1),solved:replays.every(r=>r.solved)};}
+  function describe(c,result){
+    if(result.solved){
+      // Incidents 1 and 2 keep their built lines; later ones mention declines and clearing only where they occur.
+      if(c.id===1)return 'Both requests completed, and the repeated delivery moved no money.';
+      if(c.id===2)return 'January’s retry moved no money. Both February payments completed.';
+      return 'Every allowed payment completed once'+(c.requests.some(r=>!r.allowed)?'; declined requests moved no money.':c.arrivals.some(a=>a.drop)?', and no money was left in clearing.':'.');
+    }
+    const s=result.steps.at(-1),label=capitalized(paymentLabel(s));
+    if(s.broke.includes('overdraft'))return `${c.acc[s.from].label} went to −$${-s.after[s.from]} after ${s.t}.`;
+    if(s.broke.includes('owner'))return `${s.by} asked for ${s.t}, and $${s.amount} left ${c.acc[s.from].label}.`;
+    if(s.broke.includes('once'))return `${label} moved $${s.amount} a second time even though it was the same request.`;
+    if(s.broke.includes('stuck'))return `The queue ended with $${s.after.cl} in clearing, $${s.after[s.from]} in ${c.acc[s.from].label}, and $${s.after[s.to]} in ${c.acc[s.to].label}.`;
+    if(s.broke.includes('through')&&c.id<=2)return `${label} is a separate request for $${s.amount}. It has not been carried out.`;
+    if(s.broke.includes('through'))return `${label} requested $${s.amount} from ${c.acc[s.from].label} to ${c.acc[s.to].label}. It has not been carried out.`;
+    return `${label} moved $${s.amount} even though that request should have been declined.`;
+  }
+  function forCase(id,opening=preset(id)){
+    const CASE=CASES.find(c=>c.id===id);if(!CASE)throw Error('Unknown incident.');validate(opening);
+    const allowed=partId=>id>=3?part(partId).options:partId==='repeat'?part('repeat').options.filter(([v])=>(id===1?['delivery','customer-day','ref']:['ref','customer-month','ref-month']).includes(v)):[];
+    function options(partId){return allowed(partId).map(([value,label])=>{
+      let optionId=value;
+      if(id===1){optionId={delivery:'delivery','customer-day':'customer',ref:'ticket'}[value];label=CASE.policies.find(p=>p.id===optionId).label;}
+      if(id===2){optionId={ref:'reference','customer-month':'customer-month','ref-month':'reference-month'}[value];label=CASE.policies.find(p=>p.id===optionId).label;}
+      return {id:optionId,value,label};
+    });}
+    const check=s=>{if(s.caseId!==id)throw Error('State belongs to another incident.');};
+    function balances(ledger){const b={...CASE.start},ids=new Set();for(const e of ledger){if(ids.has(e.id)||!Number.isInteger(e.amount)||e.amount<=0||!(e.from in b)||!(e.to in b))throw Error('Invalid protected record.');ids.add(e.id);b[e.from]-=e.amount;b[e.to]+=e.amount;}if(Object.values(b).reduce((a,b)=>a+b,0)!==Object.values(CASE.start).reduce((a,b)=>a+b,0))throw Error('Money was lost.');return b;}
+    function counts(ledger){const n=new Map(CASE.requests.map(r=>[r.id,0])),reversed=new Set(),released=new Set();for(const e of ledger){
+      request(CASE,e.payment);
+      if(e.kind==='transfer')n.set(e.payment,n.get(e.payment)+1);
+      else if(e.kind==='release'){const held=ledger.find(x=>x.id===e.releases&&x.kind==='held');if(!held||released.has(e.releases)||held.payment!==e.payment||held.amount!==e.amount||e.from!=='cl')throw Error('Invalid clearing release.');released.add(e.releases);n.set(e.payment,n.get(e.payment)+1);}
+      else if(e.kind==='reversal'){const original=ledger.find(x=>x.id===e.reverses&&x.kind==='transfer');if(!original||reversed.has(e.reverses)||e.amount!==original.amount||e.from!==original.to||e.to!==original.from)throw Error('Invalid reversal.');reversed.add(e.reverses);n.set(original.payment,n.get(original.payment)-1);}
+      else if(e.kind!=='held')throw Error('Unknown receipt kind.');
+    }return n;}
+    const pending=l=>CASE.requests.filter(r=>r.allowed&&!counts(l).get(r.id)).length;
+    const create=()=>({caseId:id,openingDesk:{...opening},installedDesk:{...opening},draft:{...opening},verified:null,tests:0,ledger:clone(CASE.initialLedger),settled:false,committed:false});
+    function select(s,p,value){check(s);if(s.committed||s.settled)throw Error('The tested desk is already installed.');if(!allowed(p).some(([v])=>v===value))throw Error('Setting is unavailable in this incident.');const draft={...s.draft,[p]:value};return {...s,draft,verified:signature(draft)===signature(s.draft)?s.verified:null};}
+    function test(s){check(s);if(s.committed)throw Error('The desk is installed.');const result=suite(id,s.draft);return {state:{...s,tests:s.tests+1,verified:result.solved?signature(s.draft):null},result};}
+    function install(s){check(s);if(s.settled)return s;if(s.verified!==signature(s.draft)||!suite(id,s.draft).solved)throw Error('A passing shift replay is required.');return {...s,committed:true,installedDesk:{...s.draft}};}
+    function reconcile(s){
+      check(s);if(s.settled)return {state:s,stages:[]};if(!s.committed||s.verified!==signature(s.installedDesk))throw Error('The verified desk must be installed first.');
+      let ledger=clone(s.ledger);const stages=[];balances(ledger);counts(ledger);
+      for(const plan of CASE.settlement){let entry;
+        if(plan.kind==='reversal'){if(ledger.some(e=>e.reverses===plan.reverses))continue;const e=ledger.find(e=>e.id===plan.reverses);if(!e)throw Error('Missing original receipt.');entry={...e,id:plan.id,kind:'reversal',from:e.to,to:e.from,reverses:e.id};}
+        else if(plan.kind==='release'){if(ledger.some(e=>e.releases===plan.releases))continue;const held=ledger.find(e=>e.id===plan.releases&&e.kind==='held'),r=request(CASE,plan.payment);if(!held||balances(ledger).cl<held.amount)throw Error('Missing held funds.');entry={id:plan.id,payment:r.id,ticket:r.t,period:r.period,kind:'release',from:'cl',to:r.to,amount:r.amount,releases:held.id};}
+        else{if(counts(ledger).get(plan.payment))continue;const r=request(CASE,plan.payment);if(balances(ledger)[r.from]<r.amount)throw Error('Pending payment lacks funds.');entry={id:plan.id,payment:r.id,ticket:r.t,period:r.period,kind:'transfer',from:r.from,to:r.to,amount:r.amount};}
+        ledger=ledger.concat(entry);stages.push({kind:plan.kind,entry,ledger:clone(ledger),balances:balances(ledger)});
+      }
+      const end=balances(ledger),net=counts(ledger);if(Object.keys(CASE.expectedEnd).some(k=>end[k]!==CASE.expectedEnd[k])||CASE.requests.some(r=>net.get(r.id)!==(r.allowed?1:0)))throw Error('The account is not reconciled.');
+      return {state:{...s,ledger,settled:true},stages};
+    }
+    const stageTitle=s=>s.kind==='reversal'?s.entry.reverses+' reversed.':capitalized(paymentLabel({t:s.entry.ticket,period:s.entry.period}))+(s.kind==='release'?' delivered.':' completed.');
+    const stageDetail=s=>s.kind==='reversal'?`$${s.entry.amount} restored to ${CASE.acc[s.entry.to].label}.`:s.kind==='release'?`$${s.entry.amount} moved from clearing to ${CASE.acc[s.entry.to].label}.`:`$${s.entry.amount} moved to ${CASE.acc[s.entry.to].label}.`;
+    return {CASE,PARTS,options,create,select,test,install,reconcile,balances,pending,counts,stageTitle,stageDetail};
+  }
+  root.TransferDeskNightShift={CASES,PARTS,NAIVE,FIX,preset,signature,part,periodText,paymentLabel,capitalized,request,replay,suite,describe,forCase};
+})(globalThis);
+</script><script>(function(){
+  'use strict';
+  const Deck=globalThis.TransferDeskEpisode,$=id=>document.getElementById(id);
+  const params=new URLSearchParams(location.search);
+  const COURSE=document.documentElement.dataset.mode==='course'||params.get('mode')==='course';
+  if(!COURSE)return;
+  const requested=params.get('seed');
+  let M=Deck.forCase(!COURSE&&Deck.CASES.some(c=>String(c.id)===requested)?Number(requested):1);
+  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let fast=reduced||params.get('instant')==='1';
+  document.body.classList.toggle('course',COURSE);
+  document.body.classList.toggle('embedded',COURSE||params.get('embed')==='1');
+  if(COURSE){$('takeaway').hidden=true;$('takeaway').open=true;}
+  if(reduced)$('motion-toggle').hidden=true;
+  const money=n=>'$'+n.toLocaleString('en-US');
+  const node=(tag,text,cls)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
+  const add=(p,...children)=>{for(const c of children)p.appendChild(c);return p;};
+  let state=M.create(),view='opening',result=null,testedPolicy=null,testedNumber=0,shown=0,busy=false,timer=null;
+  let history={},notes=[],settlement=null,settledSteps=0;
+  const announce=text=>{$('announcement').textContent=text;};
+  function focus(id){const e=$(id);if(e&&typeof e.focus==='function')e.focus();}
+  function fit(){try{const f=window.frameElement;if(f&&(COURSE||params.get('embed')==='1'))f.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+30)+'px';}catch(e){}}
+  function journal(text){notes.push(text);$('record-count').textContent=`${notes.length} ${notes.length===1?'entry':'entries'}`;$('record-lines').appendChild(node('li',text));}
+  function renderHud(){
+    const b=M.balances(state.ledger),count=M.pending(state.ledger);
+    $('live-savings').textContent=money(b.as);$('live-checking').textContent=money(b.ac);$('live-total').textContent=money(b.as+b.ac);
+    const unit=M.CASE.id===1?'ticket':'payment';$('live-pending').textContent=count+' '+unit+(count===1?'':'s');
+    $('terminal').classList.toggle('is-testing',view==='bench');
+    $('incident-state').textContent=state.settled?'Case closed':busy&&view==='installed'?'Reconciling account':view==='installed'?'Rule installed':view==='bench'?'Test bench':'Case open';
+    $('test-count').textContent=state.tests?`${state.tests} ${state.tests===1?'test run':'test runs'}`:'No tests run';
+    $('motion-toggle').textContent='Fast playback: '+(fast?'on':'off');$('motion-toggle').setAttribute('aria-pressed',String(fast));
+  }
+  function renderReceipts(){
+    const body=$('receipt-rows');body.textContent='';
+    for(const e of state.ledger){
+      const row=node('tr'),reverse=state.ledger.find(x=>x.reverses===e.id);
+      const payment=node('td',e.ticket);if(e.period)payment.appendChild(node('small',M.periodText(e.period),'payment-period'));
+      add(row,node('td',e.id),payment,node('td',money(e.amount),'money'),node('td',e.kind==='reversal'?'Reverses '+e.reverses:reverse?'Completed; reversed by '+reverse.id:'Completed','receipt-state'));body.appendChild(row);
+    }
+    $('receipt-note').textContent=state.settled?M.CASE.fiction.completeReceipts:M.CASE.fiction.receiptNote;
+    $('request-note').textContent=M.pending(state.ledger)?M.CASE.fiction.requestNote:M.CASE.fiction.completeRequests;
+  }
+  function canInstall(){return !busy&&!!state.policy&&state.verifiedPolicy===state.policy&&state.installedPolicy===M.CASE.installedPolicy;}
+  function historyText(id){const h=history[id];if(!h)return 'Not tested';const s=h.result.broken&&h.result.steps[h.result.broken.step];return `Test ${h.number}: ${h.result.solved?'passed':h.result.broken.rule==='once'?'moved '+s.t+' twice':'stopped at '+M.paymentLabel(s)}`;}
+  function renderSelection(){
+    for(const p of M.POLICIES){
+      const radio=$('rule-'+p.id),card=$('card-'+p.id);
+      radio.checked=state.policy===p.id;radio.disabled=busy;card.classList.toggle('selected',radio.checked);
+      $('history-'+p.id).textContent=historyText(p.id);card.classList.toggle('tested',!!history[p.id]);
+    }
+    const currentFailure=result&&testedPolicy===state.policy&&!result.solved;
+    $('selection-status').textContent=!state.policy?'No rule selected.':busy?'Testing: '+M.policy(testedPolicy).label+'.':canInstall()?'Selected rule passed its test.':currentFailure?'Selected rule stopped at '+M.paymentLabel(result.steps[result.broken.step])+'.':`Selected: ${M.policy(state.policy).label}. ${history[state.policy]?'Not tested since this selection changed.':'Not yet tested.'}`;
+    $('cmd-run').hidden=busy;$('cmd-run').classList.toggle('primary',!canInstall());
+    $('cmd-run').textContent=canInstall()?'Run this rule again':'Run the test';
+    $('cmd-install').hidden=!canInstall();$('cmd-skip-replay').hidden=!busy;
+  }
+  function choosePolicy(id){
+    if(view!=='bench'||busy)return;
+    const changed=state.policy!==id;state=M.select(state,id);
+    if(changed){journal('Prepared rule for the copy: '+M.policy(id).label+'.');announce('Prepared: '+M.policy(id).label+'.');}
+    renderSelection();renderResultLabel();fit();
+  }
+  function renderResultLabel(){
+    if(!result)return;
+    $('tested-rule').textContent=`Test ${testedNumber}: ${M.policy(testedPolicy).label}`;
+    $('result-context').textContent=state.policy!==testedPolicy?'This result belongs to the rule named above. The selected rule has not been run since this change.':!busy&&result.solved&&!canInstall()?'This earlier result passed. The changed selection needs a new test before installation.':'';
+  }
+  function renderOutput(){
+    $('test-output').hidden=!result;if(!result)return;
+    renderResultLabel();
+    $('result-heading').textContent=busy?'The queue is running.':result.solved?'The whole queue went through.':'The copy stopped at '+M.paymentLabel(result.steps[result.broken.step])+'.';
+    const b=shown?result.steps[shown-1].after:M.CASE.start;
+    for(const [id,n] of [['copy-savings',b.as],['copy-checking',b.ac],['copy-total',b.as+b.ac]])$(id).textContent=money(n);
+    const queue=$('queue');queue.textContent='';
+    M.CASE.arrivals.forEach((a,i)=>{
+      const step=i<shown?result.steps[i]:null;let cls='',text=busy?'Waiting':'Not reached';
+      if(step){
+        if(step.moved==='both'){cls='moved';text='Completed';}
+        else{cls='stopped';const key=M.policy(testedPolicy).key;
+          text=key==='customer-day'?'Stopped: Ana already transferred today':key==='reference'?'Stopped: reference '+a.t+' already paid':key==='customer-month'?'Stopped: Ana already paid in '+M.periodText(a.period):'Already completed; no money moved';}
+        if(step.broke.length){cls='broken';if(step.broke.includes('once'))text='Moved a second time';}
+        if(busy&&i===shown-1)cls+=' active';
+      }else if(!busy)cls='unreached';
+      const status=node('span',text,'q-state');if(a.again)status.appendChild(node('em',a.period?'Same payment, sent again':'Same ticket, sent again'));
+      const label=node('span',a.t,'q-id');if(a.period)label.appendChild(node('small',M.periodText(a.period),'payment-period'));
+      queue.appendChild(add(node('li',undefined,cls),label,node('span',money(a.amount)),status));
+    });
+    $('test-feedback').hidden=busy;$('test-feedback').textContent=busy?'':M.describe(result);
+    $('test-feedback').className='callout '+(result.solved?'success':'problem');
+    const body=$('snapshot-rows');body.textContent='';
+    for(const [i,s] of result.steps.slice(0,shown).entries()){
+      const row=node('tr');add(row,node('td',String(i+1)),node('td',M.paymentLabel(s)),node('td',`${money(s.before.as)} / ${money(s.before.ac)}`),node('td',`${money(s.after.as)} / ${money(s.after.ac)}`));body.appendChild(row);
+    }
+    fit();
+  }
+  function show(next,moveFocus=true){
+    view=next;
+    for(const v of ['opening','bench','installed','closed'])$(v+'-view').hidden=v!==next;
+    $('opening-actions').hidden=next!=='opening';
+    $('view-heading').textContent={opening:'Ana is waiting.',bench:'What counts as another transfer?',installed:'Repeat rule installed.',closed:'Ana’s account is right.'}[next];
+    renderHud();if(next==='bench')renderSelection();
+    if(moveFocus)focus('view-heading');fit();
+  }
+  function finishReplay(){
+    clearTimeout(timer);timer=null;busy=false;shown=result.steps.length;
+    history[testedPolicy]={number:testedNumber,result};
+    journal('Isolated test '+testedNumber+': '+M.describe(result)+' Savings '+money(result.end.as)+'; checking '+money(result.end.ac)+'.');
+    const onSkip=document.activeElement===$('cmd-skip-replay');
+    renderHud();renderSelection();renderOutput();
+    if(onSkip)focus('result-heading');
+    announce(result.solved?'Test '+testedNumber+' passed. Live account unchanged.':'Test '+testedNumber+' stopped at '+M.paymentLabel(result.steps[result.broken.step])+'. Live account unchanged.');
+  }
+  function replayTick(){if(shown<result.steps.length){shown++;renderOutput();if(fast)replayTick();else timer=setTimeout(replayTick,750);}else finishReplay();}
+  function play(){
+    if(view!=='bench'||busy)return;
+    if(!state.policy){$('selection-status').textContent='Select a repeat rule for the test copy.';announce('No test run. Select a repeat rule.');focus('rule-'+M.POLICIES[0].id);return;}
+    const next=M.test(state);state=next.state;result=next.result;testedPolicy=state.policy;testedNumber=state.tests;shown=0;busy=true;
+    $('assistant-proposal').hidden=true;$('replay-record').open=false;
+    journal('Started isolated test '+testedNumber+'. No live money moves.');renderHud();renderSelection();renderOutput();focus('result-heading');replayTick();
+  }
+  function install(){
+    if(!canInstall())return;
+    state=M.install(state);$('installed-rule').textContent=M.policy(state.installedPolicy).label;
+    const b=M.balances(state.ledger);journal(`Installed the verified repeat rule. Live balances unchanged: savings ${money(b.as)}; checking ${money(b.ac)}.`);
+    show('installed');announce(`Rule installed. Savings ${money(b.as)}. Checking ${money(b.ac)}. Pending payments: ${M.pending(state.ledger)}.`);
+  }
+  function appendStages(list,stages){list.textContent='';for(const s of stages){const tick=node('span','✓','tick');tick.setAttribute('aria-hidden','true');list.appendChild(add(node('li'),tick,add(node('span',M.stageTitle(s)),node('span',M.stageDetail(s),'settlement-note'))));}}
+  function journalStage(s){journal(s.entry.id+': '+M.stageTitle(s)+' '+M.stageDetail(s));}
+  function renderSettlement(){
+    if(!settlement)return;
+    appendStages($('settlement-lines'),settlement.stages.slice(0,settledSteps));
+    renderHud();renderReceipts();fit();
+  }
+  function finishSettlement(){
+    clearTimeout(timer);timer=null;state=settlement.state;settledSteps=settlement.stages.length;busy=false;
+    $('reconciliation-output').hidden=true;$('cmd-skip-settlement').hidden=true;
+    journal('Live account reconciled: savings '+money(M.balances(state.ledger).as)+', checking '+money(M.balances(state.ledger).ac)+'.');
+    if(COURSE)$('takeaway').hidden=false;
+    appendStages($('closed-lines'),settlement.stages);renderReceipts();show('closed');
+    const b=M.balances(state.ledger);announce(`Incident closed. Savings ${money(b.as)}. Checking ${money(b.ac)}. No pending payments.`);
+  }
+  function settlementTick(){
+    if(settledSteps<settlement.stages.length){const s=settlement.stages[settledSteps++];state={...state,ledger:s.ledger};journalStage(s);renderSettlement();if(fast)settlementTick();else timer=setTimeout(settlementTick,1050);}else finishSettlement();
+  }
+  function reconcile(){
+    if(view!=='installed'||busy||state.settled)return;
+    settlement=M.reconcile(state);settledSteps=0;busy=true;
+    $('installed-summary').hidden=true;
+    $('view-heading').textContent='Putting the account right.';$('cmd-reconcile').hidden=true;$('cmd-skip-settlement').hidden=false;$('reconciliation-output').hidden=false;
+    journal('Started reconciliation of the recorded transfers.');renderHud();focus('view-heading');
+    if(fast)settlementTick();else timer=setTimeout(settlementTick,650);
+  }
+  function finishPlayback(){
+    if(!busy)return;clearTimeout(timer);
+    if(view==='bench')finishReplay();
+    else{while(settledSteps<settlement.stages.length){const s=settlement.stages[settledSteps++];state={...state,ledger:s.ledger};journalStage(s);}finishSettlement();}
+  }
+  function reset(moveFocus=true){
+    clearTimeout(timer);timer=null;state=M.create();result=null;testedPolicy=null;testedNumber=0;shown=0;busy=false;history={};notes=[];settlement=null;settledSteps=0;
+    $('record-lines').textContent='';for(const id of ['shift-record','request-file','receipts-file','replay-record','play-help'])$(id).open=false;
+    $('test-output').hidden=true;$('assistant-proposal').hidden=false;$('reconciliation-output').hidden=true;$('settlement-lines').textContent='';$('closed-lines').textContent='';$('installed-rule').textContent='';
+    $('cmd-reconcile').hidden=false;$('cmd-skip-settlement').hidden=true;
+    $('installed-summary').hidden=false;
+    if(COURSE)$('takeaway').hidden=true;
+    const b=M.balances(state.ledger);renderReceipts();renderSelection();journal(`Opened ${M.CASE.title}. Live savings ${money(b.as)}; checking ${money(b.ac)}. Pending payments: ${M.pending(state.ledger)}.`);show('opening',moveFocus);
+    if(moveFocus)announce(`Incident restarted. Savings ${money(b.as)}. Checking ${money(b.ac)}.`);
+  }
+  // Build once per incident. Selection and playback retain the current incident's focused nodes.
+  function buildRules(){ $('rule-cards').textContent='';for(const [i,p] of M.POLICIES.entries()){
+    const label=node('label',undefined,'policy-card');label.id='card-'+p.id;
+    const row=node('span',undefined,'rule-choice'),radio=node('input');radio.type='radio';radio.name='repeat-rule';radio.value=p.id;radio.id='rule-'+p.id;radio.setAttribute('aria-describedby','history-'+p.id);radio.setAttribute('aria-keyshortcuts',String(i+1));
+    const key=node('span','['+(i+1)+']','key');key.setAttribute('aria-hidden','true');
+    const name=node('span',p.label,'rule-label');name.id='label-'+p.id;radio.setAttribute('aria-labelledby',name.id);
+    add(row,radio,key,name);label.appendChild(row);
+    if(p.id===M.CASE.suggestion)label.appendChild(node('span','Assistant’s suggestion','proposal-tag'));
+    const h=node('span','Not tested','rule-history');h.id='history-'+p.id;label.appendChild(h);
+    radio.addEventListener('change',()=>{if(radio.checked)choosePolicy(p.id);});$('rule-cards').appendChild(label);
+  }}
+  function loadCase(id,moveFocus=true){
+    clearTimeout(timer);M=Deck.forCase(id);buildRules();
+    const f=M.CASE.fiction;
+    for(const [name,value] of Object.entries({'case-hook':f.hook,'opening-message':f.opening,'assistant-message':f.assistant,'opening-need':f.need,'installed-callout':f.installed,'closing-reply':f.reply,'closing-note':f.closed}))$(name).textContent=value;
+    $('case-title').textContent=COURSE?M.CASE.title:`Incident ${M.CASE.id} of ${Deck.CASES.length}: ${M.CASE.title}`;
+    $('terminal').classList.toggle('monthly',M.CASE.id===2);$('proposal-text').textContent='“'+M.CASE.proposal+'”';
+    $('payment-column').textContent=M.CASE.id===1?'Ticket':'Reference / payment month';$('snapshot-payment-column').textContent=$('payment-column').textContent;
+    $('request-list').textContent='';for(const r of M.CASE.requests){const row=node('div',undefined,'ticket-row');add(row,add(node('p',undefined,'row-top'),node('span',r.period?M.paymentLabel(r):'Ticket '+r.t),node('span',money(r.amount))),node('p','“'+r.quote+'”'));$('request-list').appendChild(row);}
+    $('cmd-newcase').hidden=COURSE;$('cmd-restart').classList.toggle('primary',COURSE);
+    reset(moveFocus);
+    if(!COURSE&&globalThis.history&&typeof URL==='function'&&location.href){try{const u=new URL(location.href);u.searchParams.set('seed',String(M.CASE.id));globalThis.history.replaceState(null,'',u.href);}catch(e){}}
+  }
+  $('cmd-bench').addEventListener('click',()=>show('bench'));
+  $('cmd-run').addEventListener('click',play);$('cmd-install').addEventListener('click',install);$('cmd-reconcile').addEventListener('click',reconcile);
+  for(const id of ['cmd-skip-replay','cmd-skip-settlement'])$(id).addEventListener('click',finishPlayback);
+  for(const id of ['restart','cmd-restart'])$(id).addEventListener('click',()=>reset());
+  $('cmd-newcase').addEventListener('click',()=>{if(!COURSE)loadCase(M.CASE.id===1?2:1);});
+  $('motion-toggle').addEventListener('click',()=>{fast=!fast;renderHud();if(fast&&busy)finishPlayback();});
+  document.addEventListener('keydown',e=>{
+    if(view!=='bench'||busy||e.repeat||e.altKey||e.ctrlKey||e.metaKey||!['1','2','3'].includes(e.key))return;
+    const target=e.target;if(target&&(target.isContentEditable||['TEXTAREA','SELECT'].includes(target.tagName)||(target.tagName==='INPUT'&&target.type!=='radio')))return;
+    const p=M.POLICIES[Number(e.key)-1];e.preventDefault();choosePolicy(p.id);focus('rule-'+p.id);
+  });
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.querySelector('main'));
+  loadCase(M.CASE.id,false);
+})();
+</script><script>(function(){
+  'use strict';
+  const params=new URLSearchParams(location.search),COURSE=document.documentElement.dataset.mode==='course'||params.get('mode')==='course';if(COURSE)return;
+  const S=globalThis.TransferDeskNightShift,$=id=>document.getElementById(id),node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;},add=(p,...children)=>{children.forEach(c=>p.appendChild(c));return p;};
+  const money=n=>(n<0?'−':'')+'$'+Math.abs(n).toLocaleString('en-US'),focus=id=>$(id).focus(),announce=t=>{$('announcement').textContent=t;};
+  const asked=params.get('seed'),seed=S.CASES.some(c=>String(c.id)===asked)?Number(asked):1;
+  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let fast=reduced||params.get('instant')==='1',api,state,view='opening',partId='repeat',choiceMade=false,optionNodes=[],history={},result=null,testNo=0,selectedReplay=0,shown=[],finished=[],busy=false,timer=null,playIndex=0,settlement=null,settledSteps=0,notes=[],records={},handledByInstalled=false;
+  for(let id=1;id<seed;id++)records[id]={supplied:true,tests:null};
+  document.body.classList.toggle('embedded',params.get('embed')==='1');if(reduced)$('motion-toggle').hidden=true;
+  function fit(){try{if(window.frameElement&&params.get('embed')==='1')window.frameElement.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+30)+'px';}catch(e){}}
+  function journal(t){notes.push(t);$('record-lines').appendChild(node('li',t));$('record-count').textContent=notes.length+(notes.length===1?' entry':' entries');}
+  const label=(p,value)=>S.part(p).options.find(([v])=>v===value)[1];
+  const currentSig=()=>S.signature(state.draft),testedCurrent=()=>result&&S.signature(result.desk)===currentSig();
+  const canInstall=()=>!busy&&!state.committed&&state.verified===currentSig();
+  function accountNodes(target,c,b,compact=false){
+    target.textContent='';if(!compact)target.appendChild(node('p','Live incident account','account-context'));
+    for(const k of Object.keys(c.start)){if(k==='cl'&&c.id!==5&&!b[k])continue;const value=node(compact?'b':'span',money(b[k]),compact?'':'balance');if(b[k]<0)value.classList.add('negative');target.appendChild(add(node(compact?'span':'div'),node('span',c.acc[k].label,compact?'':'account-label'),value));}
+    if(!compact){target.appendChild(node('p',api.pending(state.ledger)+' allowed requests pending','account-foot'));target.appendChild(node('p','Tests leave this account untouched.','account-note'));}
+  }
+  function renderHud(){
+    const b=api.balances(state.ledger),c=api.CASE;
+    $('terminal').classList.toggle('is-testing',view==='bench');$('terminal').classList.toggle('monthly',c.id===2);
+    $('legacy-accounts').hidden=c.id>2;$('shift-accounts').hidden=c.id<=2;
+    if(c.id<=2){$('live-savings').textContent=money(b.as);$('live-checking').textContent=money(b.ac);$('live-total').textContent=money(Object.values(b).reduce((a,b)=>a+b,0));const n=api.pending(state.ledger);$('live-pending').textContent=n+' '+(c.id===1?'ticket':'payment')+(n===1?'':'s');}
+    else accountNodes($('shift-accounts'),c,b);
+    $('incident-state').textContent=state.settled?'Incident closed':state.committed?(busy?'Reconciling':'Desk installed'):view==='bench'?'Test bench':'Case open';
+    $('test-count').textContent=state.tests?state.tests+(state.tests===1?' test run':' test runs'):'No tests run';
+    $('motion-toggle').textContent='Fast playback: '+(fast?'on':'off');$('motion-toggle').setAttribute('aria-pressed',String(fast));
+  }
+  function renderReceipts(){
+    const c=api.CASE,tbody=$('receipt-rows');tbody.textContent='';
+    for(const e of state.ledger){const reversed=state.ledger.find(x=>x.reverses===e.id),released=state.ledger.find(x=>x.releases===e.id),payment=node('td',e.ticket);if(e.period)payment.appendChild(node('small',S.periodText(e.period),'payment-period'));
+      const text=e.kind==='reversal'?'Reverses '+e.reverses:e.kind==='release'?'Delivered from clearing':e.kind==='held'?(released?'Held; released by '+released.id:'Held in clearing'):reversed?'Completed; reversed by '+reversed.id:'Completed';
+      tbody.appendChild(add(node('tr'),node('td',e.id),payment,node('td',money(e.amount),'money'),node('td',text,'receipt-state')));
+    }
+    const b=api.balances(state.ledger),complete=state.settled||(state.committed&&Object.keys(c.expectedEnd).every(k=>b[k]===c.expectedEnd[k]));
+    $('receipt-note').textContent=complete?c.fiction.completeReceipts:c.fiction.receiptNote;$('request-note').textContent=complete?c.fiction.completeRequests:c.fiction.requestNote;
+  }
+  function renderParts(){for(const p of S.PARTS){const card=$('part-card-'+p.id);if(!card)continue;const changed=state.draft[p.id]!==state.installedDesk[p.id];$('part-'+p.id).checked=partId===p.id;$('part-'+p.id).disabled=busy;card.classList.toggle('selected',partId===p.id);$('part-setting-'+p.id).textContent=label(p.id,state.draft[p.id]);$('part-state-'+p.id).textContent=changed?(testedCurrent()?'Changed; tested':'Changed; untested'):'Installed';}}
+  function renderChoices(){
+    for(const o of optionNodes){o.radio.checked=(api.CASE.id>=3||choiceMade)&&state.draft[partId]===o.value;o.radio.disabled=busy;o.card.classList.toggle('selected',o.radio.checked);const h=history[partId+'|'+o.value];o.note.textContent=h?(api.CASE.id<3?`Test ${h.number}: ${h.text}`:`In the desk for test ${h.number}`):'Not tested';}
+    $('selection-status').textContent=api.CASE.id<3&&!choiceMade?'No rule selected.':busy?'Replaying the incident files.':canInstall()?'The tested desk passes every incident so far.':testedCurrent()?'The desk was tested; the replay shows its observed result.':'Prepared desk changes have not been tested.';
+    $('cmd-run').hidden=busy;$('cmd-run').classList.toggle('primary',!canInstall());$('cmd-run').textContent=canInstall()?'Run this desk again':'Run the test';$('cmd-install').hidden=!canInstall();$('cmd-install').textContent=api.CASE.id<3?'Install verified rule':'Install verified desk';$('cmd-skip-replay').hidden=!busy;
+    renderParts();if(result)$('result-context').textContent=testedCurrent()?'':'This result belongs to the desk recorded for this test. Your prepared changes have not been tested.';fit();
+  }
+  function selectOption(value){if(busy||state.committed)return;state=api.select(state,partId,value);choiceMade=true;journal('Prepared '+S.part(partId).label+': '+label(partId,value)+'.');renderChoices();announce('Prepared '+S.part(partId).label+'.');}
+  function buildOptions(){
+    $('rule-cards').textContent='';optionNodes=[];const p=S.part(partId);$('setting-legend').textContent=api.CASE.id<3?'Repeat rule for the test copy':p.label+' setting';
+    for(const [i,o] of api.options(partId).entries()){
+      const card=node('label',undefined,'policy-card');card.id='card-'+o.id;const radio=node('input');radio.type='radio';radio.name='repeat-rule';radio.value=o.value;radio.id='rule-'+o.id;radio.setAttribute('aria-keyshortcuts',String(i+1));
+      const text=node('span',o.label,'rule-label');text.id='label-'+o.id;radio.setAttribute('aria-labelledby',text.id);const key=node('span','['+(i+1)+']','key');key.setAttribute('aria-hidden','true');card.appendChild(add(node('span',undefined,'rule-choice'),radio,key,text));
+      if(api.CASE.id<3&&o.id===api.CASE.suggestion)card.appendChild(node('span','Assistant’s suggestion','proposal-tag'));
+      const note=node('span','Not tested','rule-history');note.id='history-'+o.id;radio.setAttribute('aria-describedby',note.id);card.appendChild(note);radio.addEventListener('change',()=>{if(radio.checked)selectOption(o.value);});$('rule-cards').appendChild(card);optionNodes.push({radio,card,note,value:o.value});
+    }renderChoices();
+  }
+  function buildParts(){
+    $('part-cards').textContent='';$('part-picker').hidden=api.CASE.id<3;$('desk-panel').classList.toggle('full-panel',api.CASE.id>=3);
+    if(api.CASE.id>=3)for(const p of S.PARTS){const card=node('label',undefined,'part-card');card.id='part-card-'+p.id;const radio=node('input');radio.type='radio';radio.name='desk-part';radio.id='part-'+p.id;radio.value=p.id;
+      const name=node('span',p.label,'part-name');name.id='part-name-'+p.id;radio.setAttribute('aria-labelledby',name.id);add(card,add(node('span',undefined,'part-heading'),radio,name),Object.assign(node('span',undefined,'part-setting'),{id:'part-setting-'+p.id}),Object.assign(node('span',undefined,'part-state'),{id:'part-state-'+p.id}));
+      radio.addEventListener('change',()=>{if(!busy&&radio.checked){partId=p.id;buildOptions();renderParts();}});$('part-cards').appendChild(card);
+    }
+  }
+  function buildReplayRows(){
+    $('replay-list').textContent='';for(const [i,r] of result.replays.entries()){const c=S.CASES[r.caseId-1],button=node('button');button.type='button';button.id='replay-'+c.id;button.appendChild(node('span',`Incident ${c.id}: ${c.title}`));button.appendChild(node('span','Waiting','replay-status'));button.addEventListener('click',()=>{if(!busy){selectedReplay=i;renderReplay();renderReplayRows();}});$('replay-list').appendChild(add(node('li'),button));}
+    $('tested-settings').textContent='';for(const p of S.PARTS)add($('tested-settings'),node('dt',p.label),node('dd',label(p.id,result.desk[p.id])));$('tested-desk').hidden=api.CASE.id<3;
+  }
+  function renderReplayRows(){for(const [i,r] of result.replays.entries()){const b=$('replay-'+r.caseId);b.disabled=busy;b.setAttribute('aria-pressed',String(selectedReplay===i));b.querySelector('.replay-status').textContent=!finished[i]?(busy&&i===playIndex?'Running':'Waiting'):r.solved?'Passed':'Failed';}}
+  function renderReplay(){
+    if(!result)return;const r=result.replays[selectedReplay],c=S.CASES[r.caseId-1],n=shown[selectedReplay]||0,b=n?r.steps[n-1].after:c.start;
+    $('tested-rule').textContent=`Test ${testNo}, incident ${c.id}: ${c.title}`+(api.CASE.id<3?' · '+label('repeat',result.desk.repeat):'');
+    $('result-heading').textContent=busy&&!finished[selectedReplay]?'The queue is running.':r.solved?'This incident passed.':'The copy stopped at '+S.paymentLabel(r.steps.at(-1))+'.';
+    $('legacy-copy-balances').hidden=c.id>2;$('shift-copy-balances').hidden=c.id<=2;
+    if(c.id<=2){$('copy-savings').textContent=money(b.as);$('copy-checking').textContent=money(b.ac);$('copy-total').textContent=money(Object.values(b).reduce((a,b)=>a+b,0));}else accountNodes($('shift-copy-balances'),c,b,true);
+    const queue=$('queue');queue.textContent='';for(const [i,a] of c.arrivals.entries()){
+      const req=S.request(c,a.payment),s=i<n?r.steps[i]:null;let text=busy?'Waiting':'Not reached',cls='unreached';
+      if(s){text=s.moved==='both'?'Completed':s.moved==='out'?'Debited to clearing; recipient unpaid':s.gate==='drop'?'Line dropped; nothing moved':s.gate==='repeat'?'Stopped by the repeat check':s.gate==='owner'?'Stopped by permission':s.gate==='funds'?'Stopped by the money check':'No money moved';cls=s.broke.length?'broken':s.moved==='both'?'moved':'stopped';if(s.broke.includes('once'))text='Moved a second time';}
+      const id=node('span',req.t,'q-id');if(req.period)id.appendChild(node('small',S.periodText(req.period),'payment-period'));const status=node('span',text,'q-state');if(a.again)status.appendChild(node('em','Same payment, sent again'));queue.appendChild(add(node('li',undefined,cls),id,node('span',money(req.amount)),status));
+    }
+    $('test-feedback').hidden=busy&&!finished[selectedReplay];$('test-feedback').className='callout '+(r.solved?'success':'problem');$('test-feedback').textContent=S.describe(c,r);
+    $('snapshot-rows').textContent='';for(const [i,s] of r.steps.slice(0,n).entries()){const value=b=>Object.keys(b).filter(k=>k!=='cl'||c.id===5||b[k]).map(k=>c.acc[k].label+': '+money(b[k])).join('; ');$('snapshot-rows').appendChild(add(node('tr'),node('td',String(i+1)),node('td',S.paymentLabel(s)),node('td',value(s.before)),node('td',value(s.after))));}
+    renderReplayRows();fit();
+  }
+  function finishReplay(){clearTimeout(timer);timer=null;busy=false;result.replays.forEach((r,i)=>{shown[i]=r.steps.length;finished[i]=true;});
+    selectedReplay=result.solved||!result.current.solved?result.replays.length-1:result.replays.findIndex(r=>!r.solved);
+    const r=result.current,text=api.CASE.id<3?(r.solved?'passed':r.broken.rule==='once'?'moved '+r.steps.at(-1).t+' twice':'stopped at '+S.paymentLabel(r.steps.at(-1))):(result.solved?'desk replay passed':'desk replay failed');
+    for(const p of S.PARTS)history[p.id+'|'+result.desk[p.id]]=api.CASE.id<3?{number:testNo,text}:{number:testNo};
+    journal(`Test ${testNo}: ${result.solved?'every incident passed':'desk replay failed'}.`);const skip=document.activeElement===$('cmd-skip-replay');renderChoices();renderReplay();renderHud();if(skip)focus('result-heading');announce(`Test ${testNo}: ${result.replays.filter(r=>r.solved).length} of ${result.replays.length} incidents passed.`);
+  }
+  function replayTick(){const r=result.replays[playIndex];selectedReplay=playIndex;if(shown[playIndex]<r.steps.length){shown[playIndex]++;renderReplay();timer=setTimeout(replayTick,650);}else{finished[playIndex]=true;if(playIndex+1<result.replays.length){playIndex++;renderReplay();timer=setTimeout(replayTick,350);}else finishReplay();}}
+  function play(){if(busy||state.committed)return;if(api.CASE.id<3&&!choiceMade){$('selection-status').textContent='Select a repeat rule for the test copy.';focus(optionNodes[0].radio.id);announce('No test run. Select a rule.');return;}
+    const next=api.test(state);state=next.state;result=next.result;testNo=state.tests;if(testNo===1)handledByInstalled=result.solved&&S.signature(result.desk)===S.signature(state.openingDesk);shown=result.replays.map(()=>0);finished=result.replays.map(()=>false);playIndex=0;selectedReplay=0;busy=true;
+    $('test-output').hidden=false;$('shift-results').hidden=false;$('assistant-proposal').hidden=true;$('replay-record').open=false;buildReplayRows();renderChoices();renderHud();renderReplay();focus('result-heading');if(fast)finishReplay();else replayTick();
+  }
+  function show(next,moveFocus=true){view=next;for(const v of ['opening','bench','installed','closed'])$(v+'-view').hidden=v!==next;$('opening-actions').hidden=next!=='opening';$('view-heading').textContent={opening:api.CASE.actor+' is waiting.',bench:api.CASE.id<3?'What counts as another transfer?':'Which part of the desk failed?',installed:api.CASE.id<3?'Repeat rule installed.':'Tested desk installed.',closed:api.CASE.actor+'’s account is right.'}[next];renderHud();if(next==='bench')renderChoices();if(moveFocus)focus('view-heading');fit();}
+  function install(){if(!canInstall())return;const unchanged=S.signature(state.installedDesk)===currentSig();state=api.install(state);$('installed-rule').textContent=api.CASE.id<3?label('repeat',state.installedDesk.repeat):'The tested settings passed every incident so far.';show('installed');if(unchanged)$('view-heading').textContent='The installed desk is verified.';journal('Verified desk installed. The incident account is unchanged.');announce('Desk installed. Account unchanged.');}
+  function appendStages(target,stages){target.textContent='';for(const s of stages){const tick=node('span','✓','tick');tick.setAttribute('aria-hidden','true');target.appendChild(add(node('li'),tick,add(node('span',api.stageTitle(s)),node('span',api.stageDetail(s),'settlement-note'))));}}
+  function finishSettlement(){clearTimeout(timer);timer=null;state=settlement.state;busy=false;settledSteps=settlement.stages.length;appendStages($('closed-lines'),settlement.stages);records[api.CASE.id]={tests:state.tests,desk:{...state.installedDesk},handledByInstalled};renderReceipts();renderSummary();show('closed');announce('Incident reconciled. No allowed requests remain pending.');}
+  function settlementTick(){if(settledSteps<settlement.stages.length){const s=settlement.stages[settledSteps++];state={...state,ledger:s.ledger};appendStages($('settlement-lines'),settlement.stages.slice(0,settledSteps));renderHud();renderReceipts();journal(api.stageTitle(s)+' '+api.stageDetail(s));if(fast)settlementTick();else timer=setTimeout(settlementTick,1000);}else finishSettlement();}
+  function reconcile(){if(busy||!state.committed||state.settled)return;settlement=api.reconcile(state);settledSteps=0;busy=true;$('installed-summary').hidden=true;$('cmd-reconcile').hidden=true;$('cmd-skip-settlement').hidden=false;$('reconciliation-output').hidden=false;$('view-heading').textContent='Putting the account right.';renderHud();focus('view-heading');if(fast)settlementTick();else timer=setTimeout(settlementTick,650);}
+  function skip(){if(!busy)return;clearTimeout(timer);if(view==='bench')finishReplay();else{while(settledSteps<settlement.stages.length){const s=settlement.stages[settledSteps++];state={...state,ledger:s.ledger};}finishSettlement();}}
+  function renderSummary(){
+    $('shift-summary').hidden=api.CASE.id!==5;$('cmd-newcase').textContent=api.CASE.id===5?'Start a fresh shift':'New case';if(api.CASE.id!==5)return;
+    $('shift-summary-lines').textContent='';for(const c of S.CASES){const r=records[c.id];$('shift-summary-lines').appendChild(node('li',`${c.title}: ${r&&r.supplied?'earlier repair supplied':r&&r.handledByInstalled?'handled by the desk already installed':r?r.tests+' test'+(r.tests===1?'':'s'):'not completed'}.`));}
+    $('final-desk').textContent='';for(const p of S.PARTS)add($('final-desk'),node('dt',p.label),node('dd',label(p.id,state.installedDesk[p.id])));
+  }
+  function reset(moveFocus=true){clearTimeout(timer);timer=null;state=api.create();result=null;busy=false;partId='repeat';choiceMade=false;history={};notes=[];settlement=null;settledSteps=0;handledByInstalled=false;delete records[api.CASE.id];$('record-lines').textContent='';for(const id of ['shift-record','request-file','receipts-file','replay-record','play-help','tested-desk'])$(id).open=false;
+    $('test-output').hidden=true;$('shift-summary').hidden=true;$('assistant-proposal').hidden=api.CASE.id>=3;$('cmd-install').hidden=true;$('cmd-reconcile').hidden=false;$('cmd-skip-settlement').hidden=true;$('installed-summary').hidden=false;$('reconciliation-output').hidden=true;$('closed-lines').textContent='';$('settlement-lines').textContent='';
+    buildParts();buildOptions();renderReceipts();journal('Opened '+api.CASE.title+'. Repairs carry forward through the incident files.');show('opening',moveFocus);
+  }
+  function load(id,desk,moveFocus=true){
+    clearTimeout(timer);api=S.forCase(id,desk||S.preset(id));const c=api.CASE,f=c.fiction;
+    for(const [name,value] of Object.entries({'case-hook':f.hook,'opening-message':f.opening,'assistant-message':f.assistant,'opening-need':f.need,'installed-callout':f.installed,'closing-reply':f.reply,'closing-note':f.closed}))$(name).textContent=value;
+    document.querySelector('#opening-view .customer .name').textContent=c.actor;document.querySelector('#closed-view .customer .name').textContent=c.actor;
+    $('case-title').textContent=`Night shift, incident ${id} of ${S.CASES.length}: ${c.title}`;
+    document.querySelector('#play-help p:last-child').textContent=c.id<3?'On the test bench, keys 1-3 select a rule. Tab moves between controls; Enter or Space activates the focused control. Playback can be skipped.':'Choose a desk part, then its setting. Number keys select a setting in the open group. Tab and arrow keys move between controls. Playback can be skipped.';
+    $('proposal-text').textContent=c.proposal?'“'+c.proposal+'”':'';$('request-list').textContent='';
+    for(const r of c.requests){const row=node('div',undefined,'ticket-row');add(row,add(node('p',undefined,'row-top'),node('span',S.capitalized(S.paymentLabel(r))),node('span',money(r.amount))),node('p',r.by+': “'+r.quote+'”'),node('p',c.acc[r.from].label+' → '+c.acc[r.to].label,'quiet'));$('request-list').appendChild(row);}
+    $('payment-column').textContent=c.id===2?'Reference / payment month':'Ticket';$('snapshot-payment-column').textContent=$('payment-column').textContent;
+    $('declined-requests').textContent='';$('declined-requests').hidden=!c.declined.length;for(const d of c.declined)$('declined-requests').appendChild(node('p',d.payment+' declined. '+d.reason,'quiet'));
+    reset(moveFocus);if(globalThis.history&&location.href){const u=new URL(location.href);u.searchParams.set('seed',String(id));globalThis.history.replaceState(null,'',u.href);}
+  }
+  $('cmd-bench').addEventListener('click',()=>show('bench'));$('cmd-run').addEventListener('click',play);$('cmd-install').addEventListener('click',install);$('cmd-reconcile').addEventListener('click',reconcile);
+  for(const id of ['cmd-skip-replay','cmd-skip-settlement'])$(id).addEventListener('click',skip);for(const id of ['restart','cmd-restart'])$(id).addEventListener('click',()=>reset());
+  $('cmd-newcase').addEventListener('click',()=>{if(!state.settled)return;if(api.CASE.id===5){records={};load(1,{...S.NAIVE});}else load(api.CASE.id+1,{...state.installedDesk});});
+  $('motion-toggle').addEventListener('click',()=>{fast=!fast;if(fast&&busy)skip();renderHud();});
+  document.addEventListener('keydown',e=>{if(view!=='bench'||busy||e.repeat||e.altKey||e.ctrlKey||e.metaKey||!/^\d$/.test(e.key))return;const target=e.target;if(target&&(target.isContentEditable||['TEXTAREA','SELECT'].includes(target.tagName)||(target.tagName==='INPUT'&&target.type!=='radio')))return;const o=optionNodes[Number(e.key)-1];if(o){e.preventDefault();selectOption(o.value);focus(o.radio.id);}});
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(fit).observe(document.querySelector('main'));
+  load(seed,undefined,false);
+})();
+</script>
+</body></html>

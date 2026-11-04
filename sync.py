@@ -37,8 +37,9 @@ ICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0
 
 def clean(text, game):
     blocks = ABOUT.findall(text)
-    assert len(blocks) == 1, f'{game["source"]}: expected one review-about block, found {len(blocks)}'
-    text = ABOUT.sub(STUB if 'id="about"' in blocks[0] else '', text)
+    assert len(blocks) <= 1, f'{game["source"]}: expected zero or one review-about block, found {len(blocks)}'
+    if blocks:
+        text = ABOUT.sub(STUB if 'id="about"' in blocks[0] else '', text)
     text = REVIEW_HEADER.sub('', text, count=1)
     text = text.replace(REVIEW_NAV, '').replace(NOSCRIPT_OLD, 'This game needs JavaScript.')
     text, n = re.subn(r'<title>[^<]*</title>', f'<title>{html.escape(game["title"])} · AI Arcade</title><link rel="icon" href="{ICON}">', text, count=1)

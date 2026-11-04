@@ -54,6 +54,19 @@
       "colour": "#4B7293"
     },
     {
+      "slug": "transfer-desk",
+      "title": "Transfer Desk",
+      "source": "transfer-desk-terminal.html",
+      "hook": "Ana has been charged twice, and the night shift is just starting. Trace the desk’s faulty rules, test your repairs against earlier incidents, and put each account right.",
+      "course": "AI Systems+Agents",
+      "topic": "Enforcing requirements",
+      "number": "6.S978.1x",
+      "colour": "#0E7490",
+      "play": "#terminal",
+      "thumb_asset": "transfer-desk-terminal/thumbnail.svg",
+      "alt": "Matching request slips and a separate slip beside a bank ledger and coins moving between two accounts."
+    },
+    {
       "slug": "trace-the-trail",
       "title": "Rover Route",
       "source": "trace-the-trail.html",

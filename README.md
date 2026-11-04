@@ -1,6 +1,6 @@
 # AI Arcade
 
-Seventeen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal, plays out as you move things, and keeps its explanation in a closed drop-down.
+Eighteen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal and keeps its explanation in a closed drop-down.
 
 **Play:** https://codey-m.github.io/ai-arcade/
 
@@ -11,6 +11,7 @@ Games appear in play order, not course order: the subjects alternate, each stati
 | [Beach Beeps](https://codey-m.github.io/ai-arcade/beach-beeps.html) | Probability+SDA 6.3710.1x | Bayes' rule and the base rate |
 | [Recycling Day](https://codey-m.github.io/ai-arcade/sort-the-recycling.html) | Deep Learning 6.7960.1x | Model capacity: building and training a small network |
 | [Backup Power](https://codey-m.github.io/ai-arcade/backup-power.html) | Probability+SDA 6.3710.1x | Independence and reliability |
+| [Transfer Desk](https://codey-m.github.io/ai-arcade/transfer-desk.html) | AI Systems+Agents 6.S978.1x | Enforcing requirements: diagnosing and repairing a payment desk |
 | [Rover Route](https://codey-m.github.io/ai-arcade/trace-the-trail.html) | Deep Learning 6.7960.1x | Generalization: fitting measurements without following their noise |
 | [Prize Wheel](https://codey-m.github.io/ai-arcade/prize-wheel.html) | Probability+SDA 6.3710.2x | Distributions with the same average and different chances |
 | [Downhill Racer](https://codey-m.github.io/ai-arcade/guide-the-robot-home.html) | Deep Learning 6.7960.2x | Learning rate, momentum and local minima |
@@ -41,6 +42,7 @@ The games are developed and tested in the `ai-arcade-review/pilots` working fold
 - `launcher.html` is the launcher template.
 - `sync.py` copies the built games into `site/`, removes review-only links (build notes and archived course originals) and writes `site/index.html`. It stops if any other link would leave the site.
 - `tools/thumbs.py` redraws the thumbnails (macOS with Google Chrome). It hides all text first, because course images carry no words; each card's alt text describes the scene.
+- An optional `thumb_asset` uses a self-contained, text-free SVG in the pilots folder instead of capturing the game. Transfer Desk uses this path because its play area is a text terminal. The SVG must have a 16:10 viewBox; scripts, text, embedded images and external resources are rejected.
 - `.github/workflows/pages.yml` publishes `site/` to GitHub Pages on every push to `main` that changes `site/`. You can also run it by hand from the Actions tab.
 
 ## Updating the site
@@ -56,4 +58,4 @@ python3 sync.py
 
 Review the generated site and thumbnails before committing and pushing. Course hosting is separate. Course-mode copies come from `ai-arcade-review/pilots/wire_course.py`, and each course hosts its own: for CV+NLP, `CV_NLP/docs/publish_widgets.py` mirrors them to `CV_NLP_Labs/widgets/`, and the course imports wait until those hosted copies are live. Wish List is not wired into a course yet.
 
-A game marked `"hold": true` in `games.json` keeps its place in the order but stays off the site (none at the moment). To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Optional fields shape the thumbnail (every scene is shown whole, padded to 16:10 on white): `thumb_steps` plays the game into a more telling state first (selectors to click, `{"set": selector, "value": v}` for a slider, or `{"key": selector, "press": key, "times": n}` for keyboard controls), and `thumb_query` opens a particular round (for example `seed=4`). `thumb_live` (`{"steps": [...], "after": ms}`) then plays on in real time and catches the scene mid-animation, through Chrome's DevTools protocol (`tools/live.py`, standard library only): planes in flight in Wonder Fold, crates in the air in Tipping Point.
+A game marked `"hold": true` in `games.json` keeps its place in the order but stays off the site and is skipped by thumbnail generation. No games are currently held. To add a game, add an entry with its built file name and the CSS selector of its play area. Optional fields shape the thumbnail (every captured scene is shown whole, padded to 16:10 on white): `thumb_steps` plays the game into a more telling state first (selectors to click, `{"set": selector, "value": v}` for a slider, or `{"key": selector, "press": key, "times": n}` for keyboard controls), and `thumb_query` opens a particular round (for example `seed=4`). `thumb_live` (`{"steps": [...], "after": ms}`) then plays on in real time and catches the scene mid-animation, through Chrome's DevTools protocol (`tools/live.py`, standard library only). A `thumb_asset` uses the illustrated-asset path instead. Refresh the launcher with `sync.py` after producing a thumbnail so its image fingerprint is current.
