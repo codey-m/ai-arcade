@@ -134,9 +134,9 @@ body.course main{padding:12px 12px 16px}
 /* Sleigh */
 .sleigh{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;background:linear-gradient(#C6373E,#9E2229);border-radius:28px 10px 10px 40px;padding:12px 16px;border-bottom:6px solid #F5D58A}
 .place{background:rgba(255,247,234,.95);border-radius:6px;min-height:120px;text-align:center;font-size:13px;color:var(--ink-2);padding:6px}.place svg{width:84px;height:auto}
-.delivery{margin-top:14px;border-radius:10px;overflow:hidden;background:#13213A;color:#F3EBDD;padding:0 0 16px}
+.delivery{position:relative;margin-top:14px;border-radius:10px;overflow:hidden;background:#13213A;color:#F3EBDD;padding:0 0 16px}
 .sky{position:relative;height:96px;background:linear-gradient(#0E1A30,#1F3357)}
-.sleigh-fly{position:absolute;top:24px;right:100%;width:min(220px,46%);animation:fly 3s ease-in-out forwards}@keyframes fly{to{right:3%}}
+.sleigh-fly{position:absolute;top:16px;right:3%;width:min(220px,46%)}
 .star{position:absolute;width:3px;height:3px;background:#fff;border-radius:50%;opacity:.8}.s1{top:14px;left:12%}.s2{top:40px;left:52%}.s3{top:18px;left:80%}.s4{top:70px;left:30%}
 .delivery h3{color:#F5D58A;font-size:17px;margin:12px 18px 8px}
 .vignettes{list-style:none;margin:0;padding:0 18px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
@@ -156,6 +156,33 @@ body.course main{padding:12px 12px 16px}
 @media(max-width:900px){.gamewrap{grid-template-columns:1fr}.results{grid-template-columns:repeat(2,minmax(0,1fr))}.slots{grid-template-columns:1fr 1fr}.strip-slot{grid-column:1/-1}.stage{grid-template-columns:1fr}.vignettes{grid-template-columns:repeat(2,minmax(0,1fr))}.windows{min-height:0}}
 @media(max-width:560px){main{padding:20px 12px 40px}.lastrow{grid-template-columns:repeat(2,minmax(0,1fr))}.fork{grid-template-columns:1fr}.statusbar{margin:14px 12px 0}.windows{padding-left:12px;padding-right:12px}.strips{grid-template-columns:1fr}.sleigh{grid-template-columns:repeat(2,minmax(0,1fr))}.gauge{font-size:13px}.gamefoot{padding-left:12px;padding-right:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.vignettes li{opacity:1}.sleigh-fly{right:3%}}
+
+/* Fork picks: the instruction window shows the machine's readings; the test window picks at forks. */
+#win-brief .strips{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin:12px 0}
+.strips button.none{font-family:inherit;font-style:italic;color:var(--muted)}
+.machine-note{margin:6px 0 10px;font-size:14px;color:#FBE3C8}
+.readings{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.reading{position:relative;background:#FFFDF8;color:var(--ink);border-radius:8px;padding:8px 10px;font-size:13.5px;display:grid;gap:3px;transition:opacity .25s}
+.reading b{font-size:14px}.reading .r{display:flex;align-items:center;gap:6px}.reading .r svg{width:14px;height:14px;flex:none}
+.reading.out{opacity:.4}.reading.out b{text-decoration:line-through}
+.reading.out::after{content:"";position:absolute;inset:50% 8px auto;border-top:2px solid #8F1E24;transform:rotate(-8deg)}
+.testfoot{display:grid;grid-template-columns:3fr 2fr;gap:12px;align-items:start;margin-top:12px}
+.readings.compact .reading{font-size:12px;padding:6px 8px;border:1px solid var(--rule)}.readings.compact .reading b{font-size:12.5px}
+.examples{display:flex;flex-direction:column;gap:6px;font-size:13.5px}.ex-title{font-weight:600;color:var(--body)}
+.ex{display:flex;align-items:center;gap:8px;background:var(--gold-wash);border:1px solid #D9C49F;border-radius:6px;padding:4px 8px}
+.ex svg{width:34px;height:auto;flex:none}.ex span{flex:1;min-width:0}.ex button{padding:4px 10px;font-size:13px}
+.pickb{margin-top:6px;width:100%;min-height:34px;padding:4px 6px;font-size:13.5px;font-weight:600;white-space:nowrap;justify-content:center}
+@media(max-width:900px){.testfoot{grid-template-columns:1fr}}
+@media(max-width:560px){.readings{grid-template-columns:1fr}}
+
+/* The delivery flight (app.js fly): a copy of the sleigh and the thrown gifts on a layer over the whole panel. */
+.flight{position:absolute;inset:0;pointer-events:none;z-index:2}.flight .sleigh-fly{top:0;left:0;right:auto;transform-origin:0 0}
+.gift{position:absolute;left:0;top:0;opacity:0;width:16px;height:16px;border-radius:2px;background-image:linear-gradient(#FFF7EA,#FFF7EA),linear-gradient(#FFF7EA,#FFF7EA);background-size:3px 100%,100% 3px;background-position:center;background-repeat:no-repeat}
+.delivery.flying .sky .sleigh-fly,.delivery.flown .sky .sleigh-fly{visibility:hidden}
+.delivery h3{transition:opacity .4s}.delivery.flying h3{opacity:0}
+.delivery.flying .vignettes li,.delivery.flown .vignettes li{opacity:1;animation:none}
+.vignettes li.waiting{background:transparent;box-shadow:inset 0 0 0 2px #5A6E90}.vignettes li.waiting>*{visibility:hidden}
+.delivery.flying .vignettes li.pop-in{animation:popin .35s ease-out}
 </style></head>
 <body class="gameformat">
 <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 id="title">Wish List</h1></header>
@@ -176,44 +203,41 @@ body.course main{padding:12px 12px 16px}
             <div class="stockspot" id="stockspot"></div>
           </div>
           <p class="elf"><span class="elf-badge" aria-hidden="true">Elf</span> &ldquo;The sleigh leaves once every toy matches the letter that asked for it.&rdquo;</p>
-          <div class="winactions"><button type="button" id="to-brief" class="primary"><span>Write the brief</span><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+          <div class="winactions"><button type="button" id="to-brief" class="primary"><span>Choose an instruction</span><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
         </section>
 
         <section class="win" id="win-brief" aria-labelledby="h-brief" hidden>
-          <h2 id="h-brief" tabindex="-1">Write the machine&rsquo;s brief</h2>
+          <h2 id="h-brief" tabindex="-1">Pin one instruction</h2>
           <div class="lettertabs" id="lettertabs" role="group" aria-label="Open a letter"></div>
+          <div class="strips" id="strips" role="group" aria-label="Instruction strips"></div>
           <div class="machine">
-            <div class="machine-head"><svg class="gear" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4l3 5 6-2 1 6 6 1-2 6 5 3-5 3 2 6-6 1-1 6-6-2-3 5-3-5-6 2-1-6-6-1 2-6-5-3 5-3-2-6 6-1 1-6 6 2z"/><circle cx="20" cy="23" r="6"/></svg><h3>The toy machine</h3>
-              <button type="button" class="help" id="reads-btn" aria-haspopup="dialog">How it reads a brief</button></div>
-            <div class="slots"><div class="slot strip-slot" id="slot-strip"></div><div class="slot ex-slot" id="slot-ex-0" tabindex="-1"></div><div class="slot ex-slot" id="slot-ex-1" tabindex="-1"></div></div>
+            <div class="machine-head"><svg class="gear" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4l3 5 6-2 1 6 6 1-2 6 5 3-5 3 2 6-6 1-1 6-6-2-3 5-3-5-6 2-1-6-6-1 2-6-5-3 5-3-2-6 6-1 1-6 6 2z"/><circle cx="20" cy="23" r="6"/></svg><h3>The toy machine&rsquo;s readings</h3></div>
+            <p class="machine-note">The machine knows three ways to read an order. It builds a toy only where every reading still in play agrees.</p>
+            <ol class="readings" id="readings-brief"></ol>
           </div>
-          <div class="rack"><p class="rack-title"><b>Pin one instruction strip</b></p><div class="strips" id="strips" role="group" aria-label="Instruction strips"></div></div>
-          <div class="lasttest" id="lasttest-wrap" hidden><p class="rack-title"><b>Last test</b> <span>batch <span id="lasttest-no"></span>. &#10003; approves a toy as an example, &#10005; rejects it. The brief holds two.</span></p><ol class="lastrow" id="lasttest"></ol></div>
-          <div class="tray" id="tray-wrap"><p class="rack-title"><b>Earlier toys</b> <span>&#10003; approves a toy as an example, &#10005; rejects it.</span></p><ul id="tray"></ul></div>
           <div class="winactions"><button type="button" id="run-btn" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16M7 18V9h10v9M9 9V5h6v4"/></svg><span>Run a test batch</span></button></div>
         </section>
 
         <section class="win" id="win-test" aria-labelledby="h-test" hidden>
           <h2 id="h-test" tabindex="-1">Test batch <span id="batchno">1</span></h2>
-          <p class="stale" id="stale-note" hidden>Your brief has changed since this batch. These toys came from the brief you last tested.</p>
           <ol class="results" id="results"></ol>
-          <p class="legend"><b>&#10003;</b> approve as an example &middot; <b>&#10005;</b> reject as an example</p>
+          <div class="testfoot"><ol class="readings compact" id="readings-test" aria-label="The machine’s readings"></ol><div class="examples" id="examples"></div></div>
           <p id="feedback" class="reason" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong> <span id="feedback-text"></span></p>
-          <div class="winactions"><button type="button" id="back-brief"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Back to the brief</span></button><button type="button" id="to-sleigh" class="primary" hidden><span>Send to the sleigh</span><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+          <div class="winactions"><button type="button" id="back-brief"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Back to the instruction</span></button><button type="button" id="to-sleigh" class="primary" hidden><span>Send to the sleigh</span><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
         </section>
 
         <section class="win" id="win-sleigh" aria-labelledby="h-sleigh" hidden>
           <h2 id="h-sleigh" tabindex="-1">Santa&rsquo;s sleigh</h2>
           <div class="sleigh" id="sleigh"></div>
-          <div class="winactions" id="load-row"><button type="button" id="sleigh-back"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Back to the brief</span></button><button type="button" id="load-btn" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15h14l4-6M6 15l-2 4h14"/></svg><span>Load this batch</span></button></div>
+          <div class="winactions" id="load-row"><button type="button" id="sleigh-back"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Back to the instruction</span></button><button type="button" id="load-btn" class="primary"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15h14l4-6M6 15l-2 4h14"/></svg><span>Load this batch</span></button></div>
           <section class="delivery" id="delivery" hidden aria-labelledby="delivery-title">
-            <div class="sky" aria-hidden="true"><svg class="sleigh-fly" viewBox="0 0 220 60"><path d="M30 40h120l20-18" fill="none" stroke="#F5D58A" stroke-width="4" stroke-linecap="round"/><path d="M40 40c0-14 8-22 26-22h70v22z" fill="#B3262D"/><rect x="62" y="10" width="14" height="12" rx="2" fill="#5BA36A"/><rect x="80" y="6" width="14" height="16" rx="2" fill="#5B8FD0"/><rect x="98" y="10" width="14" height="12" rx="2" fill="#E8BC48"/><rect x="116" y="8" width="14" height="14" rx="2" fill="#D45A4C"/><path d="M180 30l12-10 8 4-4 10z" fill="#8A6A4A"/><path d="M170 22l6-10M184 18l2-10" stroke="#8A6A4A" stroke-width="3" stroke-linecap="round"/></svg>
+            <div class="sky" aria-hidden="true"><svg class="sleigh-fly" viewBox="0 0 240 72"><path d="M146 44C168 42 192 38 207 33" fill="none" stroke="#F5D58A" stroke-width="1.6"/><g class="deer"><path d="M180 31c-3-3-7-4-9-2c2 3 6 4 9 3z" fill="#E9D8BF"/><path d="M186 40c-6 4-12 6-18 5M190 41c-5 6-10 9-16 10" fill="none" stroke="#7A5A3C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M210 39c5 3 9 7 15 7M206 41c4 5 7 9 12 11" fill="none" stroke="#7A5A3C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M178 34c2-7 12-10 24-9c8 1 13 5 12 11c-1 6-10 8-21 8c-10 0-17-3-15-10z" fill="#9A7350"/><path d="M186 40c6 2 16 2 24-1" fill="none" stroke="#C9A57E" stroke-width="3" stroke-linecap="round"/><path d="M206 30c3-6 7-11 12-13l5 6c-4 3-8 7-11 11z" fill="#9A7350"/><path d="M216 18c3-3 8-4 12-2c3 1 5 4 4 6c-1 2-4 2-8 2c-3 0-6 0-8-2z" fill="#9A7350"/><circle cx="233" cy="21" r="2" fill="#2A1C12"/><circle cx="224" cy="18" r="1.3" fill="#1F2328"/><path d="M217 17c-3-1-5-3-5-6c3 0 5 2 6 4z" fill="#7A5A3C"/><path d="M220 15c-1-5-1-9 2-13M221 8c2-1 4-1 6-3M221.5 11c-3-1-5-3-6-6" fill="none" stroke="#5B4330" stroke-width="1.8" stroke-linecap="round"/><path d="M217 15c-3-4-6-7-11-8M210 8c0-3 1-5 3-6M213 11c-3 0-6 1-8 3" fill="none" stroke="#5B4330" stroke-width="1.8" stroke-linecap="round"/><path d="M206 28c1 3 4 6 8 7" fill="none" stroke="#B3262D" stroke-width="2.6" stroke-linecap="round"/><circle cx="209" cy="34" r="1.8" fill="#F5D58A"/></g><g class="sleigh"><path d="M14 62H128c10 0 15-5 15-11c0-4-3-6-6-5" fill="none" stroke="#F5D58A" stroke-width="3" stroke-linecap="round"/><path d="M40 52v10M108 52v10" stroke="#F5D58A" stroke-width="2.4"/><g><rect x="50" y="16" width="16" height="16" rx="2" fill="#5BA36A"/><path d="M58 16v16M50 24h16" stroke="#F3EBDD" stroke-width="2"/><rect x="66" y="10" width="18" height="22" rx="2" fill="#5B8FD0"/><path d="M75 10v22M66 20h18" stroke="#F3EBDD" stroke-width="2"/><rect x="84" y="18" width="14" height="14" rx="2" fill="#E8BC48"/><path d="M91 18v14" stroke="#B3262D" stroke-width="2"/><rect x="98" y="14" width="13" height="18" rx="2" fill="#D45A4C"/><path d="M104.5 14v18" stroke="#F3EBDD" stroke-width="2"/></g><path d="M22 54V22c0-6 4-9 9-9c5 0 8 3 8 8v9h80c8 0 13-4 16-10c2-4 6-5 9-3c3 2 3 6 1 9c-6 12-16 26-34 28H30c-5 0-8-3-8-8z" fill="#B3262D"/><path d="M39 30h80c8 0 13-4 16-10" fill="none" stroke="#F5D58A" stroke-width="2" stroke-linecap="round"/><path d="M28 46c20 3 60 3 92 0" fill="none" stroke="#8E1C22" stroke-width="2" stroke-linecap="round"/><circle cx="137" cy="19" r="2.2" fill="#F5D58A"/></g></svg>
               <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span><span class="star s4"></span></div>
             <h3 id="delivery-title">Every child has the gift they asked for.</h3>
             <ul class="vignettes" id="vignettes"></ul>
             <p class="finish" id="finish"></p>
             <p class="payoff course-only" id="payoff" hidden></p>
-            <div class="winactions"><button type="button" id="skip-btn" class="skip">Show the deliveries now</button><button type="button" id="reset2" class="skip course-only">Retry this episode</button><button type="button" id="new-bag2" class="primary arcade-only">New letters</button></div>
+            <div class="winactions"><button type="button" id="reset2" class="skip course-only">Retry this episode</button></div>
           </section>
         </section>
       </div>
@@ -221,13 +245,7 @@ body.course main{padding:12px 12px 16px}
       <div class="pop" id="letter-pop" role="dialog" aria-modal="true" aria-labelledby="pop-title" hidden>
         <div class="pop-card"><article class="card big" id="pop-letter"></article><button type="button" id="pop-close">Close</button></div>
       </div>
-      <div class="pop" id="reads-pop" role="dialog" aria-modal="true" aria-labelledby="reads-title" hidden>
-        <div class="pop-card"><h3 id="reads-title">How the machine reads a brief</h3>
-          <p>The machine knows three ways to read an order. It builds a toy only where every reading that fits your brief agrees, and shows both designs where they don&rsquo;t. If no reading fits, the line stops.</p>
-          <table><thead><tr><th scope="col">Reading</th><th scope="col">Bedtime toys</th><th scope="col">Outdoor toys</th></tr></thead><tbody id="plans"></tbody></table>
-          <button type="button" id="reads-close">Close</button></div>
-      </div>
-
+      
       <div class="gamefoot arcade-only">
         <div class="foot-left"><p><strong>New letters</strong> <span>- four other children with other wishes (mailbag <span id="bagno">1</span> of <span id="bagcount">3</span>)</span></p><div class="foot-buttons"><button id="new-bag" type="button">New letters</button></div></div>
         <div class="foot-right"><button id="reset" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Retry these letters</button></div>
@@ -236,8 +254,8 @@ body.course main{padding:12px 12px 16px}
     <aside class="howto arcade-only" aria-labelledby="howto-title">
       <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
       <p><strong>Letters.</strong> Four children wrote to Santa. The toy machine reads only each order&rsquo;s label: the child, the toy, its color, and bedtime or outdoors.</p>
-      <p><strong>Brief.</strong> Pin one instruction strip and up to two example toys, approved or rejected. Then run a test batch.</p>
-      <p><strong>Test.</strong> Where your brief leaves a choice open, the machine shows both designs. When all four toys match their letters, send them to the sleigh. The fewer examples, the tighter the brief.</p>
+      <p><strong>Instruction.</strong> Pin one instruction strip, or none, and run a test batch. The machine&rsquo;s three readings show which ones the strip rules out.</p>
+      <p><strong>Forks.</strong> Where the readings still in play disagree, the machine shows both designs. Pick the one the letter asked for: it becomes an example in the brief. When all four toys match their letters, send them to the sleigh. The fewer examples, the tighter the brief.</p>
       <p><strong>New letters.</strong> Each mailbag brings four children who want different things, so a brief that worked before may not work again.</p>
     </aside>
   </div>
@@ -245,7 +263,7 @@ body.course main{padding:12px 12px 16px}
     <h2>A brief has to carry what the letters say</h2>
     <p>The machine could make every toy from the first test: it knew a dragon from a robot and blue from red. What it lacked was what these children wanted, because it read only the order labels and your brief.</p>
     <p>A general instruction rules out whole readings at once. An example earns its place when the readings still in play would build that toy differently; an example they already agree on changes nothing. People who write instructions for AI systems work the same way: say the general intent plainly, and add examples where the instruction still leaves a choice open.</p>
-    <p class="explainer-note">The machine&rsquo;s readings are three fixed plans, listed under How it reads a brief. It builds only where every plan that fits your brief agrees. There is no live AI model and no hidden score.</p>
+    <p class="explainer-note">The machine&rsquo;s readings are three fixed plans, shown beside the instruction strips. It builds only where every plan that fits your brief agrees. There is no live AI model and no hidden score.</p>
   </div></details>
   
   <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -457,25 +475,29 @@ body.course main{padding:12px 12px 16px}
     if(kind==='dragon'&&!soft)g=`<path d="M26 74L8 66l6-6-8-8" fill="none" stroke="${d}" stroke-width="5" stroke-linejoin="round"/><polygon points="24,74 34,54 66,50 78,64 70,86 32,86" fill="${c}" stroke="${d}" stroke-width="2.5"/><path d="M36 61l24-2M33 71l37-2M36 80l30-1" stroke="${d}" stroke-width="2"/><polygon points="40,54 44,24 52,40 60,22 62,52" fill="${d}"/><polygon points="70,34 94,36 104,46 96,58 74,58 66,46" fill="${c}" stroke="${d}" stroke-width="2.5"/><polygon points="72,35 68,20 78,33" fill="${d}"/><polygon points="82,35 84,20 88,35" fill="${d}"/><polygon points="79,41 86,40 85,45" fill="${INK}"/><polygon points="92,51 105,47 103,58 91,56" fill="#5A1D1D"/><circle cx="44" cy="76" r="1.8" fill="${d}"/><circle cx="58" cy="76" r="1.8" fill="${d}"/><path d="M34 86l-3 6h8l-1-6M60 86l-1 6h8l-3-6" fill="${d}"/>${WAVES(d)}`;
     if(kind==='fox'&&soft)g=`<ellipse cx="27" cy="64" rx="19" ry="11" fill="${c}" transform="rotate(-30 27 64)"/><ellipse cx="14" cy="55" rx="7" ry="5" fill="#fff" transform="rotate(-30 14 55)"/><ellipse cx="54" cy="70" rx="24" ry="18" fill="${c}"/><path d="M42 74a12 8 0 0 0 24 0" ${STITCH}/><path d="M67 40Q64 22 76 32z" fill="${c}"/><path d="M86 31Q96 22 93 40z" fill="${c}"/><circle cx="80" cy="47" r="16" fill="${c}"/><ellipse cx="87" cy="54" rx="8" ry="6" fill="#fff" opacity=".75"/><circle cx="82" cy="44" r="2.4" fill="${INK}"/><circle cx="94" cy="52" r="2" fill="${INK}"/><path d="M86 58q3 2 6 0" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="44" cy="88" rx="6" ry="3.5" fill="${d}"/><ellipse cx="64" cy="88" rx="6" ry="3.5" fill="${d}"/>`;
     if(kind==='fox'&&!soft)g=`<polygon points="34,70 6,58 14,72 4,80 30,80" fill="${c}" stroke="${d}" stroke-width="2"/><polygon points="30,80 38,58 66,56 76,72 68,88 34,88" fill="${c}" stroke="${d}" stroke-width="2.5"/><path d="M40 66l26-1M38 77l32-1" stroke="${d}" stroke-width="2"/><polygon points="66,42 70,20 80,36 90,20 92,40 104,50 88,60 70,56" fill="${c}" stroke="${d}" stroke-width="2.5"/><polygon points="80,42 86,42 84,46" fill="${INK}"/><polygon points="94,52 104,49 102,57 93,56" fill="#5A1D1D"/><circle cx="48" cy="82" r="1.8" fill="${d}"/><circle cx="60" cy="82" r="1.8" fill="${d}"/>${WAVES(d)}`;
-    if(kind==='robot'&&soft)g=`<path d="M79 22V12" stroke="${d}" stroke-width="3" stroke-linecap="round"/><circle cx="79" cy="10" r="4.5" fill="${d}"/><rect x="62" y="22" width="34" height="28" rx="12" fill="${c}"/><circle cx="72" cy="35" r="2.6" fill="${INK}"/><circle cx="86" cy="35" r="2.6" fill="${INK}"/><path d="M75 43q4 3 8 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="44" y="50" width="56" height="38" rx="16" fill="${c}"/><rect x="50" y="56" width="44" height="26" rx="11" ${STITCH}/><path d="M66 64c0-4 6-4 6 0c0-4 6-4 6 0c0 4-6 8-6 9c0-1-6-5-6-9z" fill="#fff" opacity=".7"/><ellipse cx="38" cy="66" rx="7" ry="10" fill="${d}"/><ellipse cx="106" cy="66" rx="7" ry="10" fill="${d}"/>`;
-    if(kind==='robot'&&!soft)g=`<path d="M79 22l-4-5 6-3-4-5" fill="none" stroke="${d}" stroke-width="3" stroke-linejoin="round"/><rect x="60" y="22" width="38" height="28" fill="${c}" stroke="${d}" stroke-width="2.5"/><rect x="67" y="30" width="8" height="6" fill="${INK}"/><rect x="83" y="30" width="8" height="6" fill="${INK}"/><rect x="71" y="41" width="16" height="6" fill="#5A1D1D"/><circle cx="63" cy="25" r="1.6" fill="${d}"/><circle cx="95" cy="25" r="1.6" fill="${d}"/><rect x="42" y="50" width="60" height="38" fill="${c}" stroke="${d}" stroke-width="2.5"/><path d="M52 58h40M52 66h40M52 74h40" stroke="${d}" stroke-width="2"/><circle cx="46" cy="54" r="1.8" fill="${d}"/><circle cx="98" cy="54" r="1.8" fill="${d}"/><circle cx="46" cy="84" r="1.8" fill="${d}"/><circle cx="98" cy="84" r="1.8" fill="${d}"/><rect x="30" y="56" width="10" height="22" fill="${d}"/><rect x="104" y="56" width="10" height="22" fill="${d}"/>${WAVES(d).replace('M106 40','M108 38').replace('M112 35','M114 32')}`;
+    if(kind==='robot'&&soft)g=`<path d="M72 22V12" stroke="${d}" stroke-width="3" stroke-linecap="round"/><circle cx="72" cy="10" r="4.5" fill="${d}"/><rect x="55" y="22" width="34" height="28" rx="12" fill="${c}"/><circle cx="65" cy="35" r="2.6" fill="${INK}"/><circle cx="79" cy="35" r="2.6" fill="${INK}"/><path d="M68 43q4 3 8 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="44" y="50" width="56" height="38" rx="16" fill="${c}"/><rect x="50" y="56" width="44" height="26" rx="11" ${STITCH}/><path d="M66 64c0-4 6-4 6 0c0-4 6-4 6 0c0 4-6 8-6 9c0-1-6-5-6-9z" fill="#fff" opacity=".7"/><ellipse cx="38" cy="66" rx="7" ry="10" fill="${d}"/><ellipse cx="106" cy="66" rx="7" ry="10" fill="${d}"/>`;
+    if(kind==='robot'&&!soft)g=`<path d="M72 22l-4-5 6-3-4-5" fill="none" stroke="${d}" stroke-width="3" stroke-linejoin="round"/><rect x="53" y="22" width="38" height="28" fill="${c}" stroke="${d}" stroke-width="2.5"/><rect x="60" y="30" width="8" height="6" fill="${INK}"/><rect x="76" y="30" width="8" height="6" fill="${INK}"/><rect x="64" y="41" width="16" height="6" fill="#5A1D1D"/><circle cx="56" cy="25" r="1.6" fill="${d}"/><circle cx="88" cy="25" r="1.6" fill="${d}"/><rect x="42" y="50" width="60" height="38" fill="${c}" stroke="${d}" stroke-width="2.5"/><path d="M52 58h40M52 66h40M52 74h40" stroke="${d}" stroke-width="2"/><circle cx="46" cy="54" r="1.8" fill="${d}"/><circle cx="98" cy="54" r="1.8" fill="${d}"/><circle cx="46" cy="84" r="1.8" fill="${d}"/><circle cx="98" cy="84" r="1.8" fill="${d}"/><rect x="30" y="56" width="10" height="22" fill="${d}"/><rect x="104" y="56" width="10" height="22" fill="${d}"/>${WAVES(d).replace('M106 40','M97 35').replace('M112 35','M103 29')}`;
     return `<svg viewBox="0 0 120 100" aria-hidden="true">${g}</svg>`;
   }
   const MOON='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2a6 6 0 1 0 3 9A5 5 0 0 1 11 2z" fill="#3A4A7A"/></svg>';
   const SUN='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.5" fill="#D9921F"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3" stroke="#D9921F" stroke-width="1.5" stroke-linecap="round"/></svg>';
   const ENVELOPE='<svg viewBox="0 0 20 16" aria-hidden="true"><rect x="1" y="1" width="18" height="14" rx="2" fill="#FFF7EA" stroke="#B3262D" stroke-width="1.5"/><path d="M1.5 2l8.5 7 8.5-7" fill="none" stroke="#B3262D" stroke-width="1.5"/></svg>';
-  const VIEWS=['letters','brief','test','sleigh'],TITLE={letters:'Letters',brief:'Brief',test:'Test',sleigh:'Sleigh'};
+  const VIEWS=['letters','brief','test','sleigh'],TITLE={letters:'Letters',brief:'Instruction',test:'Test',sleigh:'Sleigh'};
   const L=id=>M.letter(id),cap=s=>s[0].toUpperCase()+s.slice(1);
   const label=(child,design)=>{const l=L(child);return `${cap(l.color)} ${l.kind}: ${M.features(l.kind,design)}`;};
   const useIcon=l=>l.use==='bedtime'?MOON:SUN,useWord=l=>l.use==='bedtime'?'Bedtime':'Outdoors';
+  const looks=d=>d==='cozy'?'soft and quiet':'tough, with sound';
 
-  let st=null,brief=null,view='letters',reading=null,delivered=false,timer=null,lastFocus=null;
+  // One decision per window. The Instruction window picks a strip (a draft, previewed on the readings) and a test batch
+  // commits it. On the Test window, a pick at a fork pins that design as an approved example, and the machine re-reads
+  // the brief at once, so the player sees one example settle every order that shares its use.
+  let st=null,brief=null,draft=null,view='letters',reading=null,delivered=false,timer=null,lastFocus=null,before={};
   function announce(t){$('announcement').textContent=t;}
   function fit(){try{const f=window.frameElement;if(COURSE&&f)f.style.height=Math.ceil(document.querySelector('main').getBoundingClientRect().height+24)+'px';}catch(e){}}
   const ready=()=>st.batch.stock?0:st.batch.orders.filter(o=>o.built&&o.built===L(o.child).wish).length;
+  const sendable=()=>st.solved&&!delivered;
+  const fewest=n=>n===M.FEWEST?'That is the fewest this mailbag needs.':M.FEWEST===0?'This mailbag can be done with the instruction alone.':`This mailbag can be done with ${M.FEWEST}.`;
 
-  // One window at a time, moved only by the player's actions. Forward moves slide in from the right, returns from the
-  // left; focus moves to the new window's heading.
   function go(next,quiet){
     const from=VIEWS.indexOf(view),to=VIEWS.indexOf(next);
     for(const v of VIEWS){const w=$('win-'+v);w.hidden=v!==next;w.classList.remove('in-right','in-left');}
@@ -485,20 +507,14 @@ body.course main{padding:12px 12px 16px}
     if(!quiet)announce(`${TITLE[next]}. ${h?h.textContent:''}`);fit();
   }
 
-  // The draft brief can change after a test. The results on screen always belong to the tested brief, so a draft that
-  // differs from it is labelled as changed and can't be sent to the sleigh until it is tested.
-  const key=b=>b?[b.strip||'',...b.examples.map(e=>e.proto+'='+e.verdict).sort()].join('|'):null;
-  const changed=()=>!st.batch.stock&&key(brief)!==key(st.batch.brief);
-  const sendable=()=>st.solved&&!changed()&&!delivered;
-
   function renderHud(){
-    $('statusbar').hidden=view==='letters';                 // nothing to summarise on the opening window
+    $('statusbar').hidden=view==='letters'||st.batch.stock;
     const r=ready();$('st-ready').textContent=`${r} of 4`;$('st-batches').textContent=String(st.batches);
     $('gauge').innerHTML=[0,1,2,3].map(i=>`<i class="${i<r?'on':''}"></i>`).join('');
-    const chip=$('briefchip');chip.innerHTML=`<span>${changed()?'Brief (changed since the last test):':'Brief:'}</span> <b></b>`;chip.classList.toggle('changed',changed());
-    chip.querySelector('b').textContent=brief.strip?`“${M.strip(brief.strip).text}”`:'no instruction pinned';
+    const chip=$('briefchip');chip.innerHTML='<span>Brief:</span> <b></b>';
+    chip.querySelector('b').textContent=brief.strip?`“${M.strip(brief.strip).text}”`:'no instruction';
     for(const e of brief.examples){const p=M.parse(e.proto),l=L(p.child),s=document.createElement('span');s.className='tk';
-      s.innerHTML=`${toy(l.kind,l.color,p.design)}<span aria-hidden="true">${e.verdict==='approve'?'✓':'✕'}</span><span class="sr-only"></span>`;s.querySelector('.sr-only').textContent=`${e.verdict==='approve'?'approved':'rejected'}: ${l.name}’s ${M.toyWords(l.kind,p.design)}`;chip.appendChild(s);}
+      s.innerHTML=`${toy(l.kind,l.color,p.design)}<span class="sr-only"></span>`;s.querySelector('.sr-only').textContent=`example: ${l.name}’s ${M.toyWords(l.kind,p.design)}`;chip.appendChild(s);}
     if(!brief.examples.length)chip.append(' · no examples');
   }
 
@@ -511,50 +527,32 @@ body.course main{padding:12px 12px 16px}
     el.querySelector('.label b').append(`${l.name}, ${l.color} ${l.kind}, ${l.use==='bedtime'?'bedtime':'outdoors'}`);
   }
 
-  // A toy card: drawn toy, features in words, and compact buttons that put it in the brief as an example.
+  // A toy card: drawn toy and features. A built toy says whether it matches the letter; a fork side has one button.
   function toyCard(child,design,opts){
-    const l=L(child),pid=M.protoId(child,design),ex=brief.examples.find(e=>e.proto===pid),div=document.createElement('div');
+    const l=L(child),div=document.createElement('div');
     div.className='toy'+(opts.match===true?' good':opts.match===false?' bad':'')+(opts.pop&&!instant?' pop-in':'');div.id=`${opts.where||'toy'}-${child}-${design}`;
     div.setAttribute('role','group');div.setAttribute('aria-label',label(child,design));
     div.innerHTML=`${toy(l.kind,l.color,design)}<div class="feat"></div>${opts.tag?'<div class="tag"></div>':''}${opts.match!==undefined?'<div class="match"></div>':''}`;
     div.querySelector('.feat').textContent=label(child,design);
     if(opts.tag)div.querySelector('.tag').textContent=opts.tag;
     if(opts.match!==undefined)div.querySelector('.match').textContent=opts.match?'✓ Matches the letter':`✕ Not what ${l.name} asked for`;
-    if(!opts.noButtons){
-      const exb=document.createElement('div');exb.className='exb';
-      for(const [v,sym,word] of [['approve','✓','Approve'],['reject','✕','Reject']]){
-        const b=document.createElement('button');b.type='button';b.textContent=sym;b.id=`${v==='approve'?'ap':'rj'}-${opts.where||'toy'}-${child}-${design}`;
-        b.setAttribute('aria-pressed',String(!!ex&&ex.verdict===v));b.setAttribute('aria-label',`${word} the ${M.toyWords(l.kind,design)} as an example`);b.title=`${word} as an example`;
-        b.disabled=delivered;b.addEventListener('click',()=>mark(pid,v));exb.appendChild(b);
-      }
-      div.appendChild(exb);
-    }
+    if(opts.pick){const b=document.createElement('button');b.type='button';b.className='pickb';b.id=`pick-${child}-${design}`;b.textContent='This one';
+      b.setAttribute('aria-label',`Pin ${l.name}’s ${M.toyWords(l.kind,design)} as an example`);b.disabled=delivered;
+      b.addEventListener('click',()=>pick(M.protoId(child,design)));div.appendChild(b);}
     return div;
   }
 
-  // A compact chip for the brief window: small toy, short features, and the two example buttons.
-  function chip(child,design,where,ok){
-    const l=L(child),pid=M.protoId(child,design),ex=brief.examples.find(e=>e.proto===pid),d=document.createElement('div');
-    d.className='chip'+(ex?' in':'');d.id=`${where}-${child}-${design}`;d.setAttribute('role','group');
-    d.setAttribute('aria-label',label(child,design)+(ok===undefined?'':ok?', matches the letter':`, not what ${l.name} asked for`));
-    d.innerHTML=`${toy(l.kind,l.color,design)}<span class="cap"></span>`;d.querySelector('.cap').textContent=M.features(l.kind,design).replace(' body','');
-    for(const [v,sym,word] of [['approve','\u2713','Approve'],['reject','\u2715','Reject']]){
-      const b=document.createElement('button');b.type='button';b.textContent=sym;b.id=`${v==='approve'?'ap':'rj'}-${where}-${child}-${design}`;
-      b.setAttribute('aria-pressed',String(!!ex&&ex.verdict===v));b.setAttribute('aria-label',`${word} the ${M.toyWords(l.kind,design)} as an example`);b.title=`${word} as an example`;
-      b.disabled=delivered;b.addEventListener('click',()=>mark(pid,v));d.appendChild(b);
+  // The machine's three readings. Those the brief rules out are crossed out; it builds only where the rest agree.
+  function readings(box,b){
+    const live=M.fits(b);box.textContent='';
+    for(const id of Object.keys(M.PLANS)){
+      const p=M.PLANS[id],out=!live.includes(id),li=document.createElement('li');li.className='reading'+(out?' out':'');li.id=`${box.id}-${id}`;
+      li.innerHTML=`<b></b><span class="r">${MOON}<span></span></span><span class="r">${SUN}<span></span></span>`;
+      li.querySelector('b').textContent=p.name;li.querySelectorAll('.r span')[0].textContent=`Bedtime: ${looks(p.bedtime)}`;
+      li.querySelectorAll('.r span')[1].textContent=`Outdoor: ${looks(p.outdoor)}`;
+      if(out){const s=document.createElement('span');s.className='sr-only';s.textContent='Ruled out by the brief.';li.appendChild(s);}
+      box.appendChild(li);
     }
-    return d;
-  }
-
-  function mark(pid,verdict){
-    if(delivered)return;
-    const i=brief.examples.findIndex(e=>e.proto===pid);
-    if(i>=0&&brief.examples[i].verdict===verdict)brief.examples.splice(i,1);
-    else if(i>=0)brief.examples[i].verdict=verdict;
-    else{brief.examples.push({proto:pid,verdict});if(brief.examples.length>2)brief.examples.shift();}
-    const p=M.parse(pid),l=L(p.child),now=brief.examples.find(e=>e.proto===pid);
-    announce(now?`Example ${brief.examples.indexOf(now)+1}: ${now.verdict==='approve'?'approved':'rejected'} ${l.name}’s ${M.toyWords(l.kind,p.design)}.`:`Taken out of the brief: ${l.name}’s ${M.toyWords(l.kind,p.design)}.`);
-    renderAll(false);
   }
 
   // Window 1: one letter at a time, with the stock test under the first letter.
@@ -566,52 +564,28 @@ body.course main{padding:12px 12px 16px}
     const l=L(reading);letterCard($('letter-view'),l);
     const spot=$('stockspot');spot.textContent='';
     const stock=st.batch.stock&&st.batch.orders[0];
-    if(stock&&reading===stock.child)spot.appendChild(toyCard(stock.child,stock.built,{match:stock.built===l.wish,tag:'Stock test',noButtons:true,where:'stock'}));
+    if(stock&&reading===stock.child)spot.appendChild(toyCard(stock.child,stock.built,{match:stock.built===l.wish,tag:'Stock test',where:'stock'}));
     else{const o=st.batch.stock?null:st.batch.orders.find(x=>x.child===l.id);
-      if(o&&o.built)spot.appendChild(toyCard(l.id,o.built,{match:o.built===l.wish,tag:`Test batch ${st.batches}`,noButtons:true,where:'stock'}));
+      if(o&&o.built)spot.appendChild(toyCard(l.id,o.built,{match:o.built===l.wish,tag:`Test batch ${st.batches}`,where:'stock'}));
       else spot.innerHTML=`<p class="empty">${o&&o.alternatives?'Two possible designs on the test mat.':'Not made yet.'}</p>`;}
   }
 
-  // Window 2: the machine's brief, the strip rack and the tray of toys made so far.
+  // Window 2: the instruction. Choosing a strip previews which readings it rules out; a test batch commits it.
   function renderBrief(){
     const tabs=$('lettertabs');tabs.textContent='';
     for(const l of M.LETTERS){const b=document.createElement('button');b.type='button';b.id='tab-'+l.id;b.innerHTML=useIcon(l)+'<span></span>';
       b.querySelector('span').textContent=l.name;b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-label',`Read ${l.name}’s letter`);
       b.addEventListener('click',()=>openLetter(l.id,b));tabs.appendChild(b);}
-    const s=$('slot-strip');s.className='slot strip-slot'+(brief.strip?' filled':'');
-    s.innerHTML=brief.strip?'<small>Instruction strip</small><b></b>':'<small>Instruction strip</small>Empty';
-    if(brief.strip)s.querySelector('b').textContent=M.strip(brief.strip).text;
-    [0,1].forEach(i=>{
-      const e=brief.examples[i],slot=$('slot-ex-'+i);slot.className='slot ex-slot'+(e?' filled':'');
-      if(!e){slot.innerHTML=`<small>Example ${i+1}</small>Empty`;return;}
-      const p=M.parse(e.proto),l=L(p.child);
-      slot.innerHTML=`<small>Example ${i+1}</small><div class="tok">${toy(l.kind,l.color,p.design)}<div><span class="verdict ${e.verdict==='approve'?'ok':'no'}">${e.verdict==='approve'?'✓ Approved':'✕ Rejected'}</span><br><span class="w"></span><br><button type="button">Take out</button></div></div>`;
-      slot.querySelector('.w').textContent=`${l.name}’s ${M.toyWords(l.kind,p.design)}`;
-      const b=slot.querySelector('button');b.id='out-'+i;b.disabled=delivered;b.addEventListener('click',()=>{brief.examples.splice(i,1);renderAll(false);});
-    });
     const box=$('strips');box.textContent='';
-    for(const sp of M.STRIPS){const b=document.createElement('button');b.type='button';b.id='strip-'+sp.id;b.textContent=sp.text;
-      b.setAttribute('aria-pressed',String(brief.strip===sp.id));b.disabled=delivered;
-      b.addEventListener('click',()=>{brief.strip=brief.strip===sp.id?null:sp.id;renderAll(false);});box.appendChild(b);}
-    // The last test, small, and the place to pick examples: the player sees which orders split while choosing.
-    const lt=$('lasttest'),b=st.batch,inLast=new Set();lt.textContent='';$('lasttest-wrap').hidden=!!b.stock;$('lasttest-no').textContent=String(st.batches);
-    if(!b.stock)for(const l of M.LETTERS){
-      const li=document.createElement('li'),o=b.orders.find(x=>x.child===l.id);li.innerHTML='<span class="ln"></span>';
-      li.querySelector('.ln').textContent=l.name;
-      if(b.conflict||!o){li.className='stop';li.append('Line stopped');}
-      else if(o.built){const ok=o.built===l.wish;li.className=ok?'ok':'no';li.appendChild(chip(l.id,o.built,'last',ok));inLast.add(M.protoId(l.id,o.built));}
-      else{li.className='split';const n=document.createElement('span');n.className='two';n.textContent='2 designs';li.appendChild(n);
-        for(const d of o.alternatives){li.appendChild(chip(l.id,d,'last'));inLast.add(M.protoId(l.id,d));}}
-      lt.appendChild(li);
-    }
-    // Earlier toys: only those the last test didn't make, usually just the stock dragon.
-    const ul=$('tray'),older=st.pool.filter(p=>!inLast.has(p));ul.textContent='';$('tray-wrap').hidden=!older.length;
-    for(const pid of older){const p=M.parse(pid),li=document.createElement('li');li.appendChild(chip(p.child,p.design,'tray'));ul.appendChild(li);}
+    for(const sp of [{id:null,text:'No instruction'},...M.STRIPS]){const b=document.createElement('button');b.type='button';b.id='strip-'+(sp.id||'none');b.textContent=sp.text;
+      b.setAttribute('aria-pressed',String(draft.strip===sp.id));b.disabled=delivered;b.classList.toggle('none',!sp.id);
+      b.addEventListener('click',()=>{draft.strip=sp.id;renderAll();});box.appendChild(b);}
+    readings($('readings-brief'),{strip:draft.strip,examples:[]});
     $('run-btn').disabled=delivered;
   }
 
-  // Window 3: the latest test batch, one cell per order.
-  function renderTest(fresh){
+  // Window 3: the test batch. Built toys are judged against their letters; each fork offers its two designs.
+  function renderTest(){
     const ol=$('results');ol.textContent='';const b=st.batch;$('batchno').textContent=String(st.batches);
     for(const l of M.LETTERS){
       const li=document.createElement('li');li.className='cell';
@@ -619,14 +593,20 @@ body.course main{padding:12px 12px 16px}
       head.innerHTML=`<span class="avatar"></span><span></span>${useIcon(l)}`;head.querySelector('.avatar').textContent=l.name[0];head.querySelector('.avatar').style.background=PAINT[l.color][1];
       head.querySelector('span:nth-child(2)').textContent=l.name;head.setAttribute('aria-label',`Read ${l.name}’s letter`);head.addEventListener('click',()=>openLetter(l.id,head));
       li.appendChild(head);
-      const o=b.orders&&b.orders.find(x=>x.child===l.id);
-      if(b.conflict||!o){const p=document.createElement('p');p.className='stopped';p.textContent=b.conflict?'Line stopped.':'Not made yet.';li.appendChild(p);}
-      else if(o.built)li.appendChild(toyCard(l.id,o.built,{match:o.built===l.wish,pop:fresh,where:'toy'}));
+      const o=b.orders&&b.orders.find(x=>x.child===l.id),key=o?o.built||'fork':'',pop=before[l.id]!==undefined&&before[l.id]!==key;
+      if(!o){const p=document.createElement('p');p.className='stopped';p.textContent='Not made yet.';li.appendChild(p);}
+      else if(o.built)li.appendChild(toyCard(l.id,o.built,{match:o.built===l.wish,pop,where:'toy'}));
       else{const n=document.createElement('p');n.className='fork-note';n.textContent='Both fit the brief so far';li.appendChild(n);
-        const f=document.createElement('div');f.className='fork';for(const d of o.alternatives)f.appendChild(toyCard(l.id,d,{pop:fresh,where:'toy'}));li.appendChild(f);}
+        const f=document.createElement('div');f.className='fork';for(const d of o.alternatives)f.appendChild(toyCard(l.id,d,{pick:true,where:'toy'}));li.appendChild(f);}
       ol.appendChild(li);
     }
-    $('stale-note').hidden=!changed();
+    if(!b.stock)readings($('readings-test'),brief);
+    const ex=$('examples');ex.textContent='';
+    const h=document.createElement('span');h.className='ex-title';h.textContent=brief.examples.length?'Examples:':'Examples: none yet';ex.appendChild(h);
+    brief.examples.forEach((e,i)=>{const p=M.parse(e.proto),l=L(p.child),s=document.createElement('span');s.className='ex';
+      s.innerHTML=`${toy(l.kind,l.color,p.design)}<span></span><button type="button">Take out</button>`;s.querySelector('span').textContent=`${l.name}’s ${M.toyWords(l.kind,p.design)}`;
+      const t=s.querySelector('button');t.id='out-'+i;t.disabled=delivered;t.setAttribute('aria-label',`Take ${l.name}’s ${M.toyWords(l.kind,p.design)} out of the brief`);
+      t.addEventListener('click',()=>takeOut(i));ex.appendChild(s);});
     $('to-sleigh').hidden=!sendable();$('back-brief').hidden=delivered;
   }
 
@@ -638,29 +618,41 @@ body.course main{padding:12px 12px 16px}
     $('load-row').hidden=!sendable();
   }
 
-  // Re-rendering replaces controls, so focus returns to the control with the same id, or to an emptied example slot.
-  function renderAll(fresh){
+  // Re-rendering replaces controls, so focus returns to the control with the same id, or to the results.
+  function renderAll(){
     const a=document.activeElement,keep=a&&a!==document.body&&a.id?a.id:null;
-    renderHud();renderLetters();renderBrief();renderTest(fresh);renderSleigh();fit();
+    renderHud();renderLetters();renderBrief();renderTest();renderSleigh();fit();
     if(!keep)return;
     const el=$(keep);
     if(el&&el!==document.activeElement&&!el.closest('[hidden]'))el.focus({preventScroll:true});
-    else if(!el&&/^out-\d$/.test(keep))$('slot-ex-'+keep.slice(4)).focus({preventScroll:true});
+    else if(!el&&/^(pick|out)-/.test(keep))$('h-test').focus({preventScroll:true});
   }
 
-  const fewest=n=>n===M.FEWEST?'That is the fewest this load needs.':M.FEWEST===0?'This load can be done with the instruction alone.':`This load can be done with ${M.FEWEST}.`;
   function feedback(){
-    const b=st.batch;let title,text=M.describe(st);
-    if(b.conflict)title='Nothing was built.';
-    else if(st.solved){title='All four toys match their letters.';const n=b.brief.examples.length;
-      text=`Examples in the brief you tested: ${n||'none'}. ${fewest(n)}`;}
+    let title,text=M.describe(st);
+    if(st.solved){title='All four toys match their letters.';const n=brief.examples.length;text=`Examples in the brief: ${n||'none'}. ${fewest(n)}`;}
     else title=`${ready()} of 4 gifts ready.`;
     $('feedback-title').textContent=title;$('feedback-text').textContent=text;return `${title} ${text}`;
   }
 
-  // Pop-ups: a letter, or the machine's readings. While one is open everything behind it is inert and Tab stays inside;
-  // Escape closes it and focus returns to the button that opened it.
-  const POPS=['letter-pop','reads-pop'];
+  // The brief changed (a pick or a take-out): the machine re-reads it at once. Only a new instruction counts as a batch.
+  function reread(msg){
+    before=Object.fromEntries(st.batch.orders.map(o=>[o.child,o.built||'fork']));
+    const n=st.batches;M.testBatch(st,{strip:brief.strip,examples:brief.examples.map(e=>({...e}))});st.batches=n;
+    renderAll();announce(`${msg} ${feedback()}`);before={};
+  }
+  function pick(pid){
+    if(delivered)return;const p=M.parse(pid),l=L(p.child);
+    brief.examples.push({proto:pid,verdict:'approve'});reread(`Pinned ${l.name}’s ${M.toyWords(l.kind,p.design)} as an example.`);
+  }
+  function takeOut(i){
+    if(delivered)return;const p=M.parse(brief.examples[i].proto),l=L(p.child);
+    brief.examples.splice(i,1);reread(`Took ${l.name}’s ${M.toyWords(l.kind,p.design)} out of the brief.`);
+  }
+
+  // Pop-ups: a letter. While it is open everything behind it is inert and Tab stays inside; Escape closes it and focus
+  // returns to the button that opened it.
+  const POPS=['letter-pop'];
   const background=()=>[document.querySelector('.gamebar'),$('statusbar'),document.querySelector('.windows'),document.querySelector('.gamefoot'),
     document.querySelector('.howto'),$('takeaway'),document.querySelector('.review-about')].filter(Boolean);
   function setInert(on){for(const el of background()){if(on)el.setAttribute('inert','');else el.removeAttribute('inert');}}
@@ -676,26 +668,63 @@ body.course main{padding:12px 12px 16px}
     if(!open.contains(at)||(e.shiftKey&&at===first)||(!e.shiftKey&&at===last)){e.preventDefault();(e.shiftKey?last:first).focus();}
   });
 
+  // A test batch commits the drafted instruction with no examples yet.
   function run(){
     if(delivered)return;
-    M.testBatch(st,{strip:brief.strip,examples:brief.examples.map(e=>({...e}))});
-    const msg=feedback(),done=()=>{renderAll(true);go('test',true);$('h-test').focus();announce(`Test batch ${st.batches}. ${msg}`);};
+    brief={strip:draft.strip,examples:[]};M.testBatch(st,{strip:brief.strip,examples:[]});
+    const msg=feedback(),done=()=>{renderAll();go('test',true);$('h-test').focus();announce(`Test batch ${st.batches}. ${msg}`);};
     if(instant){done();return;}
     const mach=document.querySelector('.machine');mach.classList.remove('shake');void mach.offsetWidth;mach.classList.add('shake');
     $('run-btn').disabled=true;clearTimeout(timer);timer=setTimeout(()=>{$('run-btn').disabled=false;done();},480);
   }
 
+  // The delivery: the sleigh crosses the top of the sky and leaves, then flies back over the boxes and throws each
+  // gift in an arc into that child's box, which then shows the toy. It all ends within five seconds, so it
+  // needs no pause control; reduced motion shows the finished scene at once. One clock: the Web Animations API.
+  let flights=0;
+  function fly(){
+    const d=$('delivery'),src=d.querySelector('.sky .sleigh-fly'),cards=[...$('vignettes').children],run=++flights;
+    d.querySelectorAll('.flight').forEach(e=>e.remove());d.classList.remove('flying','flown');
+    const box=d.getBoundingClientRect(),W=box.width,w=src.getBoundingClientRect().width;
+    if(!W||!w||!src.animate)return;
+    const layer=document.createElement('div');layer.className='flight';layer.setAttribute('aria-hidden','true');
+    const sl=src.cloneNode(true);sl.style.width=`${w}px`;layer.appendChild(sl);d.appendChild(layer);d.classList.add('flying');
+    const rects=cards.map(li=>li.getBoundingClientRect()),firstTop=Math.min(...rects.map(r=>r.top));
+    const rowBottom=Math.max(...rects.filter(r=>r.top-firstTop<4).map(r=>r.bottom))-box.top;
+    const boxes=rects.map(r=>({x:r.left-box.left+r.width/2,y:r.top-box.top+Math.min(r.height/2,44)}));
+    // Forced perspective: small and high on the first pass (far away), large on the way back, its runners along the
+    // bottom of the top row of boxes (close by). Transforms scale from the top-left corner; a flipped sleigh is shifted
+    // by its own width so x is always its left edge.
+    const S1=.45,S2=1.25,T1=1.6,GAP=.3,T2=2.6,y1=8,w2=S2*w,h2=w2*72/240,y2=rowBottom-.86*h2,total=T1+GAP+T2,ms=s=>s*1000;
+    const at=(x,y,s,flip,o)=>({transform:flip?`translate(${x+s*w}px,${y}px) scale(${-s},${s})`:`translate(${x}px,${y}px) scale(${s})`,opacity:o});
+    const trip=sl.animate([{...at(-S1*w,y1,S1,0,.85),offset:0},{...at(W,y1,S1,0,.85),offset:T1/total},
+      {...at(W,y2,S2,1,1),offset:(T1+GAP)/total},{...at(-w2,y2,S2,1,1),offset:1}],{duration:ms(total),easing:'linear',fill:'forwards'});
+    const landed=[trip.finished],seen={};
+    boxes.forEach((b,i)=>{
+      const k=Math.round(b.x);seen[k]=(seen[k]??-1)+1;
+      // Thrown when the gift pile (two thirds along the flipped sleigh, near its top) is just past the box.
+      const t=Math.min(T2,Math.max(0,(W-b.x-24+.67*w2)/(W+w2)*T2)+seen[k]*.18),x0=W-(W+w2)*t/T2+.67*w2,y0=y2+.29*h2;
+      const g=document.createElement('span');g.className='gift';g.style.backgroundColor=PAINT[M.LETTERS[i].color][0];layer.appendChild(g);
+      const frames=[];for(let s=0;s<=1.0001;s+=1/14)frames.push({transform:`translate(${x0+(b.x-x0)*s-8}px,${y0+(b.y-y0)*s-110*s*(1-s)-8}px) rotate(${s*320}deg)`,opacity:1,offset:Math.min(s,1)});
+      const a=g.animate(frames,{duration:ms(.6),delay:ms(T1+GAP+t),easing:'linear',fill:'forwards'});
+      landed.push(a.finished.then(()=>{if(run!==flights)return;g.remove();cards[i].classList.remove('waiting');cards[i].classList.add('pop-in');}));
+      cards[i].classList.add('waiting');
+    });
+    Promise.all(landed).then(()=>{if(run!==flights)return;layer.remove();d.classList.replace('flying','flown');}).catch(()=>{});
+  }
+
   function deliver(){
     if(!sendable())return;
-    delivered=true;renderAll(false);
-    $('sleigh').hidden=true;                                  // the delivery cards show every gift, so the sleigh row folds away
+    delivered=true;renderAll();
+    $('sleigh').hidden=true;
     const d=$('delivery');d.hidden=false;d.classList.toggle('instant',instant);
     const ul=$('vignettes');ul.textContent='';
     for(const l of M.LETTERS){const li=document.createElement('li');li.innerHTML=toy(l.kind,l.color,l.wish)+'<div></div>';li.querySelector('div').textContent=l.story;ul.appendChild(li);}
-    const n=st.batch.brief.examples.length;
+    if(!instant)fly();
+    const n=brief.examples.length;
     $('finish').textContent=`Done in ${st.batches} test batch${st.batches===1?'':'es'}, with ${n?n:'no'} example${n===1?'':'s'} in the brief. ${fewest(n)}`;
     if(COURSE){$('payoff').hidden=false;$('payoff').textContent=M.payoff(st);$('takeaway').hidden=false;}
-    $('skip-btn').hidden=instant;$('delivery-title').setAttribute('tabindex','-1');$('delivery-title').focus();
+    $('delivery-title').setAttribute('tabindex','-1');$('delivery-title').focus();
     announce(`Every child has the gift they asked for. ${M.LETTERS.map(l=>l.story).join(' ')}`);fit();
   }
 
@@ -704,28 +733,24 @@ body.course main{padding:12px 12px 16px}
     closePops(false);
     if(next!==undefined){bag=next;M=SW.load(bag);}
     setURL();$('bagno').textContent=String(bag+1);$('bagcount').textContent=String(BAGS);
-    clearTimeout(timer);st=M.start();brief={strip:null,examples:[]};delivered=false;reading=M.LETTERS[0].id;
+    flights++;$('delivery').classList.remove('flying','flown');$('delivery').querySelectorAll('.flight').forEach(e=>e.remove());
+    clearTimeout(timer);st=M.start();brief={strip:null,examples:[]};draft={strip:null};delivered=false;reading=M.LETTERS[0].id;
     $('delivery').hidden=true;$('sleigh').hidden=false;$('payoff').hidden=true;if(COURSE)$('takeaway').hidden=true;
     $('feedback-title').textContent='';$('feedback-text').textContent='';
-    renderAll(false);go('letters',true);
+    renderAll();go('letters',true);
   }
 
   $('to-brief').addEventListener('click',()=>go('brief'));
-  $('back-brief').addEventListener('click',()=>go('brief'));
+  $('back-brief').addEventListener('click',()=>{draft.strip=brief.strip;renderAll();go('brief');});
   $('to-sleigh').addEventListener('click',()=>{if(sendable())go('sleigh');});
-  $('sleigh-back').addEventListener('click',()=>go('brief'));
+  $('sleigh-back').addEventListener('click',()=>{draft.strip=brief.strip;renderAll();go('brief');});
   $('run-btn').addEventListener('click',run);
   $('load-btn').addEventListener('click',deliver);
-  $('skip-btn').addEventListener('click',()=>{$('delivery').classList.add('instant');$('skip-btn').hidden=true;});
-  $('reads-btn').addEventListener('click',()=>openPop('reads-pop',$('reads-btn')));
-  $('pop-close').addEventListener('click',closePops);$('reads-close').addEventListener('click',closePops);
+  $('pop-close').addEventListener('click',closePops);
   const restart=next=>{const from=document.activeElement;load(next);if(from&&from.closest('#delivery'))$('h-letters').focus();
     if(next!==undefined)announce(`New letters from ${SW.list(M.LETTERS.map(l=>l.name))}.`);};
   $('reset').addEventListener('click',()=>restart());$('reset2').addEventListener('click',()=>restart());
-  $('new-bag').addEventListener('click',()=>restart((bag+1)%BAGS));$('new-bag2').addEventListener('click',()=>restart((bag+1)%BAGS));
-  (function plans(){const tb=$('plans'),words=d=>d==='cozy'?'soft and quiet':'tough, with sound';
-    for(const id of Object.keys(M.PLANS)){const p=M.PLANS[id],tr=document.createElement('tr');tr.innerHTML='<th scope="row"></th><td></td><td></td>';
-      tr.children[0].textContent=p.name;tr.children[1].textContent=words(p.bedtime);tr.children[2].textContent=words(p.outdoor);tb.appendChild(tr);}})();
+  $('new-bag').addEventListener('click',()=>restart((bag+1)%BAGS));
   load();
 })();
 </script>
