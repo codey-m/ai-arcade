@@ -33,7 +33,7 @@ def hide(play):
 *{{color:transparent!important;text-shadow:none!important;caret-color:transparent!important}}
 text,tspan{{fill:transparent!important;stroke:transparent!important}}
 body *{{visibility:hidden!important}}{play},{play} *{{visibility:visible!important}}
-{play} .corner,{play} .stack-count,{play} .route-tag,{play} .gate-grip>span,{play} .frame-label,{play} .place-no,{play} .set-total{{visibility:hidden!important}}
+{play} .corner,{play} .stack-count,{play} .route-tag,{play} .gate-grip>span,{play} .frame-label,{play} .place-no,{play} .set-total,{play} .exb>button{{visibility:hidden!important}}
 </style>'''
 
 

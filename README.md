@@ -1,6 +1,6 @@
 # AI Arcade
 
-Sixteen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal, plays out as you move things, and keeps its explanation in a closed drop-down.
+Seventeen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal, plays out as you move things, and keeps its explanation in a closed drop-down.
 
 **Play:** https://codey-m.github.io/ai-arcade/
 
@@ -24,6 +24,7 @@ Games appear in play order, not course order: the subjects alternate, each stati
 | [Wonder Fold](https://codey-m.github.io/ai-arcade/the-wonder-fold.html) | Probability+SDA 6.3710.5x | Sample size and the power of a test |
 | [Next Note](https://codey-m.github.io/ai-arcade/next-note.html) | Deep Learning 6.7960.5x | Generating one piece at a time: temperature and top-k sampling |
 | [Stunt School](https://codey-m.github.io/ai-arcade/stunt-school.html) | CV+NLP 6.4600.5x | Reward, exploration and a learned policy |
+| [Wish List](https://codey-m.github.io/ai-arcade/workshop-brief.html) | AI Systems+Agents 6.S978.2x | Instructions and examples: what a brief must say |
 
 ## Demo tips
 
@@ -44,16 +45,15 @@ The games are developed and tested in the `ai-arcade-review/pilots` working fold
 
 ## Updating the site
 
-Build each changed game with its own builder. For the Module 5 additions, from this repository:
+Build each changed game with its own builder. For Wish List, from this repository:
 
 ```sh
-python3 ../ai-arcade-review/pilots/crossfade/build.py
-python3 ../ai-arcade-review/pilots/stunt-school/build.py
+python3 ../ai-arcade-review/pilots/workshop-brief/build.py
 python3 sync.py
-python3 tools/thumbs.py crossfade stunt-school
+python3 tools/thumbs.py workshop-brief
 python3 sync.py
 ```
 
-Review the generated site and thumbnails before committing and pushing. Crossfade and Stunt School are registered locally; the current handoff has not run the site sync or published them. Course hosting is separate: `CV_NLP/docs/publish_widgets.py` mirrors their generated course-mode copies to `CV_NLP_Labs/widgets/`. The overview iframes point to that course host, and the course imports wait until those hosted copies are live.
+Review the generated site and thumbnails before committing and pushing. Course hosting is separate. Course-mode copies come from `ai-arcade-review/pilots/wire_course.py`, and each course hosts its own: for CV+NLP, `CV_NLP/docs/publish_widgets.py` mirrors them to `CV_NLP_Labs/widgets/`, and the course imports wait until those hosted copies are live. Wish List is not wired into a course yet.
 
 A game marked `"hold": true` in `games.json` keeps its place in the order but stays off the site (none at the moment). To add a game, add an entry to `games.json` with its built file name and the CSS selector of its play area (used for the thumbnail), then run step 2. Optional fields shape the thumbnail (every scene is shown whole, padded to 16:10 on white): `thumb_steps` plays the game into a more telling state first (selectors to click, `{"set": selector, "value": v}` for a slider, or `{"key": selector, "press": key, "times": n}` for keyboard controls), and `thumb_query` opens a particular round (for example `seed=4`). `thumb_live` (`{"steps": [...], "after": ms}`) then plays on in real time and catches the scene mid-animation, through Chrome's DevTools protocol (`tools/live.py`, standard library only): planes in flight in Wonder Fold, crates in the air in Tipping Point.

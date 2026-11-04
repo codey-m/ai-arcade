@@ -300,6 +300,24 @@
         "#practice"
       ],
       "alt": "A lilac creature throwing an orange ball toward a hoop, with a dotted trajectory and marks where the ball bounced."
+    },
+    {
+      "slug": "workshop-brief",
+      "title": "Wish List",
+      "source": "workshop-brief.html",
+      "hook": "Santa's toy machine can build any toy, but it reads only the order labels and your brief. Can you write a brief that gives every child the gift their letter asked for?",
+      "course": "AI Systems+Agents",
+      "topic": "Instructions and examples",
+      "number": "6.S978.2x",
+      "colour": "#0E7490",
+      "play": "#results",
+      "thumb_query": "instant=1",
+      "thumb_steps": [
+        "#to-brief",
+        "#strip-bedtime",
+        "#run-btn"
+      ],
+      "alt": "Four toy orders on a workshop mat. A soft blue dragon and a soft green fox are finished; a red dragon and a yellow robot each appear twice, once soft and once tough, because the brief has not settled them."
     }
   ]
 }
