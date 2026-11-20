@@ -1,10 +1,10 @@
 # AI Arcade
 
-Eighteen short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal and keeps its explanation in a closed drop-down.
+Short games built from MIT course activities, prototyped for MIT Learn. Each game opens with a goal and keeps its explanation in a closed drop-down.
 
 **Play:** https://codey-m.github.io/ai-arcade/
 
-Games appear in play order, not course order: the subjects alternate, each statistics puzzle comes before the game that applies it (Beach Beeps before Photo Finish, Tipping Point before Wonder Fold), and each course's games otherwise keep their course order.
+Games appear in play order, not course order: the lineup mixes subjects, each statistics puzzle comes before the game that applies it (Beach Beeps before Photo Finish, Tipping Point before Wonder Fold), and each course's games otherwise keep their course order.
 
 | Game | Course | Idea |
 | --- | --- | --- |
@@ -26,6 +26,9 @@ Games appear in play order, not course order: the subjects alternate, each stati
 | [Next Note](https://codey-m.github.io/ai-arcade/next-note.html) | Deep Learning 6.7960.5x | Generating one piece at a time: temperature and top-k sampling |
 | [Stunt School](https://codey-m.github.io/ai-arcade/stunt-school.html) | CV+NLP 6.4600.5x | Reward, exploration and a learned policy |
 | [Wish List](https://codey-m.github.io/ai-arcade/workshop-brief.html) | AI Systems+Agents 6.S978.2x | Instructions and examples: what a brief must say |
+| [Letter Merge](https://codey-m.github.io/ai-arcade/letter-merge.html) | CV+NLP 6.4600.1x | Join matching pieces. See how many tiles you can save in two moves. |
+| [Merge Rush](https://codey-m.github.io/ai-arcade/merge-rush.html) | CV+NLP 6.4600.1x | Make room for the next word. Your merges will carry over when it lands. |
+| [Merge Grid](https://codey-m.github.io/ai-arcade/merge-grid.html) | CV+NLP 6.4600.1x | Read the same letters across or down and see how few pieces you can leave. |
 
 ## Demo tips
 

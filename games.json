@@ -331,6 +331,46 @@
         "#run-btn"
       ],
       "alt": "Four toy orders on a workshop mat. A soft blue dragon and a soft green fox are finished; a red dragon and a yellow robot each appear twice, once soft and once tough, because the brief has not settled them."
+    },
+    {
+      "source": "letter-merge.html",
+      "course": "CV+NLP",
+      "topic": "Tokenization",
+      "number": "6.4600.1x",
+      "colour": "#111827",
+      "play": "#board",
+      "slug": "letter-merge",
+      "title": "Letter Merge",
+      "hook": "Join matching pieces. See how many tiles you can save in two moves.",
+      "thumb_query": "seed=45",
+      "alt": "Three rows of small letter tiles inside a pale game board."
+    },
+    {
+      "source": "merge-rush.html",
+      "course": "CV+NLP",
+      "topic": "Tokenization",
+      "number": "6.4600.1x",
+      "colour": "#111827",
+      "play": "#board",
+      "slug": "merge-rush",
+      "title": "Merge Rush",
+      "hook": "Make room for the next word. Your merges will carry over when it lands.",
+      "alt": "A cluster of tile groups with space for an incoming word."
+    },
+    {
+      "source": "merge-grid.html",
+      "course": "CV+NLP",
+      "topic": "Tokenization",
+      "number": "6.4600.1x",
+      "colour": "#111827",
+      "play": "#grid",
+      "slug": "merge-grid",
+      "title": "Merge Grid",
+      "hook": "Read the same letters across or down and see how few pieces you can leave.",
+      "thumb_steps": [
+        "button[data-direction=across]"
+      ],
+      "alt": "A square arrangement of tiles with controls between neighboring pieces."
     }
   ]
 }

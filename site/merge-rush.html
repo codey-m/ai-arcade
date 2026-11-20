@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Merge Rush · AI Arcade</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='8' width='28' height='17' rx='8.5' fill='%23750014'/%3E%3Cpath d='M9 13v7M5.5 16.5h7' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='14.5' r='1.8' fill='white'/%3E%3Ccircle cx='24.5' cy='18.5' r='1.8' fill='white'/%3E%3C/svg%3E">
+  <style>
+:root {
+  color-scheme: light;
+  --ink: #0c0c0d;
+  --ink-2: #40464c;
+  --body: #212326;
+  --muted: #626a73;
+  --line: #dde1e6;
+  --rule: #e6e9ee;
+  --ground: #f3f4f8;
+  --red: #750014;
+  --button-line: #b8c2cc;
+  --gold-wash: #fbf0dc;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--ground); color: var(--body); font: 16px/1.55 "neue-haas-grotesk-text", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+a { color: var(--red); text-underline-offset: 3px; }
+button, summary { font: inherit; cursor: pointer; }
+button { border: 1px solid var(--button-line); border-radius: 4px; padding: 9px 14px; background: var(--red); color: #fff; font-weight: 500; min-height: 44px; touch-action: manipulation; }
+button.secondary { background: #fff; color: var(--ink-2); }
+button:focus-visible, summary:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 3px solid #1472ae; outline-offset: 3px; }
+button[aria-pressed="true"] { color: var(--ink); background: var(--gold-wash); border-color: #815a25; }
+[hidden] { display: none !important; }
+.gamebar { background: #fff; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--rule); }
+.gamebar a { display: grid; place-items: center; width: 44px; height: 44px; font-size: 24px; text-decoration: none; }
+.gamebar h1 { margin: 0; text-align: center; font-size: clamp(26px, 3vw, 38px); letter-spacing: -.02em; }
+main { max-width: 664px; margin: auto; padding: 12px; }
+p, h2 { margin: 0 0 .6em; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.explainer { margin-top: 14px; padding: 10px 14px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.explainer summary { padding-block: 6px; font-weight: 600; }
+.explainer p { margin: 6px 0 0; }
+body:not([data-mode="course"]) .course-only,
+body[data-mode="course"] .arcade-only,
+body[data-mode="course"] .gamebar,
+body.embedded .gamebar { display: none; }
+#transfer { margin-top: 10px; }
+#transfer h2 { font-size: 1rem; }
+@media (max-width: 320px) {
+  body[data-mode="course"] main,
+  body[data-mode="course"] .puzzle { padding: 8px; }
+  body[data-mode="course"] .gap { min-width: 16px; flex-basis: 16px; }
+}
+</style>
+  <style>
+.puzzle { max-width: 640px; margin: auto; padding: clamp(12px, 3vw, 26px); background: #fff; color: var(--body); border: 1px solid var(--line); border-radius: 6px; }
+.score { display: flex; flex-wrap: wrap; gap: 5px 12px; margin-block: 16px 12px; font-weight: 650; }
+.score span + span { padding-left: 12px; border-left: 1px solid #a391a8; }
+.board { display: grid; gap: 12px; border-radius: 8px; padding: clamp(7px, 2vw, 18px); background: #f9fafb; color: var(--body); border: 1px solid var(--line); }
+.tile-row { display: flex; align-items: center; gap: 1px; }
+.piece { display: inline-grid; place-items: center; min-width: 24px; min-height: 39px; padding-inline: 3px; border: 1px solid var(--button-line); border-radius: 5px; background: #fff; font: 700 1.06rem ui-monospace, monospace; }
+.piece + .piece { margin-left: 4px; }
+.piece.joined { background: var(--gold-wash); border-color: #815a25; }
+.piece.fresh { animation: snap .2s ease-out; }
+.gap { display: grid; place-items: center; flex: 0 0 23px; min-width: 23px; min-height: 44px; padding: 0; border: 1px solid transparent; background: transparent; color: var(--red); }
+.gap:is(:hover,:focus-visible) { color: white; background: var(--red); }
+#message { min-height: 24px; margin: 12px 0 8px; }
+button:disabled { cursor: default; opacity: .6; }
+@keyframes snap { 50% { transform: scale(1.13); } }
+@media (max-width: 370px) {
+  .board { padding-inline: 4px; }
+  .piece { min-width: 20px; padding-inline: 2px; }
+  .gap { min-width: 17px; flex-basis: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { .piece.fresh { animation: none; } }
+</style>
+  <style>
+.rush-board { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.rush-board .tile-row {
+  max-width: 100%;
+  min-height: 46px;
+  padding-inline: 3px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #eff2f5;
+}
+.rush-board .gap { min-width: 20px; flex-basis: 20px; }
+.rush-incoming { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 5px; }
+.rush-following { grid-column: 1 / -1; font-size: .83rem; }
+.rush-incoming .piece { color: #25243a; min-width: 17px; min-height: 29px; padding-inline: 2px; font-size: .92rem; }
+.rush-incoming .piece + .piece { margin-left: 0; }
+@media (max-width: 370px) {
+  .rush-board .gap { min-width: 17px; min-height: 36px; flex-basis: 17px; }
+  .rush-board .tile-row { min-height: 38px; }
+  .rush-board .piece { min-height: 34px; }
+  .rush-puzzle .score { margin-block: 8px; }
+  .rush-puzzle #message { margin-block: 6px; }
+  .rush-puzzle .actions { gap: 4px; }
+  .rush-puzzle .actions button { padding-inline: 5px; }
+  .rush-board { gap: 4px 7px; }
+}
+.grid-actions { margin-bottom: 12px; }
+.merge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr) minmax(28px, .55fr)) minmax(0, 1fr);
+  grid-template-rows: repeat(3, 41px 29px) 41px;
+  max-width: 360px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #25243a;
+}
+.merge-grid .piece {
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.merge-grid[data-direction="down"] .piece.joined {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+.merge-grid .gap {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  font-size: 1.3rem;
+}
+</style>
+  </head>
+<body data-mode="arcade">
+  <header class="gamebar"><a href="index.html" aria-label="Back to AI Arcade">←</a><h1>Merge Rush</h1></header>
+  <main>
+    <section class="puzzle rush-puzzle">
+      <p>Deal adds tiles and 1 move. A merge costs 1 move. Save 3+ tiles in one merge and it’s free.</p>
+      <div class="score" aria-label="Run progress">
+        <span id="tiles"></span><span id="moves"></span><span id="dealt"></span>
+      </div>
+      <div id="board" class="board rush-board" role="group" aria-label="Word tiles"></div>
+      <p id="message" role="status"></p>
+      <div class="actions">
+        <div id="incoming" class="rush-incoming" role="group" aria-label="Upcoming words">
+          <span>Next</span><div id="incoming-tiles"></div>
+          <span id="following-word" class="rush-following" aria-live="polite"></span>
+        </div>
+        <button id="deal" type="button"></button>
+        <button id="restart" class="secondary" type="button">Restart</button>
+      </div>
+    </section>
+
+    <details class="explainer">
+      <summary>The idea behind the game</summary>
+      <p class="arcade-only">The game applies your chosen merges to later words in the order you made them. Byte pair encoding also learns an ordered list of merges from training text and uses that list to break new words into pieces.</p>
+    </details>
+  </main>
+<script>
+"use strict";
+
+function matches(word, index, left, right) {
+  return word[index] === left && word[index + 1] === right;
+}
+
+function merge(board, left, right) {
+  return board.map(word => {
+    const merged = [];
+    for (let index = 0; index < word.length; index += 1) {
+      if (matches(word, index, left, right)) {
+        merged.push(left + right);
+        index += 1;
+      } else {
+        merged.push(word[index]);
+      }
+    }
+    return merged;
+  });
+}
+
+function tileCount(words) {
+  return words.reduce((total, word) => total + word.length, 0);
+}
+
+function drawMergeBoard(board, words, joined, onMerge) {
+  board.replaceChildren(...words.map(word => {
+    const row = document.createElement("div");
+    row.className = "tile-row";
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", word.join(""));
+    word.forEach((piece, index) => {
+      const tile = document.createElement("span");
+      tile.className = "piece";
+      tile.textContent = piece;
+      if (piece.length > 1) tile.classList.add("joined");
+      if (piece === joined) tile.classList.add("fresh");
+      row.append(tile);
+      if (index === word.length - 1 || !onMerge) return;
+      const right = word[index + 1];
+      const gap = document.createElement("button");
+      gap.type = "button";
+      gap.className = "gap";
+      gap.textContent = "+";
+      gap.setAttribute("aria-label", `Join ${piece} and ${right} in ${word.join("")}`);
+      gap.addEventListener("click", () => onMerge(piece, right));
+      row.append(gap);
+    });
+    return row;
+  }));
+
+}
+
+const bestScores = new Map();
+
+function readBest(key) {
+  let saved = Infinity;
+  try {
+    const value = Number(localStorage.getItem(key));
+    if (Number.isInteger(value) && value > 0) saved = value;
+  } catch {
+    // Keep session scores available when browser storage is blocked.
+  }
+  return Math.min(bestScores.get(key) ?? Infinity, saved);
+}
+
+function saveBest(key, tiles) {
+  bestScores.set(key, tiles);
+  try {
+    localStorage.setItem(key, String(tiles));
+  } catch {
+    // The in-memory score already holds the record.
+  }
+}
+</script>
+<script>
+"use strict";
+
+if (new URLSearchParams(location.search).get("embed") === "1") {
+  document.body.classList.add("embedded");
+}
+
+const startingWords = ["cocoa", "cocoon"];
+const incoming = ["coconut", "coco", "band", "banana", "bandana", "ban", "can", "candy"];
+const limit = 18;
+const board = document.querySelector("#board");
+const deal = document.querySelector("#deal");
+const restart = document.querySelector("#restart");
+const message = document.querySelector("#message");
+const preview = document.querySelector("#incoming");
+const previewTiles = document.querySelector("#incoming-tiles");
+const followingWord = document.querySelector("#following-word");
+let words;
+let rules;
+let moves;
+let dealt;
+let finished;
+
+function nextWord() {
+  return rules.reduce((pieces, [left, right]) => merge([pieces], left, right)[0], [...incoming[dealt]]);
+}
+
+function render(note = "", joined = "") {
+  const count = tileCount(words);
+  const pending = dealt < incoming.length ? nextWord() : [];
+  const shortfall = count + pending.length - limit;
+  const canMerge = moves > 0 && words.some(word => word.length > 1);
+  if (shortfall > 0 && !canMerge) {
+    finished = true;
+    note = `${note ? note + " " : ""}“${incoming[dealt]}” needs ${shortfall} more spaces. You fit ${dealt} of ${incoming.length} words.`;
+  }
+  document.querySelector("#tiles").textContent = `${count} / ${limit} tiles`;
+  document.querySelector("#moves").textContent = `${moves} ${moves === 1 ? "move" : "moves"} left`;
+  document.querySelector("#dealt").textContent = `${dealt} / ${incoming.length} words dealt`;
+  message.textContent = note;
+  preview.hidden = pending.length === 0;
+  drawMergeBoard(previewTiles, pending.length ? [pending] : [], "");
+  const following = incoming[dealt + 1];
+  const lookahead = following ? `Then “${following}”` : "";
+  if (followingWord.textContent !== lookahead) followingWord.textContent = lookahead;
+  deal.textContent = dealt === incoming.length ? "Deck clear" :
+    shortfall > 0 ? `Need ${shortfall} ${shortfall === 1 ? "space" : "spaces"}` : "Deal";
+  deal.disabled = finished || shortfall > 0;
+  drawMergeBoard(board, words, joined, finished || !canMerge ? null : (left, right) => {
+    const updated = merge(words, left, right);
+    const saved = tileCount(words) - tileCount(updated);
+    words = updated;
+    rules.push([left, right]);
+    const free = saved >= 3;
+    if (!free) moves -= 1;
+    const cost = free ? "Free merge." : "Spent 1 move.";
+    render(`Saved ${saved} ${saved === 1 ? "tile" : "tiles"}. ${cost}`, left + right);
+    (finished ? restart : board.querySelector(".gap") || deal).focus();
+  });
+}
+
+deal.addEventListener("click", () => {
+  const pending = nextWord();
+  words.push(pending);
+  dealt += 1;
+  moves += 1;
+  finished = dealt === incoming.length;
+  const added = `Added ${pending.length} ${pending.length === 1 ? "tile" : "tiles"} and 1 move.`;
+  render(finished ? "Deck clear. Every word fit." : added);
+  (finished ? restart : board.querySelector(".gap") || deal).focus();
+});
+
+function reset() {
+  words = startingWords.map(word => [...word]);
+  rules = [];
+  moves = 1;
+  dealt = 0;
+  finished = false;
+  render();
+}
+
+restart.addEventListener("click", () => {
+  reset();
+  board.querySelector(".gap").focus();
+});
+reset();
+</script>
+</body>
+</html>
