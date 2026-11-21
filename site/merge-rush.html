@@ -71,81 +71,161 @@ button:disabled { cursor: default; opacity: .6; }
 @media (prefers-reduced-motion: reduce) { .piece.fresh { animation: none; } }
 </style>
   <style>
-.rush-board { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.rush-board .tile-row {
-  max-width: 100%;
-  min-height: 46px;
-  padding-inline: 3px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #eff2f5;
-}
+/* Merge Rush in the arcade house format: title bar, play card, How to play card, closed explainer. */
+:root { --win: #216044; --lose: #a31f34; --over: #b45309; }
+body.gameformat main { max-width: 1120px; padding: 28px 24px 56px; }
+.gameformat .gamebar { grid-template-columns: 52px 1fr 52px; padding: 12px 24px; }
+.gameformat .gamebar .back { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: var(--ink); border-radius: 4px; }
+.gameformat .gamebar .back svg { width: 26px; height: 26px; }
+.gameformat .gamebar h1 { grid-column: 2; font-weight: 700; color: var(--ink); }
+
+.gamewrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+.playcard, .howto, .gameformat .explainer { background: #fff; border: 0; border-radius: 6px; box-shadow: 0 1px 2px rgba(16,24,40,.05), 0 3px 10px rgba(16,24,40,.05); }
+.playcard { overflow: hidden; }
+.gamestatus { display: flex; justify-content: center; gap: 8px 40px; flex-wrap: wrap; padding: 26px 24px 4px; font-size: 18px; color: var(--muted); }
+.gamestatus b { color: var(--body); font-weight: 600; }
+.gameprompt { text-align: center; color: var(--muted); font-size: 17px; margin: 8px 24px 18px; }
+.gameprompt strong { color: var(--body); font-weight: 600; }
+.gameplay { padding: 0 24px; }
+
+.shelf-head, .incoming-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.shelf-label { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.shelf-count { font-weight: 600; color: var(--body); font-variant-numeric: tabular-nums; }
+.shelf-count.full { color: var(--lose); }
+
+/* One cell per shelf space: filled = on the shelf, outlined = what the next word needs. */
+.meter { display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; margin-bottom: 10px; }
+.meter i { height: 8px; border-radius: 2px; background: var(--rule); }
+.meter i.used { background: var(--red); }
+.meter i.next { background: #fff; box-shadow: inset 0 0 0 2px var(--over); }
+.meter i.over { background: repeating-linear-gradient(135deg, var(--lose) 0 3px, #fff 3px 6px); }
+
+.rush-board { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; min-height: 76px; }
+.rush-board .tile-row { max-width: 100%; min-height: 46px; padding-inline: 3px; border: 1px solid var(--line); border-radius: 6px; background: #eff2f5; }
 .rush-board .gap { min-width: 20px; flex-basis: 20px; }
-.rush-incoming { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 5px; }
-.rush-following { grid-column: 1 / -1; font-size: .83rem; }
-.rush-incoming .piece { color: #25243a; min-width: 17px; min-height: 29px; padding-inline: 2px; font-size: .92rem; }
-.rush-incoming .piece + .piece { margin-left: 0; }
+
+.incoming { margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--button-line); border-radius: 8px; background: #fbfbfc; }
+.incoming-word { font: 600 15px ui-monospace, monospace; color: var(--ink-2); }
+.incoming-tiles .tile-row { display: inline-flex; }
+.incoming-tiles .piece { color: #25243a; }
+.following { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+
+.reason { text-align: center; min-height: 3em; margin: 12px 0 0; font-size: 15px; color: var(--muted); }
+.reason.win { color: var(--win); font-weight: 600; }
+.reason.lose { color: var(--lose); font-weight: 600; }
+
+.gamecontrols { display: flex; justify-content: center; padding: 6px 24px 22px; }
+.gamecontrols button { min-width: 200px; background: var(--red); color: #fff; border-color: var(--red); }
+
+.gamefoot { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 18px 24px 22px; border-top: 1px solid var(--rule); background: linear-gradient(#fbfbfc, #f6f7f9); }
+.gamefoot p { margin: 0 0 10px; font-size: 16px; color: var(--muted); }
+.gamefoot strong { color: var(--body); font-weight: 600; }
+.foot-left { flex: 1 1 260px; min-width: 0; }
+.rules { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; min-height: 32px; }
+.rules li { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid #815a25; border-radius: 999px; background: var(--gold-wash); font: 600 14px ui-monospace, monospace; color: var(--ink-2); }
+.rules li b { font: 600 12px system-ui, sans-serif; color: var(--muted); }
+.rules .none { border: 0; background: none; padding: 3px 0; font: 400 15px/1.4 "neue-haas-grotesk-text", "Helvetica Neue", Helvetica, Arial, sans-serif; color: var(--muted); }
+.gamefoot button { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--button-line); color: var(--ink-2); padding: 10px 22px; }
+.gamefoot button svg { width: 22px; height: 22px; }
+
+.howto { padding: 24px; }
+.howto h2 { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 500; margin: 0 0 16px; color: var(--ink); }
+.howto h2 svg { width: 28px; height: 20px; flex: none; }
+.howto p { font-size: 15px; line-height: 1.6; margin: 0 0 14px; }
+.howto strong { font-weight: 700; }
+
+.gameformat .explainer { margin-top: 28px; padding: 0; }
+.gameformat .explainer > summary { display: flex; align-items: center; gap: 10px; padding: 18px 24px; list-style: none; }
+.gameformat .explainer > summary::-webkit-details-marker { display: none; }
+.gameformat .explainer > summary::before { content: ""; flex: none; width: 7px; height: 7px; margin: 0 3px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }
+.gameformat .explainer[open] > summary::before { transform: rotate(45deg); }
+.explainer-body { padding: 4px 24px 24px; }
+.explainer-body h2 { font-size: 19px; margin: 0 0 10px; letter-spacing: -.015em; color: var(--ink); }
+.explainer-body p { font-size: 15px; line-height: 1.65; margin: 0 0 12px; }
+
+@media (max-width: 900px) { .gamewrap { grid-template-columns: 1fr; } }
+@media (max-width: 520px) {
+  body.gameformat main { padding: 14px 10px 40px; }
+  .gameformat .gamebar { padding: 8px 10px; }
+  .gamestatus { gap: 4px 18px; padding: 18px 14px 2px; font-size: 16px; }
+  .gameprompt { margin: 6px 14px 14px; font-size: 16px; }
+  .gameplay, .gamecontrols { padding-inline: 14px; }
+  .gamefoot { padding: 14px; }
+  .gamecontrols button { width: 100%; }
+}
 @media (max-width: 370px) {
+  .rush-board { gap: 4px 7px; }
   .rush-board .gap { min-width: 17px; min-height: 36px; flex-basis: 17px; }
   .rush-board .tile-row { min-height: 38px; }
   .rush-board .piece { min-height: 34px; }
-  .rush-puzzle .score { margin-block: 8px; }
-  .rush-puzzle #message { margin-block: 6px; }
-  .rush-puzzle .actions { gap: 4px; }
-  .rush-puzzle .actions button { padding-inline: 5px; }
-  .rush-board { gap: 4px 7px; }
-}
-.grid-actions { margin-bottom: 12px; }
-.merge-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr) minmax(28px, .55fr)) minmax(0, 1fr);
-  grid-template-rows: repeat(3, 41px 29px) 41px;
-  max-width: 360px;
-  padding: 8px;
-  border-radius: 8px;
-  background: #f9fafb;
-  color: #25243a;
-}
-.merge-grid .piece {
-  margin: 0;
-  min-width: 0;
-  min-height: 0;
-}
-.merge-grid[data-direction="down"] .piece.joined {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-}
-.merge-grid .gap {
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-  font-size: 1.3rem;
+  .meter { gap: 2px; }
 }
 </style>
   </head>
-<body data-mode="arcade">
-  <header class="gamebar"><a href="index.html" aria-label="Back to AI Arcade">←</a><h1>Merge Rush</h1></header>
+<body data-mode="arcade" class="gameformat">
+  <header class="gamebar"><a class="back" href="index.html" aria-label="Back to the arcade"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1>Merge Rush</h1></header>
   <main>
-    <section class="puzzle rush-puzzle">
-      <p>Deal adds tiles and 1 move. A merge costs 1 move. Save 3+ tiles in one merge and it’s free.</p>
-      <div class="score" aria-label="Run progress">
-        <span id="tiles"></span><span id="moves"></span><span id="dealt"></span>
-      </div>
-      <div id="board" class="board rush-board" role="group" aria-label="Word tiles"></div>
-      <p id="message" role="status"></p>
-      <div class="actions">
-        <div id="incoming" class="rush-incoming" role="group" aria-label="Upcoming words">
-          <span>Next</span><div id="incoming-tiles"></div>
-          <span id="following-word" class="rush-following" aria-live="polite"></span>
+    <div class="gamewrap">
+      <section class="playcard" aria-label="Game">
+        <div class="gamestatus" aria-label="Run progress">
+          <span>Words: <b id="dealt"></b></span>
+          <span>Moves: <b id="moves"></b></span>
+          <span>Best: <b id="best"></b></span>
         </div>
-        <button id="deal" type="button"></button>
-        <button id="restart" class="secondary" type="button">Restart</button>
-      </div>
-    </section>
+        <p class="gameprompt">Fit all <strong>eight words</strong> on the shelf without going over <strong>18 tiles</strong>.</p>
 
-    <details class="explainer">
+        <div class="gameplay">
+          <div class="shelf-head">
+            <span class="shelf-label">Shelf</span>
+            <span id="tiles" class="shelf-count"></span>
+          </div>
+          <div id="meter" class="meter" aria-hidden="true"></div>
+          <div id="board" class="board rush-board" role="group" aria-label="Words on the shelf"></div>
+
+          <div id="incoming" class="incoming" role="group" aria-labelledby="incoming-label">
+            <div class="incoming-head">
+              <span id="incoming-label" class="shelf-label">Next word</span>
+              <span id="incoming-word" class="incoming-word"></span>
+            </div>
+            <div id="incoming-tiles" class="incoming-tiles"></div>
+            <p id="following-word" class="following" aria-live="polite"></p>
+          </div>
+
+          <p id="message" class="reason" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="gamecontrols">
+          <button id="deal" class="primary" type="button"></button>
+        </div>
+
+        <div class="gamefoot">
+          <div class="foot-left">
+            <p><strong>Your merges</strong> <span>in the order you made them</span></p>
+            <ol id="rules" class="rules" aria-label="Your merges, in order"></ol>
+          </div>
+          <div class="foot-right">
+            <button id="restart" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Restart</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="howto" aria-labelledby="howto-title">
+        <h2 id="howto-title"><svg viewBox="0 0 28 20" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="17" rx="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7v6M5 10h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18.5" cy="8" r="1.4" fill="currentColor"/><circle cx="21.5" cy="11.5" r="1.4" fill="currentColor"/></svg>How to play</h2>
+        <p><strong>Merge</strong> by pressing a <strong>+</strong> between two pieces. That pair joins into one piece everywhere it appears on the shelf, so the shelf holds fewer tiles.</p>
+        <p><strong>Each merge costs a move.</strong> A merge that saves 3 or more tiles at once is free.</p>
+        <p><strong>Deal</strong> puts the next word on the shelf and gives you 1 more move. The word arrives with all your merges already applied, in the order you made them.</p>
+        <p><strong>The shelf holds 18 tiles.</strong> If the next word won't fit, merge to make room. When no merge can make room, the run ends.</p>
+        <p><strong>Clear the deck</strong> by fitting all eight words. Your best run is kept on this device.</p>
+      </aside>
+    </div>
+
+    <details class="explainer" id="explainer">
       <summary>The idea behind the game</summary>
-      <p class="arcade-only">The game applies your chosen merges to later words in the order you made them. Byte pair encoding also learns an ordered list of merges from training text and uses that list to break new words into pieces.</p>
+      <div class="explainer-body">
+        <h2>Merges that carry over</h2>
+        <p>Each merge you make becomes a rule, and every later word is broken up by your rules in the order you made them. A merge that pays off now can also shrink words you haven't seen yet, but only if those words contain the same pairs.</p>
+        <p>Byte pair encoding builds a vocabulary for language models the same way. It starts from single characters, repeatedly joins the most frequent neighboring pair in its training text, and keeps the merges as an ordered list. A new word is split into pieces by applying that list in order, so frequent pairs end up as single tokens and rare words fall back to shorter pieces.</p>
+      </div>
     </details>
   </main>
 <script>
@@ -234,44 +314,117 @@ if (new URLSearchParams(location.search).get("embed") === "1") {
 const startingWords = ["cocoa", "cocoon"];
 const incoming = ["coconut", "coco", "band", "banana", "bandana", "ban", "can", "candy"];
 const limit = 18;
-const board = document.querySelector("#board");
-const deal = document.querySelector("#deal");
-const restart = document.querySelector("#restart");
-const message = document.querySelector("#message");
-const preview = document.querySelector("#incoming");
-const previewTiles = document.querySelector("#incoming-tiles");
-const followingWord = document.querySelector("#following-word");
+const bestKey = "merge-rush-best";
+const $ = selector => document.querySelector(selector);
+const board = $("#board");
+const deal = $("#deal");
+const restart = $("#restart");
+const message = $("#message");
+const meter = $("#meter");
+const preview = $("#incoming");
+const previewTiles = $("#incoming-tiles");
+const followingWord = $("#following-word");
 let words;
 let rules;
 let moves;
 let dealt;
 let finished;
+let best = readRunBest();
+
+function plural(count, word) {
+  return `${count} ${count === 1 ? word : word + "s"}`;
+}
+
+// A run is better if it fits more words; between two clears, fewer tiles left wins.
+function readRunBest() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(bestKey));
+    if (Number.isInteger(saved?.words) && Number.isInteger(saved?.tiles)) return saved;
+  } catch {
+    // Storage blocked or unreadable: keep the best for this visit only.
+  }
+  return null;
+}
+
+function recordRun(run) {
+  if (best && (run.words < best.words || (run.words === best.words && run.tiles >= best.tiles))) return false;
+  best = run;
+  try { localStorage.setItem(bestKey, JSON.stringify(run)); } catch { /* in-memory best still holds */ }
+  return true;
+}
+
+function bestText() {
+  if (!best) return "–";
+  return best.words === incoming.length ? `Clear, ${best.tiles} tiles` : `${best.words} / ${incoming.length} words`;
+}
 
 function nextWord() {
   return rules.reduce((pieces, [left, right]) => merge([pieces], left, right)[0], [...incoming[dealt]]);
 }
 
-function render(note = "", joined = "") {
+function drawMeter(count, needed) {
+  meter.replaceChildren(...Array.from({ length: limit }, (_, index) => {
+    const cell = document.createElement("i");
+    if (index < count) cell.className = "used";
+    else if (index < count + needed) cell.className = "next";
+    return cell;
+  }));
+  if (count + needed > limit) meter.lastChild.className = "over";
+}
+
+function drawRules() {
+  const list = $("#rules");
+  if (!rules.length) {
+    const none = document.createElement("li");
+    none.className = "none";
+    none.textContent = "None yet";
+    list.replaceChildren(none);
+    return;
+  }
+  list.replaceChildren(...rules.map(([left, right], index) => {
+    const item = document.createElement("li");
+    const step = document.createElement("b");
+    step.textContent = `${index + 1}.`;
+    item.append(step, `${left} + ${right}`);
+    item.setAttribute("aria-label", `Merge ${index + 1}: ${left} and ${right}`);
+    return item;
+  }));
+}
+
+function render(note = "", joined = "", tone = "") {
   const count = tileCount(words);
   const pending = dealt < incoming.length ? nextWord() : [];
   const shortfall = count + pending.length - limit;
   const canMerge = moves > 0 && words.some(word => word.length > 1);
-  if (shortfall > 0 && !canMerge) {
+  if (!finished && shortfall > 0 && !canMerge) {
     finished = true;
-    note = `${note ? note + " " : ""}“${incoming[dealt]}” needs ${shortfall} more spaces. You fit ${dealt} of ${incoming.length} words.`;
+    const why = moves > 0 ? "and nothing is left to merge" : "and you are out of moves";
+    note = `“${incoming[dealt]}” needs ${plural(shortfall, "more space")}, ${why}. You fit ${dealt} of ${incoming.length} words.`;
+    tone = "lose";
+    if (recordRun({ words: dealt, tiles: count })) note += " That's your best run so far.";
   }
-  document.querySelector("#tiles").textContent = `${count} / ${limit} tiles`;
-  document.querySelector("#moves").textContent = `${moves} ${moves === 1 ? "move" : "moves"} left`;
-  document.querySelector("#dealt").textContent = `${dealt} / ${incoming.length} words dealt`;
+
+  $("#tiles").textContent = `${count} / ${limit} tiles`;
+  $("#tiles").classList.toggle("full", shortfall > 0);
+  $("#moves").textContent = String(moves);
+  $("#dealt").textContent = `${dealt} / ${incoming.length}`;
+  $("#best").textContent = bestText();
+  drawMeter(count, pending.length);
+  drawRules();
+
   message.textContent = note;
+  message.className = `reason ${tone}`.trim();
+
   preview.hidden = pending.length === 0;
+  $("#incoming-word").textContent = pending.length ? incoming[dealt] : "";
   drawMergeBoard(previewTiles, pending.length ? [pending] : [], "");
   const following = incoming[dealt + 1];
-  const lookahead = following ? `Then “${following}”` : "";
-  if (followingWord.textContent !== lookahead) followingWord.textContent = lookahead;
-  deal.textContent = dealt === incoming.length ? "Deck clear" :
-    shortfall > 0 ? `Need ${shortfall} ${shortfall === 1 ? "space" : "spaces"}` : "Deal";
+  followingWord.textContent = following ? `Then “${following}”.` : pending.length ? "This is the last word." : "";
+
+  deal.textContent = finished ? (dealt === incoming.length ? "Deck clear" : "Run over") :
+    shortfall > 0 ? `Make room: ${plural(shortfall, "space")} short` : `Deal “${incoming[dealt]}”`;
   deal.disabled = finished || shortfall > 0;
+
   drawMergeBoard(board, words, joined, finished || !canMerge ? null : (left, right) => {
     const updated = merge(words, left, right);
     const saved = tileCount(words) - tileCount(updated);
@@ -279,21 +432,28 @@ function render(note = "", joined = "") {
     rules.push([left, right]);
     const free = saved >= 3;
     if (!free) moves -= 1;
-    const cost = free ? "Free merge." : "Spent 1 move.";
-    render(`Saved ${saved} ${saved === 1 ? "tile" : "tiles"}. ${cost}`, left + right);
+    render(`${left} + ${right} saved ${plural(saved, "tile")}. ${free ? "Free merge." : "That cost 1 move."}`, left + right);
     (finished ? restart : board.querySelector(".gap") || deal).focus();
   });
 }
 
 deal.addEventListener("click", () => {
   const pending = nextWord();
+  const shrunk = incoming[dealt].length - pending.length;
   words.push(pending);
   dealt += 1;
   moves += 1;
-  finished = dealt === incoming.length;
-  const added = `Added ${pending.length} ${pending.length === 1 ? "tile" : "tiles"} and 1 move.`;
-  render(finished ? "Deck clear. Every word fit." : added);
-  (finished ? restart : board.querySelector(".gap") || deal).focus();
+  if (dealt === incoming.length) {
+    finished = true;
+    const tiles = tileCount(words);
+    const record = recordRun({ words: dealt, tiles });
+    render(`Deck clear. All eight words fit in ${tiles} tiles.${record ? " That's your best run so far." : ""}`, "", "win");
+    restart.focus();
+    return;
+  }
+  const carried = shrunk ? ` Your merges shrank it by ${plural(shrunk, "tile")}.` : "";
+  render(`Added ${plural(pending.length, "tile")} and 1 move.${carried}`);
+  (board.querySelector(".gap") || deal).focus();
 });
 
 function reset() {
