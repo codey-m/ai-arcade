@@ -343,6 +343,21 @@
       "title": "Merge Rush",
       "hook": "Make room for the next word. Your merges will carry over when it lands.",
       "alt": "A cluster of tile groups with space for an incoming word."
+    },
+    {
+      "source": "signal-relay.html",
+      "course": "CV+NLP",
+      "topic": "Sequence models",
+      "number": "6.4600.1x",
+      "colour": "#111827",
+      "play": "#board",
+      "slug": "signal-relay",
+      "title": "Signal Relay",
+      "hook": "Each car carries one sign down the line. Set the signals so every train shows what each station needs, on every night.",
+      "thumb_steps": [
+        ".bubble .skip"
+      ],
+      "alt": "A model railway at dusk: a departures board, signal lamps on tall masts, an inspection shed and a terminus with gates."
     }
   ]
 }

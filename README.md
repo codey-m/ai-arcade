@@ -27,6 +27,7 @@ Games appear in play order, not course order: the lineup mixes subjects, each st
 | [Stunt School](https://codey-m.github.io/ai-arcade/stunt-school.html) | CV+NLP 6.4600.5x | Reward, exploration and a learned policy |
 | [Wish List](https://codey-m.github.io/ai-arcade/workshop-brief.html) | AI Systems+Agents 6.S978.2x | Instructions and examples: what a brief must say |
 | [Merge Rush](https://codey-m.github.io/ai-arcade/merge-rush.html) | CV+NLP 6.4600.1x | Make room for the next word. Your merges will carry over when it lands. |
+| [Signal Relay](https://codey-m.github.io/ai-arcade/signal-relay.html) | CV+NLP 6.4600.1x | Each car carries one sign down the line. Set the signals so every train shows what each station needs, on every night. |
 
 ## Demo tips
 
