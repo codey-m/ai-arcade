@@ -342,7 +342,8 @@
       "slug": "merge-rush",
       "title": "Merge Rush",
       "hook": "Make room for the next word. Your merges will carry over when it lands.",
-      "alt": "A cluster of tile groups with space for an incoming word."
+      "thumb_asset": "merge-rush-thumbnail.svg",
+      "alt": "Two rows of tiles show the same gold pair merging in two places, making space for an incoming purple tile."
     },
     {
       "source": "signal-relay.html",
@@ -355,9 +356,15 @@
       "title": "Signal Relay",
       "hook": "Each car carries one sign down the line. Set the signals so every train shows what each station needs, on every night.",
       "thumb_steps": [
-        ".bubble .skip"
+        ".bubble .skip",
+        ".socket[data-socket=s1]",
+        ".pick:nth-child(4)"
       ],
-      "alt": "A model railway at dusk: a departures board, signal lamps on tall masts, an inspection shed and a terminus with gates."
+      "thumb_live": {
+        "steps": ["#dispatch"],
+        "after": 1550
+      },
+      "alt": "A locomotive carries a sign past the inspection shed on a model railway with signal lamps and a gated terminus."
     }
   ]
 }
