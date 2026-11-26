@@ -150,6 +150,12 @@ details.explainer[open]>summary::before{transform:rotate(45deg)}
 body.gameformat:not(.course) details.explainer{padding:0}
 body:not(.course) details.explainer[hidden]{display:block!important}
 body:not(.course) .explainer-body{padding:4px 24px 24px}
+.replay-read{font:13px var(--mono);color:var(--ink);margin:10px 0 12px;text-align:center}.inset:focus-visible{outline:3px solid #1472ae;outline-offset:3px;border-radius:6px}
+.inset{margin:10px 0 0}.inset svg{display:block;width:100%;max-width:600px;height:auto;margin:0 auto;border:1px solid var(--line);border-radius:6px;touch-action:none}.inset-note{font-size:12px;color:var(--muted);text-align:center;margin:6px 0 0}
+.scene-wrap{display:flex;gap:10px;align-items:stretch}.scene-wrap>.plot{flex:1;min-width:0}.carry{flex:none;justify-content:center;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 8px 7px;background:rgba(255,255,255,.88);border:1px solid #cbd5e1;border-radius:8px;touch-action:none;user-select:none}.carry:focus-visible{outline:3px solid #1472ae;outline-offset:2px}.carry.busy{opacity:.55}.carry-label{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#334155}.carry-bar{display:flex;flex-direction:column;gap:2px;padding:3px;background:#1f2937;border-radius:5px;cursor:ns-resize}.carry-bar i{display:block;width:26px;height:6px;border-radius:2px;background:#374151}.carry-val{font:600 13px var(--mono);color:#111827}
+.playcard.has-map{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:0}.playcard.has-map>*{grid-column:1/-1}.playcard.has-map>.gameplay{grid-column:1;padding-right:12px}.playcard.has-map>.inset{grid-column:2;grid-row:3;align-self:center;margin:0;padding:0 24px 0 4px}.playcard.has-map .inset svg{max-width:none}
+body.map-layout .gamewrap{grid-template-columns:1fr}body.map-layout .howto{padding:6px 24px}body.map-layout .howto-fold summary{font-size:16px;font-weight:550;display:flex;align-items:center;gap:10px}body.map-layout .howto-fold summary svg{width:24px;height:18px}body.map-layout .howto-fold[open] summary{margin-bottom:8px}body.map-layout .howto details{border-top:0;margin-top:0;padding-top:0}
+@media(max-width:760px){.playcard.has-map{display:flex;flex-direction:column}.playcard.has-map>.gamestatus{order:1}.playcard.has-map>.gameprompt{order:2}.playcard.has-map>.gameplay{order:3;padding-right:14px}.playcard.has-map>.gamecontrols{order:4}.playcard.has-map>.inset{order:5;padding:12px 14px 0}.playcard.has-map>.gamefoot{order:6}}
 </style>
 </head>
 <body data-game="optimizer">
@@ -554,6 +560,11 @@ body:not(.course) .explainer-body{padding:4px 24px 24px}
     anim=requestAnimationFrame(tick);
   }
   function changed(){stopAnim();state.play=null;state.pending=false;state.done=false;state.checked=false;$('result').hidden=true;$('solution').disabled=false;$('solution').textContent='Show a working answer';if(GAME==='optimizer'){if(scenario.kind==='bowl'&&state.p.stretch!==scenario.stretch){stretch=state.p.stretch;scenario=M.create(GAME,seed,'course',{stretch});}state.lastRun=null;state.p.rate=M.rateFor(scenario,state.p.strength);$('plot').classList.remove('outcome-win','outcome-lose','outcome-over');}if(GAME==='shapes'){state.trained=null;syncShape();}if(GAME==='nlp'){if(state.claimResult==='right')state.pending=true;else state.claimResult=null;}draw();}
+  // Hide a slider's range and keep its labelled number box, for settings set directly on the map.
+  function numberOnly(id,note){const a=$(id),b=$(id+'-number');if(!a||!b)return;a.hidden=true;const lab=a.closest('.slider').querySelector('label');lab.htmlFor=b.id;b.removeAttribute('aria-label');const h=$(id+'-help');if(h)h.textContent+=' '+note;}
+  // Both optimizer settings live in the scene: the next-move arrow sets the strength (its number box stays for typing),
+  // and the carry-over meter replaces the momentum slider. The hidden inputs still hold the values and drive changed().
+  function sceneControls(){numberOnly('strength','Stretch the arrow in the scene, or type a value.');const a=$('momentum');if(a)a.closest('.slider').hidden=true;}
   function slider(id,label,min,max,step,help,scale=1){
     const host=document.createElement('div');host.className='slider';
     host.innerHTML=`<div class="slhead"><label for="${id}">${esc(label)}</label><input id="${id}-number" aria-label="${esc(label)}, numeric entry" aria-describedby="${id}-help" type="number" min="${min*scale}" max="${max*scale}" step="${step*scale}" value="${M.round(state.p[id]*scale)}"></div><input id="${id}" aria-describedby="${id}-help" type="range" min="${min*scale}" max="${max*scale}" step="${step*scale}" value="${M.round(state.p[id]*scale)}"><p id="${id}-help" class="control-help">${esc(help)}</p>`;
@@ -599,10 +610,13 @@ body:not(.course) .explainer-body{padding:4px 24px 24px}
         slider('strength','Learning rate',1,20,1,'How far each step moves along the downhill slope.',.02);
         slider('momentum','Momentum',0,.95,.05,'The share of the previous step carried into the next one. At 0 this is plain gradient descent.');
         if(scenario.kind==='bowl')slider('stretch','Stretch k',1,25,1,'The bowl is f(x, y) = ½(x² + k·y²), so it is k times steeper across the valley than along it.');
+        sceneControls();
+        if(scenario.kind==='bowl')numberOnly('stretch','Drag the handle on the map, or type a value.');
       }else{
       slider('strength','Move strength',1,20,1,'Sets the learning rate: how big each step downhill is. In a sharp valley, too high sends the robot flying off.');
       {const lr=document.createElement('p');lr.className='lr-readout';lr.id='lr-readout';$('controls').lastElementChild.appendChild(lr);}
       slider('momentum','Carry-over motion (%)',0,.95,.05,'Keep this percentage of the previous move. It can speed up travel, but also make the robot overshoot.',100);
+      sceneControls();
       }
       $('submit').textContent='Run the robot';note='Each run starts from the same place. Change a setting and run again to compare the route.';
     }else if(GAME==='threshold'){
@@ -824,18 +838,52 @@ body:not(.course) .explainer-body{padding:4px 24px 24px}
     terrainCache={key,S,zOf,se,image,svg,sky:B.sky,words:B.words,hidden:(x,y)=>hiddenFrom(az,el,x,y)};return terrainCache;
   }
   function drawOptimizer(w){
-    const h=380,s=scenario,run=state.play||state.lastRun&&{run:state.lastRun,k:1},T=terrain(w,h,s),on=(x,y)=>T.S(x,y,T.zOf(x,y)+.03);
+    // After a run, the step-through replays the recorded path one step at a time (state.inspect, tied to that run).
+    const last=state.lastRun,nLast=last?last.path.length-1:0,at=!state.play&&last&&state.inspect&&state.inspect.run===last?state.inspect.i:null;
+    const h=380,s=scenario,run=state.play||last&&{run:last,k:at===null||!nLast?1:at/nLast},T=terrain(w,h,s),on=(x,y)=>T.S(x,y,T.zOf(x,y)+.03);
     let bot={pos:s.start,i:0,heading:0},trail=[];
     if(run){bot=robotAt(run.run.path,run.k);trail=[...run.run.path.slice(0,bot.i+1),bot.pos];}
-    const moveNo=run?(state.play?Math.min(60,bot.i+1):run.run.path.length-1):0,r=state.play?null:state.lastRun,docked=!!(r&&r.success);
+    // The docking ring describes the step on screen; the run's outcome stays in the status line and the corner label.
+    const moveNo=run?(state.play?Math.min(60,bot.i+1):at!==null?at:run.run.path.length-1):0,r=state.play?null:state.lastRun,docked=!!(r&&r.success&&(at===null||at>=r.entry));
     let g=`<rect width="${w}" height="${h}" fill="${T.sky}"/>`+(T.image?`<image href="${T.image}" x="0" y="0" width="${w}" height="${h}"/>`:T.svg);
     const c0=on(...(s.charger||[0,0]));g+=`<ellipse cx="${c0[0].toFixed(1)}" cy="${c0[1].toFixed(1)}" rx="8" ry="${(8*T.se).toFixed(1)}" fill="#fff" stroke="#111827" stroke-width="2"/>`+(docked?`<ellipse cx="${c0[0].toFixed(1)}" cy="${c0[1].toFixed(1)}" rx="17" ry="${(17*T.se).toFixed(1)}" fill="none" stroke="#216044" stroke-width="2.4"/>`:'');
     g+=line(c0[0]+8,c0[1]-4,c0[0]+30,c0[1]-26,'#111827')+`<text x="${c0[0]+33}" y="${c0[1]-28}" text-anchor="start" class="map-label">charger</text>`;
     const s0=on(...s.start);g+=`<ellipse cx="${s0[0].toFixed(1)}" cy="${s0[1].toFixed(1)}" rx="8" ry="${(8*T.se).toFixed(1)}" fill="none" stroke="#111827" stroke-width="1.5" stroke-dasharray="2 2"/>`;
     if(trail.length){const tp=trail.map(q=>on(...q));g+=path(tp,'#1F2937',2);tp.slice(0,-1).forEach(p=>{g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.4" fill="#1F2937" stroke="#fff" stroke-width=".8"/>`;});}
+    if(s.kind==='bowl'){
+      for(const c of INSET_LEVELS){const a=Math.sqrt(2*c),b=Math.sqrt(2*c/s.stretch);let seg=[],d='';
+        const flush=()=>{if(seg.length>1)d+='M'+seg.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join('L');seg=[];};
+        for(let i=0;i<=96;i++){const th=i/96*2*Math.PI,x=a*Math.cos(th),y=b*Math.sin(th);if(Math.abs(x)>4.5||Math.abs(y)>3.5||T.hidden(x,y)){flush();continue;}seg.push(on(x,y));}
+        flush();if(d)g+=`<path d="${d}" fill="none" stroke="${c===STRETCH_C?'#334155':'#ffffff'}" stroke-width="${c===STRETCH_C?1.8:1.1}" opacity="${c===STRETCH_C?.85:.75}"/>`;}
+    }
+    g+=stepTargets(last,at,on,'#94a3b8');
+    let arrowSvg='';
+    // The next move at the current strength: start − rate·∇f(start), drawn on the terrain. Momentum does not enter
+    // move 1 (the robot starts at rest). Each strength's tip is precomputed so a drag snaps to the nearest one.
+    if(!state.play){
+      const [gx,gy]=M.robotGrad(s,...s.start);
+      state.rateTips=Array.from({length:20},(_,j)=>{const r=M.rateFor(s,j+1);return on(s.start[0]-r*gx,s.start[1]-r*gy);});
+      // A power arrow: it leaves the robot's edge (ARROW_R px out) and points along move 1, and its length past that edge
+      // is move 1's on-screen length, so even the smallest step shows a full head outside the robot. A tip outside the
+      // view is clipped to the frame edge with the head kept there. Drawn after the robot so nothing covers it.
+      const shown=!!last,a0=on(...s.start),M0=14,inView=q=>q[0]>=M0&&q[0]<=w-M0&&q[1]>=M0&&q[1]<=h-M0;
+      const tLen=state.rateTips.map(q=>Math.hypot(q[0]-a0[0],q[1]-a0[1])),raw=state.rateTips[state.p.strength-1];
+      const rl=Math.hypot(raw[0]-a0[0],raw[1]-a0[1])||1,ux=(raw[0]-a0[0])/rl,uy=(raw[1]-a0[1])/rl;
+      state.arrowGeom={a0,ux,uy,tLen};
+      const from=[a0[0]+ux*ARROW_R,a0[1]+uy*ARROW_R];let L=tLen[state.p.strength-1]+12,off=false;
+      const at=d=>[from[0]+ux*d,from[1]+uy*d];
+      if(!inView(at(L))){off=true;let lo=0,hi=L;for(let n=0;n<30;n++){const m=(lo+hi)/2;if(inView(at(m)))lo=m;else hi=m;}L=lo;}
+      const tip=at(L),hl=Math.max(11,Math.min(18,L*.4)),hw=hl*.62,base=at(Math.max(0,L-hl)),f=v=>v.toFixed(1),op=shown?' opacity=".25"':'';
+      const cv=Math.round(state.p.momentum*100),head=chargeColor(cv),glow=cv?`<polygon points="${f(tip[0])},${f(tip[1])} ${f(base[0]-uy*hw)},${f(base[1]+ux*hw)} ${f(base[0]+uy*hw)},${f(base[1]-ux*hw)}" fill="none" stroke="${head}" stroke-width="${(2+cv/95*7).toFixed(1)}" stroke-linejoin="round" opacity="${(.15+cv/95*.35).toFixed(2)}"/>`:'';
+      arrowSvg=`<defs><linearGradient id="move-charge" gradientUnits="userSpaceOnUse" x1="${f(from[0])}" y1="${f(from[1])}" x2="${f(tip[0])}" y2="${f(tip[1])}"><stop offset="0" stop-color="${chargeColor(0)}"/><stop offset="1" stop-color="${head}"/></linearGradient></defs><g${op}>`+glow+(L>hl?`<line x1="${f(from[0])}" y1="${f(from[1])}" x2="${f(base[0])}" y2="${f(base[1])}" stroke="#fff" stroke-width="6" stroke-linecap="round"/><line x1="${f(from[0])}" y1="${f(from[1])}" x2="${f(base[0])}" y2="${f(base[1])}" stroke="url(#move-charge)" stroke-width="3" stroke-linecap="round"/>`:'')+
+        `<polygon points="${f(tip[0])},${f(tip[1])} ${f(base[0]-uy*hw)},${f(base[1]+ux*hw)} ${f(base[0]+uy*hw)},${f(base[1]-ux*hw)}" fill="${head}" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></g>`+
+        (off?`<text x="${f(tip[0]-ux*24)}" y="${f(tip[1]-uy*24-10)}" text-anchor="middle" class="map-label"${op}>lands off the view</text>`:'')+
+        (shown?'':`<circle data-handle="move" cx="${f(tip[0])}" cy="${f(tip[1])}" r="18" fill="transparent" style="cursor:grab;touch-action:none"/>`);
+    }
     const b=on(...bot.pos),ahead=on(bot.pos[0]+Math.cos(bot.heading)*.3,bot.pos[1]+Math.sin(bot.heading)*.3);
     const behind=T.hidden(...bot.pos);
     g+=behind?`<circle cx="${b[0].toFixed(1)}" cy="${(b[1]-4).toFixed(1)}" r="15" fill="none" stroke="#111827" stroke-width="1.6" stroke-dasharray="3 2"/><g opacity=".5">`+robotGlyph(b[0],b[1]-4,run?Math.atan2(ahead[1]-b[1],ahead[0]-b[0])*180/Math.PI:0)+'</g>':`<ellipse cx="${b[0].toFixed(1)}" cy="${(b[1]+6).toFixed(1)}" rx="10" ry="4" fill="#000" opacity=".18"/>`+robotGlyph(b[0],b[1]-4,run?Math.atan2(ahead[1]-b[1],ahead[0]-b[0])*180/Math.PI:0);
+    g+=arrowSvg;
     const o=r?robotOutcome(r):null,status=state.play?'Driving':o?o.status:'Ready';
     g+=`<text x="16" y="26" text-anchor="start" class="map-label">${run?(COURSE?'step ':'move ')+moveNo:'ready'}</text>`+(o?`<text x="${w-16}" y="26" text-anchor="end" class="map-label ${o.win?'win':o.over?'over':'lose'}">${o.label}</text>`:'');
     plot(g,w,h,`Three-dimensional view of the terrain the robot descends: a valley with hills and hollows, the charger at its lowest point${s.kind==='bowl'?' (a plain stretched bowl)':s.kind==='dip'?', and a dip partway down':''}. ${state.play?`The robot is driving: move ${moveNo}.`:r?`Robot status: ${status}.`:'The robot waits at its start, high on the valley side.'}`);
@@ -845,6 +893,121 @@ body:not(.course) .explainer-body{padding:4px 24px 24px}
     if($('st-status')){$('st-status').textContent=status;$('st-status').className=o?(o.win?'win':o.over?'over':'lose'):'';$('st-moves').textContent=`${state.play?moveNo:r?(r.success?r.entry:r.path.length-1):0} / par ${s.par}`;}
     $('live').textContent=state.play?'':o?o.why:'';
     $('table').innerHTML='';
+    stepThrough(last,at);carryMeter();
+    contourInset(trail,run?bot.pos:null);
+  }
+  // On the bowl: a view from above at a fixed, equal scale (INSET_PX per unit on both axes, the same for every run and
+  // every k), so a growing zig-zag and a settling one look different. The arrow runs from the start to the solver's
+  // first iterate, start − η∇f(start); momentum does not enter step 1 because the robot starts at rest. Dragging its
+  // tip along the downhill direction sets the learning rate, snapped to the slider's steps.
+  // One colour scale for carry-over, shared by the meter's cells and the move arrow: deep red (none) to gold (95%).
+  const CHARGE=[[0,[159,35,59]],[50,[232,89,12]],[95,[251,191,36]]];
+  function chargeColor(v){let i=0;while(i<CHARGE.length-2&&v>CHARGE[i+1][0])i++;const [a,ca]=CHARGE[i],[b,cb]=CHARGE[i+1],u=Math.max(0,Math.min(1,(v-a)/(b-a)));return '#'+ca.map((c,j)=>Math.round(c+(cb[j]-c)*u).toString(16).padStart(2,'0')).join('');}
+  const ARROW_R=18,INSET_PX=52,INSET_W=600,INSET_H=440,STRETCH_C=4,INSET_LEVELS=[.25,1,2.25,4,6.25,9];
+  // With the map showing, the play card puts terrain and map side by side (stacked on narrow screens, map after Run)
+  // and How to play becomes a closed drop-down under the card, so the first run stays near the top.
+  function mapLayout(on){
+    const card=document.querySelector('.playcard');if(!card)return;card.classList.toggle('has-map',on);document.body.classList.toggle('map-layout',on);
+    const how=document.querySelector('aside.howto');if(!how)return;
+    if(on&&!how.querySelector('details')){const d=document.createElement('details');d.className='howto-fold';const h=how.querySelector('h2');d.innerHTML=`<summary>${h.innerHTML}</summary>`;[...how.children].filter(c=>c!==h).forEach(c=>d.append(c));h.hidden=true;how.append(d);}
+  }
+  function contourInset(trail,pos){
+    let box=$('inset');const s=scenario;
+    if(!box){
+      box=document.createElement('div');box.id='inset';box.className='inset';
+      const card=document.querySelector('.playcard'),play=card&&card.querySelector('.gameplay');
+      if(play)play.after(box);else($('plot').closest('.scene-wrap')||$('plot')).after(box);
+      const toUser=e=>{const svg=box.querySelector('svg'),p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return [(q.x-INSET_W/2)/INSET_PX,(INSET_H/2-q.y)/INSET_PX];};
+      // The stretch handle sits on the f = STRETCH_C contour at (0, √(2·STRETCH_C/k)), inside the map for k = 1 to 25.
+      const dragK=e=>{
+        const y=Math.abs(toUser(e)[1]),k=M.clamp(Math.round(2*STRETCH_C/Math.max(y*y,1e-6)),1,25),el=$('stretch');
+        if(el&&Number(el.value)!==k){el.value=k;el.dispatchEvent(new Event('input'));}
+      };
+      const drag=e=>{
+        if(box.dataset.dragging==='k')return dragK(e);
+        const sc=scenario,[gx,gy]=M.robotGrad(sc,...sc.start),gn=Math.hypot(gx,gy),[ux,uy]=toUser(e);
+        const t=((ux-sc.start[0])*-gx+(uy-sc.start[1])*-gy)/gn,per=M.rateFor(sc,1),strength=M.clamp(Math.round(t/gn/per),1,20);
+        const el=$('strength'),scale=Number(el.max)/20,v=M.round(strength*scale);
+        if(Number(el.value)!==v){el.value=v;el.dispatchEvent(new Event('input'));}
+      };
+      box.addEventListener('click',e=>{const d=e.target.closest('[data-step]');if(d)inspectStep(Number(d.dataset.step));});
+      box.addEventListener('keydown',e=>{if(!state.lastRun||state.play)return;const n=state.lastRun.path.length-1,i=inspectedStep(),to={ArrowLeft:i-1,ArrowRight:i+1,Home:0,End:n}[e.key];if(to===undefined)return;e.preventDefault();inspectStep(to);});
+      box.addEventListener('pointerdown',e=>{const h=e.target.closest('[data-handle]');if(!h||state.play)return;e.preventDefault();box.setPointerCapture(e.pointerId);box.dataset.dragging=h.dataset.handle;drag(e);});
+      box.addEventListener('pointermove',e=>{if(box.dataset.dragging)drag(e);});
+      const end=e=>{if(!box.dataset.dragging)return;const was=box.dataset.dragging;delete box.dataset.dragging;say(was==='k'?`Stretch k ${scenario.stretch}.`:`Learning rate ${state.p.rate.toFixed(2)}. The arrow shows step 1.`);};
+      box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end);
+    }
+    box.hidden=s.kind!=='bowl';mapLayout(!box.hidden);if(box.hidden)return;
+    const k=s.stretch,X=x=>(INSET_W/2+x*INSET_PX).toFixed(1),Y=y=>(INSET_H/2-y*INSET_PX).toFixed(1),unit=COURSE?'step':'move';
+    let g=`<defs><clipPath id="inset-clip"><rect width="${INSET_W}" height="${INSET_H}"/></clipPath><marker id="inset-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#9f233b"/></marker></defs><rect width="${INSET_W}" height="${INSET_H}" fill="#f7f9fb"/><g clip-path="url(#inset-clip)">`;
+    for(const c of INSET_LEVELS)g+=`<ellipse cx="${X(0)}" cy="${Y(0)}" rx="${(Math.sqrt(2*c)*INSET_PX).toFixed(1)}" ry="${(Math.sqrt(2*c/k)*INSET_PX).toFixed(1)}" fill="none" stroke="${c===STRETCH_C?'#475569':'#9fb3c8'}" stroke-width="${c===STRETCH_C?1.8:1}"/>`;
+    g+=line(0,Y(0),INSET_W,Y(0),'#d5dde6',1,'4 4');
+    g+=`<circle cx="${X(0)}" cy="${Y(0)}" r="6" fill="#fff" stroke="#111827" stroke-width="2"/><circle cx="${X(s.start[0])}" cy="${Y(s.start[1])}" r="6" fill="none" stroke="#111827" stroke-width="1.5" stroke-dasharray="2 2"/>`;
+    if(trail.length){const tp=trail.map(([x,y])=>[X(x),Y(y)]);g+=path(tp,'#1F2937',1.8);tp.slice(0,-1).forEach(p=>{g+=`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#1F2937" stroke="#fff" stroke-width=".8"/>`;});}
+    const [gx,gy]=M.robotGrad(s,...s.start),first=[s.start[0]-state.p.rate*gx,s.start[1]-state.p.rate*gy];
+    const shown=!!state.lastRun&&!state.play;
+    if(!state.play)g+=`<line x1="${X(s.start[0])}" y1="${Y(s.start[1])}" x2="${X(first[0])}" y2="${Y(first[1])}" stroke="#9f233b" stroke-width="2.2" marker-end="url(#inset-head)" opacity="${shown?.25:.7}"/>`;
+    g+=stepTargets(state.lastRun,state.inspect&&state.inspect.run===state.lastRun?state.inspect.i:null,(x,y)=>[X(x),Y(y)],'#94a3b8');
+    if(pos)g+=`<circle cx="${X(pos[0])}" cy="${Y(pos[1])}" r="7" fill="#f2a33a" stroke="#111827" stroke-width="1.5"/>`;
+    const ky=Y(Math.sqrt(2*STRETCH_C/k));
+    if(!state.play)g+=`<rect data-handle="k" x="${X(0)-14}" y="${ky-7}" width="28" height="14" rx="7" fill="#fff" stroke="#475569" stroke-width="1.8" style="cursor:ns-resize;touch-action:none"/><g pointer-events="none">`+line(X(0)-6,ky,Number(X(0))+6,ky,'#475569',1.5)+`<text x="${Number(X(0))+22}" y="${ky+4}" class="map-label">k ${k}</text></g>`;
+    g+='</g>';
+    box.innerHTML=`<svg viewBox="0 0 ${INSET_W} ${INSET_H}" role="img" aria-labelledby="inset-title inset-desc"><title id="inset-title">The bowl from above</title><desc id="inset-desc">Contour lines of the bowl seen from above, at the same scale on both axes. The valley floor is the dashed horizontal line and the charger is at the centre. ${state.play?'':`The handle on the dark contour sets the stretch, k ${k}. An arrow shows ${unit} 1 at learning rate ${state.p.rate.toFixed(2)}, ending at (${first[0].toFixed(2)}, ${first[1].toFixed(2)}).`} ${pos?`The robot is at (${pos[0].toFixed(2)}, ${pos[1].toFixed(2)}).`:''}</desc>${g}</svg><p class="inset-note">From above, same scale across and along. ${state.lastRun&&!state.play?`Select a dot, or focus this map and use the arrow keys, to step through the run. Change a setting to set up the next run.`:`The arrow is ${unit} 1. Drag the handle on the dark contour to pinch or widen the bowl.`}</p>`;
+    box.tabIndex=state.lastRun&&!state.play?0:-1;
+  }
+  // Carry-over as a power-up meter in the corner of the scene: 20 cells from 0 to 95% in the solver's 5% steps.
+  // It is a custom slider (role="slider"): drag or click the cells, or focus it and use the arrow keys, Home and End.
+  function carryMeter(){
+    let m=$('carry');const plotEl=$('plot');
+    if(!m){
+      const wrap=document.createElement('div');wrap.className='scene-wrap';plotEl.before(wrap);wrap.append(plotEl);
+      m=document.createElement('div');m.id='carry';m.className='carry';m.tabIndex=0;m.setAttribute('role','slider');m.setAttribute('aria-valuemin','0');m.setAttribute('aria-valuemax','95');
+      m.innerHTML=`<span class="carry-label">${COURSE?'Momentum':'Carry-over'}</span><div class="carry-bar">${Array.from({length:19},(_,i)=>`<i data-v="${(19-i)*5}"></i>`).join('')}</div><span class="carry-val"></span>`;
+      wrap.prepend(m);
+      const setM=v=>{if(state.play)return;v=M.clamp(Math.round(v/5)*5,0,95);const el=$('momentum'),val=M.round(v/100*Number(el.max)/.95);if(Math.abs(state.p.momentum-v/100)>1e-9){el.value=val;el.dispatchEvent(new Event('input'));}};
+      const bar=m.querySelector('.carry-bar'),fromY=e=>{const r=bar.getBoundingClientRect();return (r.bottom-e.clientY)/r.height*95;};
+      bar.addEventListener('pointerdown',e=>{e.preventDefault();bar.setPointerCapture(e.pointerId);bar.dataset.dragging='1';setM(fromY(e));});
+      bar.addEventListener('pointermove',e=>{if(bar.dataset.dragging)setM(fromY(e));});
+      const end=()=>{if(!bar.dataset.dragging)return;delete bar.dataset.dragging;m.focus({preventScroll:true});};
+      bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
+      m.addEventListener('keydown',e=>{const v=Math.round(state.p.momentum*100),to={ArrowUp:v+5,ArrowRight:v+5,ArrowDown:v-5,ArrowLeft:v-5,PageUp:v+25,PageDown:v-25,Home:0,End:95}[e.key];if(to===undefined)return;e.preventDefault();setM(to);});
+    }
+    const v=Math.round(state.p.momentum*100),txt=COURSE?(v/100).toFixed(2):v+'%';
+    m.querySelectorAll('.carry-bar i').forEach(c=>{const cv=Number(c.dataset.v),on=cv<=v;c.classList.toggle('on',on);c.style.background=on?chargeColor(cv):'';c.style.boxShadow=on?`0 0 5px ${chargeColor(cv)}99`:'';});
+    m.querySelector('.carry-val').textContent=txt;m.setAttribute('aria-valuenow',v);
+    m.setAttribute('aria-valuetext',`${COURSE?'Momentum':'Carry-over'} ${txt}${v===0?', none: plain gradient descent':''}`);
+    m.setAttribute('aria-label',COURSE?'Momentum: the share of the previous step carried into the next one':'Carry-over: the share of the previous move kept in the next one');
+    m.setAttribute('aria-disabled',String(!!state.play));m.classList.toggle('busy',!!state.play);
+  }
+  // After a run, any step dot in either view selects that step (click or tap); with the map focused, ← → move one
+  // step and Home/End jump to the start and the end. It replays the recorded path, so the result and score do not change.
+  function inspectStep(i){const run=state.lastRun;if(!run||state.play)return;state.inspect={run,i:Math.max(0,Math.min(run.path.length-1,i))};draw();}
+  const inspectedStep=()=>{const run=state.lastRun;return state.inspect&&state.inspect.run===run?state.inspect.i:run.path.length-1;};
+  // Faint dots for the steps after the selected one, plus a generous invisible tap target on every recorded step.
+  function stepTargets(r,at,pt,ghostColor){
+    if(!r||state.play)return '';const n=r.path.length-1,i=at===null?n:at,pts=r.path.map(q=>pt(...q));let g='';
+    if(i<n){g+=path(pts.slice(i),ghostColor,1.4).replace('/>',' stroke-dasharray="3 3"/>');pts.slice(i+1).forEach(q=>{g+=`<circle cx="${Number(q[0]).toFixed(1)}" cy="${Number(q[1]).toFixed(1)}" r="2.4" fill="${ghostColor}"/>`;});}
+    pts.forEach((q,j)=>{g+=`<circle data-step="${j}" cx="${Number(q[0]).toFixed(1)}" cy="${Number(q[1]).toFixed(1)}" r="10" fill="transparent" style="cursor:pointer"/>`;});
+    return g;
+  }
+  function stepThrough(r,at){
+    let box=$('replay');
+    if(!box){
+      box=document.createElement('p');box.id='replay';box.className='replay-read';box.setAttribute('role','status');$('live').before(box);
+      const pick=e=>{const d=e.target.closest&&e.target.closest('[data-step]');if(d)inspectStep(Number(d.dataset.step));};
+      const plotEl=$('plot');plotEl.addEventListener('click',pick);
+      const toSvg=e=>{const svg=plotEl.querySelector('svg'),q=svg.createSVGPoint();q.x=e.clientX;q.y=e.clientY;const u=q.matrixTransform(svg.getScreenCTM().inverse());return [u.x,u.y];};
+      const dragMove=e=>{const G=state.arrowGeom;if(!G)return;const [x,y]=toSvg(e),d=(x-G.a0[0])*G.ux+(y-G.a0[1])*G.uy-ARROW_R-12;let best=0,bd=Infinity;G.tLen.forEach((l,j)=>{const q=Math.abs(l-d);if(q<bd){bd=q;best=j;}});
+        const el=$('strength'),v=M.round((best+1)*Number(el.max)/20);if(Number(el.value)!==v){el.value=v;el.dispatchEvent(new Event('input'));}};
+      plotEl.addEventListener('pointerdown',e=>{if(!e.target.closest('[data-handle="move"]')||state.play)return;e.preventDefault();plotEl.setPointerCapture(e.pointerId);plotEl.dataset.dragging='1';dragMove(e);});
+      plotEl.addEventListener('pointermove',e=>{if(plotEl.dataset.dragging)dragMove(e);});
+      const endMove=()=>{if(!plotEl.dataset.dragging)return;delete plotEl.dataset.dragging;say(`${COURSE?'Learning rate':'Move strength'} ${COURSE?state.p.rate.toFixed(2):state.p.strength}. The arrow ends where ${COURSE?'step':'move'} 1 lands.`);};
+      plotEl.addEventListener('pointerup',endMove);plotEl.addEventListener('pointercancel',endMove);
+    }
+    box.hidden=!r||!!state.play;
+    if(box.hidden)return;
+    const unit=COURSE?'step':'move',n=r.path.length-1,i=at===null?n:at,c=scenario.charger||[0,0],p=r.path[i],d=Math.hypot(p[0]-c[0],p[1]-c[1]);
+    box.textContent=(i===0?`At the start, ${d.toFixed(2)} from the charger.`:`After ${unit} ${i} of ${n}, ${d.toFixed(2)} from the charger.`)+` Select any dot on the path to see that ${unit}.`;
   }
   // Stuck: stopped early away from the charger, or ended near the decoy dip.
   const robotStuck=r=>!r.success&&!r.diverged&&(r.stalled||scenario.wells.filter(w=>w.role==='decoy'||w.role==='catch').some(w=>Math.hypot(r.path.at(-1)[0]-w.x,r.path.at(-1)[1]-w.y)<.6));
